@@ -4,18 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RUBEDO</title>
+    <!-- ファビコンの指定（タブアイコン） -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-[#040406]">
     <div id="root"></div>
-    <script type="module">
-      import React from 'react';
-      import ReactDOM from 'react-dom/client';
-      import App from './src/App.jsx';
-      
-      ReactDOM.createRoot(document.getElementById('root')).render(
-        React.createElement(App)
-      );
-    </script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
