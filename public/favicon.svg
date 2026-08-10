@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- 背景: RUBEDOダーク -->
+  <rect width="64" height="64" fill="#040406" rx="12"/>
+  
+  <defs>
+    <!-- エミッション（発光）フィルター -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 外側の発光オーラ -->
+  <rect x="22" y="22" width="20" height="20" fill="#a81625" filter="url(#glow)"/>
+  <!-- 中心のコアスクエア -->
+  <rect x="22" y="22" width="20" height="20" fill="#8f121d"/>
+</svg>
