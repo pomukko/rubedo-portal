@@ -16,12 +16,16 @@ const formatDate = (dateStr) => {
   }
 };
 
-// 🌟 安全なカテゴリ名取得用ヘルパー関数（文字列・オブジェクト両対応）
+// 🌟 安全なカテゴリ名取得用ヘルパー関数（配列・オブジェクト・文字列すべてに対応）
 const getCategoryName = (category) => {
-  if (!category) return 'UNCATEGORIZED';
+  if (!category) return 'JOURNAL';
+  if (Array.isArray(category)) {
+    if (category.length === 0) return 'JOURNAL';
+    return getCategoryName(category[0]);
+  }
   if (typeof category === 'string') return category;
   if (typeof category === 'object') {
-    return category.name || category.id || category.title || 'UNCATEGORIZED';
+    return category.name || category.title || category.label || category.id || category.value || 'JOURNAL';
   }
   return String(category);
 };
@@ -72,7 +76,7 @@ export default function App() {
         // 取ってきた本物の記事データを状態にセット（配列でない場合のフォールバック）
         setJournalArticles(Array.isArray(data.contents) ? data.contents : []);
         
-        // 外部アプリ（スキルツリーTodo）からのURLパラメータ「?article=記事ID」の解析
+        // 外部アプリからのURLパラメータ「?article=記事ID」の解析
         const params = new URLSearchParams(window.location.search);
         const articleParam = params.get('article');
         if (articleParam) {
@@ -443,7 +447,7 @@ function VermiliaPage({ navigateTo, selectedAngle, setSelectedAngle, LINKS }) {
 }
 
 // ==========================================
-// 3. PAGE: JOURNAL ARCHIVE (安全ガード完全対応)
+// 3. PAGE: JOURNAL ARCHIVE
 // ==========================================
 function JournalPage({ journalArticles = [], activeTab, setActiveTab, selectedArticle, setSelectedArticleId }) {
   const categories = ['all', 'Modeling', 'VRChat', 'Shader', 'Dialogue'];
@@ -484,7 +488,7 @@ function JournalPage({ journalArticles = [], activeTab, setActiveTab, selectedAr
           </div>
         )}
 
-        {/* microCMSのリッチテキストHTMLをRUBEDOのスタイルで出力 */}
+        {/* microCMSのリッチテキストHTMLを出力 */}
         <div 
           className="prose prose-invert prose-red max-w-none pt-8 border-t border-white/5 space-y-6 text-sm leading-[2.1] font-light text-[#e2e2e8]
             prose-headings:font-serif prose-headings:text-white prose-h2:text-xl prose-h2:border-l-4 prose-h2:border-[#8f121d] prose-h2:pl-4 prose-h2:pt-4
