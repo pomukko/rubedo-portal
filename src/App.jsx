@@ -6,6 +6,26 @@ import {
   Clock, User, List, MessageSquare
 } from 'lucide-react';
 
+// 🌟 安全な日付フォーマット変換用ヘルパー関数
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  try {
+    return String(dateStr).split('T')[0];
+  } catch (e) {
+    return String(dateStr);
+  }
+};
+
+// 🌟 安全なカテゴリ名取得用ヘルパー関数（文字列・オブジェクト両対応）
+const getCategoryName = (category) => {
+  if (!category) return 'UNCATEGORIZED';
+  if (typeof category === 'string') return category;
+  if (typeof category === 'object') {
+    return category.name || category.id || category.title || 'UNCATEGORIZED';
+  }
+  return String(category);
+};
+
 export default function App() {
   // ルーティング・画面状態
   const [currentPage, setCurrentPage] = useState('home');
@@ -40,7 +60,7 @@ export default function App() {
     }
   };
 
-  // 🌟 ページが開かれた瞬間にmicroCMSからデータを取ってくる処理（フェーズ3）
+  // 🌟 ページが開かれた瞬間にmicroCMSからデータを取ってくる処理
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -49,8 +69,8 @@ export default function App() {
         });
         const data = await response.json();
         
-        // 取ってきた本物の記事データを状態にセット
-        setJournalArticles(data.contents);
+        // 取ってきた本物の記事データを状態にセット（配列でない場合のフォールバック）
+        setJournalArticles(Array.isArray(data.contents) ? data.contents : []);
         
         // 外部アプリ（スキルツリーTodo）からのURLパラメータ「?article=記事ID」の解析
         const params = new URLSearchParams(window.location.search);
@@ -63,6 +83,7 @@ export default function App() {
         setTimeout(() => setLoading(false), 1000); // 演出のため1秒ロード
       } catch (error) {
         console.error('記事データの取得に失敗しました:', error);
+        setJournalArticles([]);
         setLoading(false);
       }
     };
@@ -135,7 +156,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* OVERLAY MENU DRAWER (背景完全不透明・背面スクロールロック) */}
+        {/* OVERLAY MENU DRAWER */}
         {isMenuOpen && (
           <div className="fixed inset-0 bg-[#040406] z-40 p-6 sm:p-12 lg:p-16 pt-28 sm:pt-36 flex flex-col justify-between overflow-y-auto min-h-screen">
             <div className="max-w-4xl mx-auto w-full space-y-8 my-auto py-6">
@@ -218,9 +239,9 @@ export default function App() {
 }
 
 // ==========================================
-// 1. PAGE: PORTAL HOME (文章を完全保持)
+// 1. PAGE: PORTAL HOME
 // ==========================================
-function HomePage({ navigateTo, articles, setSelectedArticleId, selectedAngle, setSelectedAngle, CONFIG }) {
+function HomePage({ navigateTo, articles = [], setSelectedArticleId, selectedAngle, setSelectedAngle, CONFIG }) {
   const currentAngleObj = vermiliaAngles.find(a => a.id === selectedAngle);
 
   return (
@@ -312,7 +333,7 @@ function HomePage({ navigateTo, articles, setSelectedArticleId, selectedAngle, s
         </div>
       </section>
 
-      {/* SECTION 02: JOURNAL (microCMSから最新3件を表示) */}
+      {/* SECTION 02: JOURNAL */}
       <section className="py-36 border-t border-white/10 relative z-10">
         <div className="max-w-7xl mx-auto px-8 sm:px-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
@@ -326,22 +347,27 @@ function HomePage({ navigateTo, articles, setSelectedArticleId, selectedAngle, s
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {articles.slice(0, 3).map((article) => (
-              <article key={article.id} onClick={() => { setSelectedArticleId(article.id); navigateTo('journal'); }} className="bg-[#060609] border border-white/10 p-10 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group">
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a]">
-                    <span className="text-[#8f121d] font-bold">{article.category}</span>
-                    <span>{article.createdAt.split('T')[0]}</span>
+            {articles.slice(0, 3).map((article) => {
+              const articleDate = formatDate(article.publishedAt || article.createdAt || article.updatedAt);
+              const categoryName = getCategoryName(article.category);
+
+              return (
+                <article key={article.id} onClick={() => { setSelectedArticleId(article.id); navigateTo('journal'); }} className="bg-[#060609] border border-white/10 p-10 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group">
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a]">
+                      <span className="text-[#8f121d] font-bold">{categoryName}</span>
+                      <span>{articleDate}</span>
+                    </div>
+                    <h3 className="font-serif text-2xl text-white group-hover:text-[#d4b07b] transition-colors leading-[1.4] line-clamp-2">{article.title || 'Untitled'}</h3>
+                    <p className="text-xs text-[#a1a1aa] font-light leading-[1.9] line-clamp-3">{article.lead || ''}</p>
                   </div>
-                  <h3 className="font-serif text-2xl text-white group-hover:text-[#d4b07b] transition-colors leading-[1.4] line-clamp-2">{article.title}</h3>
-                  <p className="text-xs text-[#a1a1aa] font-light leading-[1.9] line-clamp-3">{article.lead}</p>
-                </div>
-                <div className="pt-8 mt-8 border-t border-white/5 flex justify-between items-center font-mono text-[10px] text-[#71717a]">
-                  <span>BY {article.author}</span>
-                  <span className="text-white group-hover:translate-x-2 transition-transform flex items-center gap-1.5">READ <ChevronRight className="w-3.5 h-3.5 text-[#8f121d]" /></span>
-                </div>
-              </article>
-            ))}
+                  <div className="pt-8 mt-8 border-t border-white/5 flex justify-between items-center font-mono text-[10px] text-[#71717a]">
+                    <span>BY {article.author || 'RUBEDO'}</span>
+                    <span className="text-white group-hover:translate-x-2 transition-transform flex items-center gap-1.5">READ <ChevronRight className="w-3.5 h-3.5 text-[#8f121d]" /></span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -374,7 +400,7 @@ function HomePage({ navigateTo, articles, setSelectedArticleId, selectedAngle, s
 }
 
 // ==========================================
-// 2. PAGE: VERMILIA SPECIAL PAGE (文章完全保持)
+// 2. PAGE: VERMILIA SPECIAL PAGE
 // ==========================================
 function VermiliaPage({ navigateTo, selectedAngle, setSelectedAngle, LINKS }) {
   const currentAngleObj = vermiliaAngles.find(a => a.id === selectedAngle);
@@ -417,15 +443,24 @@ function VermiliaPage({ navigateTo, selectedAngle, setSelectedAngle, LINKS }) {
 }
 
 // ==========================================
-// 3. PAGE: JOURNAL ARCHIVE (microCMS同期 & リッチテキスト対応)
+// 3. PAGE: JOURNAL ARCHIVE (安全ガード完全対応)
 // ==========================================
-function JournalPage({ journalArticles, activeTab, setActiveTab, selectedArticle, setSelectedArticleId }) {
+function JournalPage({ journalArticles = [], activeTab, setActiveTab, selectedArticle, setSelectedArticleId }) {
   const categories = ['all', 'Modeling', 'VRChat', 'Shader', 'Dialogue'];
+  
+  // 安全なカテゴリ抽出とフィルター
   const filteredArticles = activeTab === 'all' 
     ? journalArticles 
-    : journalArticles.filter(a => a.category?.toLowerCase() === activeTab.toLowerCase());
+    : journalArticles.filter(a => {
+        const catName = getCategoryName(a.category);
+        return catName.toLowerCase() === activeTab.toLowerCase();
+      });
 
+  // 記事詳細表示時
   if (selectedArticle) {
+    const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
+    const categoryName = getCategoryName(selectedArticle.category);
+
     return (
       <div className="max-w-4xl mx-auto px-8 pt-40 pb-32 space-y-10 animate-fadeIn">
         <button onClick={() => setSelectedArticleId(null)} className="flex items-center gap-2 font-mono text-[10px] text-[#71717a] hover:text-white transition-colors tracking-widest">
@@ -433,17 +468,19 @@ function JournalPage({ journalArticles, activeTab, setActiveTab, selectedArticle
         </button>
         <div className="space-y-6">
           <div className="flex items-center gap-4 text-[10px] font-mono text-[#71717a]">
-            <span className="bg-[#8f121d] text-white px-2 py-0.5 font-bold">{selectedArticle.category}</span>
-            <span>{selectedArticle.createdAt.split('T')[0]}</span>
-            <span>BY {selectedArticle.author}</span>
+            <span className="bg-[#8f121d] text-white px-2 py-0.5 font-bold">{categoryName}</span>
+            {articleDate && <span>{articleDate}</span>}
+            {selectedArticle.author && <span>BY {selectedArticle.author}</span>}
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl text-white leading-tight">{selectedArticle.title}</h1>
-          <p className="text-sm text-[#a1a1aa] border-l border-[#8f121d] pl-4 italic leading-relaxed">{selectedArticle.lead}</p>
+          <h1 className="font-serif text-3xl sm:text-5xl text-white leading-tight">{selectedArticle.title || 'Untitled'}</h1>
+          {selectedArticle.lead && (
+            <p className="text-sm text-[#a1a1aa] border-l border-[#8f121d] pl-4 italic leading-relaxed">{selectedArticle.lead}</p>
+          )}
         </div>
 
-        {selectedArticle.eyecatch && (
+        {selectedArticle.eyecatch?.url && (
           <div className="aspect-video w-full overflow-hidden border border-white/10">
-            <img src={selectedArticle.eyecatch.url} alt="" className="w-full h-full object-cover" />
+            <img src={selectedArticle.eyecatch.url} alt={selectedArticle.title || ''} className="w-full h-full object-cover" />
           </div>
         )}
 
@@ -452,12 +489,13 @@ function JournalPage({ journalArticles, activeTab, setActiveTab, selectedArticle
           className="prose prose-invert prose-red max-w-none pt-8 border-t border-white/5 space-y-6 text-sm leading-[2.1] font-light text-[#e2e2e8]
             prose-headings:font-serif prose-headings:text-white prose-h2:text-xl prose-h2:border-l-4 prose-h2:border-[#8f121d] prose-h2:pl-4 prose-h2:pt-4
             prose-h3:text-lg prose-h3:text-[#d4b07b] prose-pre:bg-[#030305] prose-pre:p-5 prose-pre:font-mono prose-pre:text-[#d4b07b]"
-          dangerouslySetInnerHTML={{ __html: selectedArticle.body }}
+          dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
         />
       </div>
     );
   }
 
+  // 記事一覧表示時
   return (
     <div className="pt-36 pb-32 max-w-7xl mx-auto px-8 sm:px-12 space-y-16 animate-fadeIn">
       <div className="space-y-4 border-b border-white/10 pb-8">
@@ -470,30 +508,43 @@ function JournalPage({ journalArticles, activeTab, setActiveTab, selectedArticle
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-        {filteredArticles.map(article => (
-          <article key={article.id} onClick={() => setSelectedArticleId(article.id)} className="bg-[#060609] border border-white/10 p-8 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group">
-            <div className="space-y-4">
-              <div className="flex justify-between font-mono text-[10px] text-[#71717a]">
-                <span className="text-[#8f121d] font-bold">{article.category}</span>
-                <span>{article.createdAt.split('T')[0]}</span>
-              </div>
-              <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2">{article.title}</h3>
-              <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed">{article.lead}</p>
-            </div>
-            <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
-              <span>BY {article.author}</span>
-              <span className="text-white flex items-center gap-1">READ <ArrowRight className="w-3.5 h-3.5 text-[#8f121d]"/></span>
-            </div>
-          </article>
-        ))}
-      </div>
+
+      {filteredArticles.length === 0 ? (
+        <div className="py-20 text-center space-y-4 border border-white/5 bg-[#060609]">
+          <p className="font-serif text-lg text-[#71717a]">該当する記事が見つかりませんでした。</p>
+          <p className="font-mono text-xs text-[#52525b]">NO ARTICLES FOUND IN THIS CATEGORY.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          {filteredArticles.map(article => {
+            const articleDate = formatDate(article.publishedAt || article.createdAt || article.updatedAt);
+            const categoryName = getCategoryName(article.category);
+
+            return (
+              <article key={article.id} onClick={() => setSelectedArticleId(article.id)} className="bg-[#060609] border border-white/10 p-8 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group">
+                <div className="space-y-4">
+                  <div className="flex justify-between font-mono text-[10px] text-[#71717a]">
+                    <span className="text-[#8f121d] font-bold">{categoryName}</span>
+                    <span>{articleDate}</span>
+                  </div>
+                  <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2">{article.title || 'Untitled'}</h3>
+                  <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed">{article.lead || ''}</p>
+                </div>
+                <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
+                  <span>BY {article.author || 'RUBEDO'}</span>
+                  <span className="text-white flex items-center gap-1">READ <ArrowRight className="w-3.5 h-3.5 text-[#8f121d]"/></span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
 // ==========================================
-// 4. PAGE: FOUNDERS & PHILOSOPHY (文章完全保持)
+// 4. PAGE: FOUNDERS & PHILOSOPHY
 // ==========================================
 function FoundersPage({ navigateTo, LINKS }) {
   return (
@@ -522,7 +573,7 @@ function FoundersPage({ navigateTo, LINKS }) {
 }
 
 // ==========================================
-// 5. PAGE: THE ARCHIVES & GUIDELINES (文章完全保持)
+// 5. PAGE: THE ARCHIVES & GUIDELINES
 // ==========================================
 function ArchivesPage({ navigateTo, LINKS }) {
   const documents = [
