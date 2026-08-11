@@ -2,7 +2,14 @@ import React from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { formatDate, getCategoryName } from '../utils/formatters';
 
-export default function JournalPage({ journalArticles = [], activeTab, setActiveTab, selectedArticle, setSelectedArticleId }) {
+export default function JournalPage({ 
+  journalArticles = [], 
+  activeTab, 
+  setActiveTab, 
+  selectedArticle, 
+  setSelectedArticleId, 
+  navigateTo 
+}) {
   const categories = ['all', 'Modeling', 'VRChat', 'Shader', 'Dialogue'];
   
   // 安全なカテゴリ抽出とフィルター
@@ -20,7 +27,10 @@ export default function JournalPage({ journalArticles = [], activeTab, setActive
 
     return (
       <div className="max-w-4xl mx-auto px-8 pt-40 pb-32 space-y-10 animate-fadeIn">
-        <button onClick={() => setSelectedArticleId(null)} className="flex items-center gap-2 font-mono text-[10px] text-[#71717a] hover:text-white transition-colors tracking-widest">
+        <button 
+          onClick={() => navigateTo('journal')} 
+          className="flex items-center gap-2 font-mono text-[10px] text-[#71717a] hover:text-white transition-colors tracking-widest cursor-pointer"
+        >
           <ArrowLeft className="w-4 h-4 text-[#8f121d]" /> BACK TO LIST
         </button>
         <div className="space-y-6">
@@ -60,7 +70,15 @@ export default function JournalPage({ journalArticles = [], activeTab, setActive
       </div>
       <div className="flex flex-wrap gap-3 border-b border-white/10 pb-4 text-xs font-mono">
         {categories.map(cat => (
-          <button key={cat} onClick={() => setActiveTab(cat)} className={`px-4 py-2 border uppercase transition-all ${activeTab.toLowerCase() === cat.toLowerCase() ? 'border-[#8f121d] bg-[#8f121d]/20 text-white font-bold' : 'border-white/10 text-[#71717a] hover:text-white'}`}>
+          <button 
+            key={cat} 
+            onClick={() => setActiveTab(cat)} 
+            className={`px-4 py-2 border uppercase transition-all ${
+              activeTab.toLowerCase() === cat.toLowerCase() 
+                ? 'border-[#8f121d] bg-[#8f121d]/20 text-white font-bold' 
+                : 'border-white/10 text-[#71717a] hover:text-white'
+            }`}
+          >
             {cat === 'all' ? 'ALL' : cat}
           </button>
         ))}
@@ -78,7 +96,11 @@ export default function JournalPage({ journalArticles = [], activeTab, setActive
             const categoryName = getCategoryName(article.category);
 
             return (
-              <article key={article.id} onClick={() => setSelectedArticleId(article.id)} className="bg-[#060609] border border-white/10 p-8 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group">
+              <article 
+                key={article.id} 
+                onClick={() => navigateTo('journal', null, article.id)} 
+                className="bg-[#060609] border border-white/10 p-8 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group"
+              >
                 <div className="space-y-4">
                   <div className="flex justify-between font-mono text-[10px] text-[#71717a]">
                     <span className="text-[#8f121d] font-bold">{categoryName}</span>
