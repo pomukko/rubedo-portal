@@ -114,7 +114,11 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               const categoryName = getCategoryName(article.category);
 
               return (
-                <article key={article.id} onClick={() => { setSelectedArticleId(article.id); navigateTo('journal'); }} className="bg-[#060609] border border-white/10 p-10 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group">
+                <article 
+                  key={article.id} 
+                  onClick={() => navigateTo('journal', null, article.id)} 
+                  className="bg-[#060609] border border-white/10 p-10 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group"
+                >
                   <div className="space-y-6">
                     <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a]">
                       <span className="text-[#8f121d] font-bold">{categoryName}</span>
