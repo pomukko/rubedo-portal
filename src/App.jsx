@@ -20,11 +20,49 @@ export default function App() {
   
   // microCMSデータ管理用の状態
   const [journalArticles, setJournalArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // 初期ロード用
+  const [pageTransitioning, setPageTransitioning] = useState(false); // 画面遷移用ローディング
   const [activeTab, setActiveTab] = useState('all');
   const [selectedArticleId, setSelectedArticleId] = useState(null);
 
-  // microCMSデータ取得
+  // 🌟 URLのパス（/entry/xxx など）を解析して状態を同期する関数
+  const parseLocation = (articlesList = journalArticles) => {
+    const path = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+
+    // /entry/記事ID の形式
+    if (path.startsWith('/entry/')) {
+      const articleId = path.replace('/entry/', '');
+      setCurrentPage('journal');
+      setSelectedArticleId(articleId);
+      return;
+    }
+
+    // 従来型の ?article=記事ID のフォールバック対応
+    const articleParam = params.get('article');
+    if (articleParam) {
+      setCurrentPage('journal');
+      setSelectedArticleId(articleParam);
+      return;
+    }
+
+    // その他のページパス対応
+    if (path === '/vermilia') {
+      setCurrentPage('vermilia');
+    } else if (path === '/journal') {
+      setCurrentPage('journal');
+      setSelectedArticleId(null);
+    } else if (path === '/founders') {
+      setCurrentPage('founders');
+    } else if (path === '/archives') {
+      setCurrentPage('archives');
+    } else {
+      setCurrentPage('home');
+      setSelectedArticleId(null);
+    }
+  };
+
+  // 🌟 microCMSデータ取得＆初回URL解析
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -32,17 +70,12 @@ export default function App() {
           headers: { 'X-MICROCMS-API-KEY': CONFIG.API_KEY }
         });
         const data = await response.json();
+        const fetchedContents = Array.isArray(data.contents) ? data.contents : [];
         
-        setJournalArticles(Array.isArray(data.contents) ? data.contents : []);
-        
-        const params = new URLSearchParams(window.location.search);
-        const articleParam = params.get('article');
-        if (articleParam) {
-          setCurrentPage('journal');
-          setSelectedArticleId(articleParam);
-        }
+        setJournalArticles(fetchedContents);
+        parseLocation(fetchedContents);
 
-        setTimeout(() => setLoading(false), 1000);
+        setTimeout(() => setLoading(false), 1000); // シネマティック初期ロード
       } catch (error) {
         console.error('記事データの取得に失敗しました:', error);
         setJournalArticles([]);
@@ -52,6 +85,15 @@ export default function App() {
 
     fetchArticles();
   }, []);
+
+  // 🌟 ブラウザの「戻る・進む」ボタンが押された時の処理
+  useEffect(() => {
+    const handlePopState = () => {
+      parseLocation();
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [journalArticles]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -63,18 +105,51 @@ export default function App() {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
   }, [isMenuOpen]);
 
+  // 🌟 シネマティックローディングを挟むシームレス遷移関数！
   const navigateTo = (page, category = null, articleId = null) => {
-    setCurrentPage(page);
-    if (category) setActiveTab(category);
-    if (articleId !== undefined) setSelectedArticleId(articleId);
     setIsMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // 遷移ローディングアニメーション開始！
+    setPageTransitioning(true);
+
+    setTimeout(() => {
+      setCurrentPage(page);
+      if (category) setActiveTab(category);
+      
+      let targetPath = '/';
+
+      if (page === 'journal' && articleId) {
+        setSelectedArticleId(articleId);
+        targetPath = `/entry/${articleId}`;
+      } else if (page === 'journal') {
+        setSelectedArticleId(null);
+        targetPath = '/journal';
+      } else if (page === 'vermilia') {
+        targetPath = '/vermilia';
+      } else if (page === 'founders') {
+        targetPath = '/founders';
+      } else if (page === 'archives') {
+        targetPath = '/archives';
+      } else {
+        setSelectedArticleId(null);
+        targetPath = '/';
+      }
+
+      // ブラウザのURL欄をきれいに更新！
+      window.history.pushState({}, '', targetPath);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
+      // ローディング終了！
+      setTimeout(() => {
+        setPageTransitioning(false);
+      }, 300);
+    }, 600); // 0.6秒間シネマティックローディングを見せる
   };
 
-  // シネマティック・ローディング表示
-  if (loading) {
+  // 🌟 シネマティック・ローディング（初期ロード＆画面遷移）
+  if (loading || pageTransitioning) {
     return (
-      <div className="min-h-screen bg-[#040406] flex flex-col items-center justify-center space-y-8 animate-fadeIn">
+      <div className="min-h-screen bg-[#040406] flex flex-col items-center justify-center space-y-8 animate-fadeIn fixed inset-0 z-50">
         <div className="relative">
           <div className="w-12 h-12 bg-[#8f121d] animate-pulse shadow-[0_0_40px_rgba(143,18,29,0.8)]"></div>
           <div className="absolute inset-0 border border-white/10 scale-150 rotate-45"></div>
@@ -132,6 +207,7 @@ export default function App() {
             setActiveTab={setActiveTab} 
             selectedArticle={selectedArticle} 
             setSelectedArticleId={setSelectedArticleId} 
+            navigateTo={navigateTo}
           />
         )}
         {currentPage === 'founders' && <FoundersPage navigateTo={navigateTo} LINKS={CONFIG.LINKS} />}
