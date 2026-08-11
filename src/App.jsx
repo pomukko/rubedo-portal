@@ -25,7 +25,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedArticleId, setSelectedArticleId] = useState(null);
 
-  // 🌟 URLのパス（/journal/xxx など）を解析して状態を同期する関数
+  // 🌟 URLのパス（/journal/xxx など）を解析して状態を自動同期する関数
   const parseLocation = (articlesList = journalArticles) => {
     const path = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
@@ -74,7 +74,7 @@ export default function App() {
     }
   };
 
-  // 🌟 microCMSデータ取得＆初回URL解析
+  // microCMSデータ取得＆初回URL解析
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -87,7 +87,7 @@ export default function App() {
         setJournalArticles(fetchedContents);
         parseLocation(fetchedContents);
 
-        setTimeout(() => setLoading(false), 1000); // シネマティック初期ロード
+        setTimeout(() => setLoading(false), 1000);
       } catch (error) {
         console.error('記事データの取得に失敗しました:', error);
         setJournalArticles([]);
@@ -98,7 +98,7 @@ export default function App() {
     fetchArticles();
   }, []);
 
-  // 🌟 ブラウザの「戻る・進む」ボタンが押された時の処理
+  // ブラウザの「戻る・進む」ボタン追従
   useEffect(() => {
     const handlePopState = () => {
       parseLocation();
@@ -118,7 +118,7 @@ export default function App() {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
   }, [isMenuOpen]);
 
-  // 🌟 重厚感のあるシネマティックページ遷移関数！
+  // 🌟 シネマティックページ遷移関数！
   const navigateTo = (page, category = null, articleId = null) => {
     setIsMenuOpen(false);
     
@@ -159,7 +159,6 @@ export default function App() {
     }, 700); // 0.7秒間しっかりローディングを見せる
   };
 
-  // 🌟 シネマティック・ローディング表示（全画面オーバーレイ）
   const showLoading = loading || pageTransitioning;
 
   return (
@@ -219,7 +218,7 @@ export default function App() {
             setActiveTab={setActiveTab} 
             selectedArticle={selectedArticle} 
             setSelectedArticleId={setSelectedArticleId} 
-            navigateTo={navigateTo}
+            navigateTo={navigateTo} // 🌟 ここで navigateTo を確実に受け渡す！
           />
         )}
         {currentPage === 'founders' && <FoundersPage navigateTo={navigateTo} LINKS={CONFIG.LINKS} />}
