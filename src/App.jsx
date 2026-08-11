@@ -20,25 +20,34 @@ export default function App() {
   
   // microCMSデータ管理用の状態
   const [journalArticles, setJournalArticles] = useState([]);
-  const [loading, setLoading] = useState(true); // 初期ロード用
-  const [pageTransitioning, setPageTransitioning] = useState(false); // 画面遷移用ローディング
+  const [loading, setLoading] = useState(true); // 初回アクセス時のロード
+  const [pageTransitioning, setPageTransitioning] = useState(false); // 画面遷移時のロード
   const [activeTab, setActiveTab] = useState('all');
   const [selectedArticleId, setSelectedArticleId] = useState(null);
 
-  // 🌟 URLのパス（/entry/xxx など）を解析して状態を同期する関数
+  // 🌟 URLのパス（/journal/xxx など）を解析して状態を同期する関数
   const parseLocation = (articlesList = journalArticles) => {
     const path = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
 
-    // /entry/記事ID の形式
-    if (path.startsWith('/entry/')) {
-      const articleId = path.replace('/entry/', '');
+    // 1. /journal/記事ID の形式（個別記事）
+    if (path.startsWith('/journal/') && path.length > 9) {
+      const articleId = path.replace('/journal/', '');
       setCurrentPage('journal');
       setSelectedArticleId(articleId);
       return;
     }
 
-    // 従来型の ?article=記事ID のフォールバック対応
+    // 2. /entry/記事ID（旧URLからのリダイレクト互換）
+    if (path.startsWith('/entry/')) {
+      const articleId = path.replace('/entry/', '');
+      setCurrentPage('journal');
+      setSelectedArticleId(articleId);
+      window.history.replaceState({}, '', `/journal/${articleId}`);
+      return;
+    }
+
+    // 3. 従来型の ?article=記事ID のフォールバック対応
     const articleParam = params.get('article');
     if (articleParam) {
       setCurrentPage('journal');
@@ -46,16 +55,19 @@ export default function App() {
       return;
     }
 
-    // その他のページパス対応
+    // 4. その他のページパス対応
     if (path === '/vermilia') {
       setCurrentPage('vermilia');
+      setSelectedArticleId(null);
     } else if (path === '/journal') {
       setCurrentPage('journal');
       setSelectedArticleId(null);
     } else if (path === '/founders') {
       setCurrentPage('founders');
+      setSelectedArticleId(null);
     } else if (path === '/archives') {
       setCurrentPage('archives');
+      setSelectedArticleId(null);
     } else {
       setCurrentPage('home');
       setSelectedArticleId(null);
@@ -90,6 +102,7 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       parseLocation();
+      window.scrollTo({ top: 0, behavior: 'instant' });
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -105,11 +118,11 @@ export default function App() {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
   }, [isMenuOpen]);
 
-  // 🌟 シネマティックローディングを挟むシームレス遷移関数！
+  // 🌟 重厚感のあるシネマティックページ遷移関数！
   const navigateTo = (page, category = null, articleId = null) => {
     setIsMenuOpen(false);
     
-    // 遷移ローディングアニメーション開始！
+    // 画面遷移ローディング起動！（全画面暗転）
     setPageTransitioning(true);
 
     setTimeout(() => {
@@ -120,7 +133,7 @@ export default function App() {
 
       if (page === 'journal' && articleId) {
         setSelectedArticleId(articleId);
-        targetPath = `/entry/${articleId}`;
+        targetPath = `/journal/${articleId}`; // 🌟 /journal/記事ID に統一！
       } else if (page === 'journal') {
         setSelectedArticleId(null);
         targetPath = '/journal';
@@ -135,38 +148,37 @@ export default function App() {
         targetPath = '/';
       }
 
-      // ブラウザのURL欄をきれいに更新！
+      // URLの更新＆スクロール位置を暗闇の中でトップへ！
       window.history.pushState({}, '', targetPath);
       window.scrollTo({ top: 0, behavior: 'instant' });
 
-      // ローディング終了！
+      // 余韻を残してローディング解除
       setTimeout(() => {
         setPageTransitioning(false);
       }, 300);
-    }, 600); // 0.6秒間シネマティックローディングを見せる
+    }, 700); // 0.7秒間しっかりローディングを見せる
   };
 
-  // 🌟 シネマティック・ローディング（初期ロード＆画面遷移）
-  if (loading || pageTransitioning) {
-    return (
-      <div className="min-h-screen bg-[#040406] flex flex-col items-center justify-center space-y-8 animate-fadeIn fixed inset-0 z-50">
-        <div className="relative">
-          <div className="w-12 h-12 bg-[#8f121d] animate-pulse shadow-[0_0_40px_rgba(143,18,29,0.8)]"></div>
-          <div className="absolute inset-0 border border-white/10 scale-150 rotate-45"></div>
-        </div>
-        <div className="text-center space-y-2">
-          <div className="font-serif tracking-[0.6em] text-white text-xl">RUBEDO</div>
-          <div className="font-mono text-[9px] text-[#52525b] tracking-[0.3em] uppercase">Connecting to Creative Archive...</div>
-        </div>
-      </div>
-    );
-  }
-
-  const selectedArticle = journalArticles.find(a => a.id === selectedArticleId);
+  // 🌟 シネマティック・ローディング表示（全画面オーバーレイ）
+  const showLoading = loading || pageTransitioning;
 
   return (
     <div className="min-h-screen bg-[#040406] text-[#e2e2e8] font-sans selection:bg-[#8f121d] selection:text-white relative overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none z-30 shadow-[inset_0_0_160px_rgba(0,0,0,0.9)]"></div>
+
+      {/* 🌟 画面遷移時＆初期化時の全画面シネマティックローディング */}
+      {showLoading && (
+        <div className="fixed inset-0 bg-[#040406] z-[100] flex flex-col items-center justify-center space-y-8 animate-fadeIn">
+          <div className="relative">
+            <div className="w-12 h-12 bg-[#8f121d] animate-pulse shadow-[0_0_40px_rgba(143,18,29,0.8)]"></div>
+            <div className="absolute inset-0 border border-white/10 scale-150 rotate-45"></div>
+          </div>
+          <div className="text-center space-y-2">
+            <div className="font-serif tracking-[0.6em] text-white text-xl">RUBEDO</div>
+            <div className="font-mono text-[9px] text-[#52525b] tracking-[0.3em] uppercase">Connecting to Creative Archive...</div>
+          </div>
+        </div>
+      )}
 
       {/* HEADER */}
       <Header 
