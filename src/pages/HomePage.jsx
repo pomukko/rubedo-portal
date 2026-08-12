@@ -7,12 +7,14 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
   const currentAngleObj = vermiliaAngles.find(a => a.id === selectedAngle);
   const scrollRef = useRef(null);
 
-  // 🌟 最新順ソート（投稿日時が新しい順）
-  const sortedArticles = [...articles].sort((a, b) => {
-    const dateA = new Date(a?.publishedAt || a?.createdAt || a?.updatedAt || 0);
-    const dateB = new Date(b?.publishedAt || b?.createdAt || b?.updatedAt || 0);
-    return dateB - dateA;
-  });
+  // 🌟 最新順ソート（投稿日時が新しい順）＆ 🌟 上限8件制限！
+  const latestEightArticles = [...articles]
+    .sort((a, b) => {
+      const dateA = new Date(a?.publishedAt || a?.createdAt || a?.updatedAt || 0);
+      const dateB = new Date(b?.publishedAt || b?.createdAt || b?.updatedAt || 0);
+      return dateB - dateA;
+    })
+    .slice(0, 8); // 🌟 新着記事は最大8件まで！
 
   const handleArticleClick = (articleId) => {
     if (typeof navigateTo === 'function') {
@@ -123,94 +125,100 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
         </div>
       </section>
 
-      {/* 🌟 SECTION 02: 新着記事 (NEW ARRIVALS / 3つ＋チラ見えカルーセル) */}
+      {/* SECTION 02: 新着記事 (NEW ARRIVALS / 最大8件 ＆ 両端ぼかしフェード付き) */}
       <section className="py-36 border-t border-white/10 relative z-10 overflow-hidden">
         <div className="max-w-7xl mx-auto px-8 sm:px-12 mb-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div className="space-y-3">
               <span className="text-[10px] tracking-[0.4em] text-[#8f121d] uppercase font-mono block font-semibold">02 / NEW ARRIVALS</span>
-              {/* 🌟 名前を「新着記事」に変更！ */}
               <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-wide">新着記事</h2>
             </div>
             
             <div className="flex items-center gap-6">
-              {/* 🌟 左右スライド操作ボタン */}
-              <div className="flex items-center gap-2 font-mono">
+              {/* 左右スライド操作ボタン */}
+              <div className="flex items-center gap-2 font-mono z-30">
                 <button 
                   onClick={() => scroll('left')}
-                  className="p-3 border border-white/10 text-white hover:border-[#8f121d] transition-colors"
+                  className="p-3 border border-white/10 text-white hover:border-[#8f121d] transition-colors bg-[#040406]/80 backdrop-blur-md"
                   aria-label="Previous Articles"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => scroll('right')}
-                  className="p-3 border border-white/10 text-white hover:border-[#8f121d] transition-colors"
+                  className="p-3 border border-white/10 text-white hover:border-[#8f121d] transition-colors bg-[#040406]/80 backdrop-blur-md"
                   aria-label="Next Articles"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
-              <button onClick={() => navigateTo('journal')} className="text-xs font-mono text-[#d4b07b] tracking-[0.25em] flex items-center gap-2 hover:text-white transition-colors">
+              <button onClick={() => navigateTo('journal')} className="text-xs font-mono text-[#d4b07b] tracking-[0.25em] flex items-center gap-2 hover:text-white transition-colors z-30">
                 FULL ARCHIVE <ArrowUpRight className="w-4 h-4 text-[#8f121d]" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* 🌟 メイン3つ ＋ 右端に1/3チラ見え（3.3個分見える）滑らか横スライダー */}
-        <div 
-          ref={scrollRef}
-          className="flex gap-8 overflow-x-auto scrollbar-none px-8 sm:px-12 lg:pl-[calc((100vw-80rem)/2+3rem)] lg:pr-12 scroll-smooth pb-8"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {sortedArticles.map((article) => {
-            const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
-            const categoryName = getCategoryName(article?.category);
-            const eyecatchUrl = article?.eyecatch?.url;
+        {/* 🌟 左右端のシネマティックグラデーションぼかしマスク */}
+        <div className="relative w-full">
+          {/* 左端の黒ぼかし */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-20 bg-gradient-to-r from-[#040406] to-transparent z-20 pointer-events-none"></div>
+          {/* 右端の黒ぼかし */}
+          <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[#040406] to-transparent z-20 pointer-events-none"></div>
 
-            return (
-              <article 
-                key={article.id} 
-                onClick={() => handleArticleClick(article.id)} 
-                /* 🌟 横幅設定：画面幅に合わせて3つ＋1/3チラ見えするサイズ（w-[280px] sm:w-[360px] lg:w-[380px]） */
-                className="flex-none w-[280px] sm:w-[360px] lg:w-[380px] bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group"
-              >
-                {eyecatchUrl && (
-                  <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
-                    <img 
-                      src={eyecatchUrl} 
-                      alt={article.title || ''} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                    />
-                  </div>
-                )}
+          {/* 🌟 最大8件 横スライドカルーセル */}
+          <div 
+            ref={scrollRef}
+            className="flex gap-8 overflow-x-auto scrollbar-none px-8 sm:px-12 lg:pl-[calc((100vw-80rem)/2+3rem)] lg:pr-24 scroll-smooth pb-8"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {latestEightArticles.map((article) => {
+              const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
+              const categoryName = getCategoryName(article?.category);
+              const eyecatchUrl = article?.eyecatch?.url;
 
-                <div className="p-8 space-y-6 flex-1 flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a]">
-                      <span className="text-[#8f121d] font-bold">{categoryName}</span>
-                      <span>{articleDate}</span>
+              return (
+                <article 
+                  key={article.id} 
+                  onClick={() => handleArticleClick(article.id)} 
+                  className="flex-none w-[280px] sm:w-[360px] lg:w-[380px] bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group relative z-10"
+                >
+                  {eyecatchUrl && (
+                    <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
+                      <img 
+                        src={eyecatchUrl} 
+                        alt={article.title || ''} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
                     </div>
-                    <h3 className="font-serif text-xl sm:text-2xl text-white group-hover:text-[#d4b07b] transition-colors leading-[1.4] line-clamp-2">
-                      {article.title || 'Untitled'}
-                    </h3>
-                    <p className="text-xs text-[#a1a1aa] font-light leading-[1.9] line-clamp-3">
-                      {article.lead || ''}
-                    </p>
-                  </div>
+                  )}
 
-                  <div className="pt-6 mt-6 border-t border-white/5 flex justify-between items-center font-mono text-[10px] text-[#71717a]">
-                    <span>BY {article.author || 'RUBEDO'}</span>
-                    <span className="text-white group-hover:translate-x-2 transition-transform flex items-center gap-1.5">
-                      READ <ChevronRight className="w-3.5 h-3.5 text-[#8f121d]" />
-                    </span>
+                  <div className="p-8 space-y-6 flex-1 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a]">
+                        <span className="text-[#8f121d] font-bold">{categoryName}</span>
+                        <span>{articleDate}</span>
+                      </div>
+                      <h3 className="font-serif text-xl sm:text-2xl text-white group-hover:text-[#d4b07b] transition-colors leading-[1.4] line-clamp-2">
+                        {article.title || 'Untitled'}
+                      </h3>
+                      <p className="text-xs text-[#a1a1aa] font-light leading-[1.9] line-clamp-3">
+                        {article.lead || ''}
+                      </p>
+                    </div>
+
+                    <div className="pt-6 mt-6 border-t border-white/5 flex justify-between items-center font-mono text-[10px] text-[#71717a]">
+                      <span>BY {article.author || 'RUBEDO'}</span>
+                      <span className="text-white group-hover:translate-x-2 transition-transform flex items-center gap-1.5">
+                        READ <ChevronRight className="w-3.5 h-3.5 text-[#8f121d]" />
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </article>
-            );
-          })}
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
 
