@@ -6,31 +6,26 @@ import VermiliaPage from './pages/VermiliaPage';
 import JournalPage from './pages/JournalPage';
 import FoundersPage from './pages/FoundersPage';
 import ArchivesPage from './pages/ArchivesPage';
+import VoothPage from './pages/VoothPage'; // 🌟 VOOTHページ追加！
 import { CONFIG } from './config/siteConfig';
 
 export default function App() {
-  // ルーティング・画面状態
   const [currentPage, setCurrentPage] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
 
-  // ヴェルミリア ビューポート状態
   const [selectedAngle, setSelectedAngle] = useState('FRONT_01');
-  
-  // microCMSデータ管理用の状態
   const [journalArticles, setJournalArticles] = useState([]);
-  const [loading, setLoading] = useState(true); // 初回アクセス時のロード
-  const [pageTransitioning, setPageTransitioning] = useState(false); // 画面遷移時のロード
+  const [loading, setLoading] = useState(true);
+  const [pageTransitioning, setPageTransitioning] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [selectedArticleId, setSelectedArticleId] = useState(null);
 
-  // URLのパス（/journal/xxx など）を解析して状態を自動同期する関数
   const parseLocation = (articlesList = journalArticles) => {
     const path = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
 
-    // 1. /journal/記事ID の形式（個別記事）
     if (path.startsWith('/journal/') && path.length > 9) {
       const articleId = path.replace('/journal/', '');
       setCurrentPage('journal');
@@ -38,29 +33,14 @@ export default function App() {
       return;
     }
 
-    // 2. /entry/記事ID（旧URLからの互換）
-    if (path.startsWith('/entry/')) {
-      const articleId = path.replace('/entry/', '');
-      setCurrentPage('journal');
-      setSelectedArticleId(articleId);
-      window.history.replaceState({}, '', `/journal/${articleId}`);
-      return;
-    }
-
-    // 3. 従来型の ?article=記事ID のフォールバック対応
-    const articleParam = params.get('article');
-    if (articleParam) {
-      setCurrentPage('journal');
-      setSelectedArticleId(articleParam);
-      return;
-    }
-
-    // 4. その他のページパス対応
     if (path === '/vermilia') {
       setCurrentPage('vermilia');
       setSelectedArticleId(null);
     } else if (path === '/journal') {
       setCurrentPage('journal');
+      setSelectedArticleId(null);
+    } else if (path === '/vooth') { // 🌟 /vooth のルーティング対応！
+      setCurrentPage('vooth');
       setSelectedArticleId(null);
     } else if (path === '/founders') {
       setCurrentPage('founders');
@@ -74,7 +54,6 @@ export default function App() {
     }
   };
 
-  // microCMSデータ取得＆初回URL解析
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -98,7 +77,6 @@ export default function App() {
     fetchArticles();
   }, []);
 
-  // ブラウザの「戻る・進む」ボタン追従
   useEffect(() => {
     const handlePopState = () => {
       parseLocation();
@@ -118,14 +96,10 @@ export default function App() {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
   }, [isMenuOpen]);
 
-  // 🌟 チラ見えゼロ！完璧なステップ制御遷移関数
   const navigateTo = (page, category = null, articleId = null) => {
     setIsMenuOpen(false);
-    
-    // Step 1: 即座に全画面不透明（100%黒）で画面を完全遮断！
     setPageTransitioning(true);
 
-    // Step 2: 0.2秒後（完全に画面が隠れた状態）で裏のデータとURL・スクロール位置を一括更新
     setTimeout(() => {
       setCurrentPage(page);
       if (category) setActiveTab(category);
@@ -140,6 +114,8 @@ export default function App() {
         targetPath = '/journal';
       } else if (page === 'vermilia') {
         targetPath = '/vermilia';
+      } else if (page === 'vooth') { // 🌟 vooth への遷移パス
+        targetPath = '/vooth';
       } else if (page === 'founders') {
         targetPath = '/founders';
       } else if (page === 'archives') {
@@ -152,22 +128,19 @@ export default function App() {
       window.history.pushState({}, '', targetPath);
       window.scrollTo({ top: 0, behavior: 'instant' });
 
-      // Step 3: さらに0.4秒間ロード画面を見せてから、スッと新しいページを開く
       setTimeout(() => {
         setPageTransitioning(false);
-      }, 400);
-    }, 200);
+      }, 100);
+    }, 500);
   };
 
   const showLoading = loading || pageTransitioning;
-
   const selectedArticle = journalArticles.find(a => a.id === selectedArticleId);
 
   return (
     <div className="min-h-screen bg-[#040406] text-[#e2e2e8] font-sans selection:bg-[#8f121d] selection:text-white relative overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none z-30 shadow-[inset_0_0_160px_rgba(0,0,0,0.9)]"></div>
 
-      {/* 🌟 透け感ゼロ！不透明度100%のソリッドな暗転ローディング */}
       {showLoading && (
         <div className="fixed inset-0 bg-[#040406] z-[100] flex flex-col items-center justify-center space-y-8 opacity-100">
           <div className="relative">
@@ -181,17 +154,19 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER */}
-      <Header 
-        currentPage={currentPage}
-        navigateTo={navigateTo}
-        isMenuOpen={isMenuOpen}
-        setIsMenuOpen={setIsMenuOpen}
-        scrolled={scrolled}
-        isMuted={isMuted}
-        setIsMuted={setIsMuted}
-        CONFIG={CONFIG}
-      />
+      {/* HEADER (VOOTHページ表示時はVOOTH専用ヘッダーがあるため隠す・または共通使用) */}
+      {currentPage !== 'vooth' && (
+        <Header 
+          currentPage={currentPage}
+          navigateTo={navigateTo}
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+          scrolled={scrolled}
+          isMuted={isMuted}
+          setIsMuted={setIsMuted}
+          CONFIG={CONFIG}
+        />
+      )}
 
       {/* PAGE ROUTING */}
       <main>
@@ -220,15 +195,17 @@ export default function App() {
             setActiveTab={setActiveTab} 
             selectedArticle={selectedArticle} 
             setSelectedArticleId={setSelectedArticleId} 
-            navigateTo={navigateTo} /* 🌟 ここで navigateTo を確実に渡す！ */
+            navigateTo={navigateTo}
           />
         )}
+        {/* 🌟 VOOTH ページ描画 */}
+        {currentPage === 'vooth' && <VoothPage navigateTo={navigateTo} CONFIG={CONFIG} />}
         {currentPage === 'founders' && <FoundersPage navigateTo={navigateTo} LINKS={CONFIG.LINKS} />}
         {currentPage === 'archives' && <ArchivesPage navigateTo={navigateTo} LINKS={CONFIG.LINKS} />}
       </main>
 
       {/* FOOTER */}
-      <Footer />
+      {currentPage !== 'vooth' && <Footer />}
     </div>
   );
 }
