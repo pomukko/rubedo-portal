@@ -5,6 +5,9 @@ export default function VoothPage({ navigateTo, CONFIG }) {
   const [isFollowed, setIsFollowed] = useState(false);
   const [likedItems, setLikedItems] = useState({});
 
+  // 🌟 公式Twitter URL
+  const twitterUrl = CONFIG?.LINKS?.twitter || 'https://x.com/RUBEDO_64';
+
   // 🌟 展覧会（非売品・未公開3Dデータ）の展示用アイテムデータ
   const exhibitionItems = [
     {
@@ -59,13 +62,12 @@ export default function VoothPage({ navigateTo, CONFIG }) {
 
   return (
     <div className="min-h-screen bg-[#040406] text-[#e2e2e8] font-sans animate-fadeIn">
-      {/* 🌟 1. VOOTH トップヘッダー (RUBEDOカラー統一致命的かっこよさ！) */}
+      {/* 🌟 1. VOOTH トップヘッダー */}
       <header className="bg-[#07070a] border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
           
           {/* VOOTH ロゴ & 検索バー */}
           <div className="flex items-center gap-6 flex-1">
-            {/* VOOTH ロゴ（PARODYテキスト削除） */}
             <div 
               onClick={() => navigateTo('home')} 
               className="bg-[#8f121d] text-white font-black text-xl px-4 py-1 tracking-tighter cursor-pointer hover:bg-[#a31625] transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(143,18,29,0.5)]"
@@ -104,7 +106,7 @@ export default function VoothPage({ navigateTo, CONFIG }) {
         </div>
       </header>
 
-      {/* 🌟 2. ショップヘッダーエリア (RUBEDO漆黒＆ゴールド仕様) */}
+      {/* 🌟 2. ショップヘッダーエリア */}
       <div className="bg-[#060609] border-b border-white/10 relative">
         <div className="max-w-5xl mx-auto px-6 py-12 space-y-8">
           
@@ -140,12 +142,24 @@ export default function VoothPage({ navigateTo, CONFIG }) {
               </div>
             </div>
 
-            {/* SNS ＆ シェアアイコン群 */}
+            {/* 🌟 SNS ＆ シェアアイコン群 (Twitterリンク先を公式アカウントに設定！) */}
             <div className="flex items-center gap-3 text-[#a1a1aa] z-10">
-              <a href={CONFIG.LINKS.discordServer} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#060609] border border-white/10 flex items-center justify-center hover:text-white hover:border-[#8f121d] transition-all">
+              <a 
+                href={twitterUrl} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="w-10 h-10 bg-[#060609] border border-white/10 flex items-center justify-center hover:text-white hover:border-[#8f121d] transition-all cursor-pointer"
+                aria-label="Official Twitter"
+              >
                 <Twitter className="w-4 h-4" />
               </a>
-              <a href={CONFIG.LINKS.discordServer} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#060609] border border-white/10 flex items-center justify-center hover:text-white hover:border-[#8f121d] transition-all">
+              <a 
+                href={CONFIG?.LINKS?.discordServer || '#'} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="w-10 h-10 bg-[#060609] border border-white/10 flex items-center justify-center hover:text-white hover:border-[#8f121d] transition-all cursor-pointer"
+                aria-label="Discord Community"
+              >
                 <Mail className="w-4 h-4" />
               </a>
               <div className="w-10 h-10 bg-[#060609] border border-white/10 flex items-center justify-center hover:text-white hover:border-[#8f121d] transition-all cursor-pointer">
@@ -168,7 +182,7 @@ export default function VoothPage({ navigateTo, CONFIG }) {
         </div>
       </div>
 
-      {/* 🌟 3. 展覧会アイテム一覧 (BOOTHレイアウト ✕ RUBEDOダークデザイン) */}
+      {/* 🌟 3. 展覧会アイテム一覧 (最大3列並びに変更！) */}
       <main className="max-w-5xl mx-auto px-6 py-16">
         <div className="flex justify-between items-center border-b border-white/10 pb-4 mb-10">
           <h2 className="font-serif text-2xl text-white flex items-center gap-3">
@@ -178,8 +192,8 @@ export default function VoothPage({ navigateTo, CONFIG }) {
           <span className="text-xs font-mono text-[#a1a1aa]">SORT BY: NEWEST</span>
         </div>
 
-        {/* グリッドカード配置 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {/* 🌟 グリッドカード配置：横3列固定 (grid-cols-1 sm:grid-cols-2 lg:grid-cols-3) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {exhibitionItems.map((item) => {
             const isLiked = likedItems[item.id];
             const currentLikes = isLiked ? item.likes + 1 : item.likes;
