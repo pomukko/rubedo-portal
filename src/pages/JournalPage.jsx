@@ -37,7 +37,7 @@ export default function JournalPage({
     }
   };
 
-  // 🌟 記事詳細表示時（Webtoonマンガ完全最適化ビューアー！）
+  // 🌟 記事詳細表示時（Webtoon無制限縦長対応版！）
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
@@ -76,37 +76,29 @@ export default function JournalPage({
           )}
         </div>
 
-        {/* アイキャッチ画像 */}
+        {/* 🌟 アイキャッチ画像（16:9固定を完全撤廃！縦長画像もそのまま上にスッと伸びる！） */}
         {selectedArticle.eyecatch?.url && (
-          <div className="aspect-video w-full overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-            <img src={selectedArticle.eyecatch.url} alt={selectedArticle.title || ''} className="w-full h-full object-cover" />
+          <div className="w-full my-6">
+            <img 
+              src={selectedArticle.eyecatch.url} 
+              alt={selectedArticle.title || ''} 
+              className="webtoon-image border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]" 
+            />
           </div>
         )}
 
-        {/* 🌟 microCMSのリッチテキスト本文（Webtoonマンガビューアー表示！） */}
+        {/* 🌟 microCMSのリッチテキスト本文（Webtoonマンガ全自動アジャスト！） */}
         <div 
           className="article-body prose prose-invert max-w-none space-y-8 text-base sm:text-lg leading-[2.1] font-light text-[#e2e2e8] w-full overflow-hidden break-all [overflow-wrap:anywhere]
-            /* 本文段落 */
-            [&_p]:mb-6 [&_p]:tracking-wide [&_p]:text-[#e2e2e8] [&_p]:break-all [&_p]:[overflow-wrap:anywhere]
-            /* 見出し2（H2） */
-            [&_h2]:font-serif [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:text-white [&_h2]:mt-14 [&_h2]:mb-6 [&_h2]:pt-3 [&_h2]:pb-2 [&_h2]:border-l-4 [&_h2]:border-[#8f121d] [&_h2]:pl-4 [&_h2]:bg-gradient-to-r [&_h2]:from-[#8f121d]/15 [&_h2]:to-transparent [&_h2]:break-all
-            /* 見出し3（H3） */
-            [&_h3]:font-serif [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:text-[#d4b07b] [&_h3]:mt-10 [&_h3]:mb-4 [&_h3]:border-b [&_h3]:border-white/10 [&_h3]:pb-2 [&_h3]:break-all
-            /* リンク */
-            [&_a]:text-[#d4b07b] [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-[#d4b07b]/40 [&_a]:break-all [&_a]:[overflow-wrap:anywhere] hover:[&_a]:text-white hover:[&_a]:decoration-white transition-colors
-            
-            /* 🌟🌟🌟 Webtoon（超縦長マンガ画像）完全最適化設定！ 🌟🌟🌟 */
-            [&_img]:w-full [&_img]:max-w-md [&_img]:sm:max-w-lg [&_img]:mx-auto [&_img]:h-auto [&_img]:object-contain [&_img]:my-2 [&_img]:block [&_img]:shadow-[0_0_20px_rgba(0,0,0,0.8)]
-            
-            /* 箇条書きリスト (ul/ol) */
-            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-3 [&_ul]:my-6 [&_ul_li]:text-[#e2e2e8] [&_ul_li]:break-all
-            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-3 [&_ol]:my-6 [&_ol_li]:text-[#e2e2e8] [&_ol_li]:break-all
-            /* 引用 (blockquote) */
-            [&_blockquote]:border-l-4 [&_blockquote]:border-[#d4b07b] [&_blockquote]:bg-[#060609] [&_blockquote]:p-6 [&_blockquote]:my-8 [&_blockquote]:italic [&_blockquote]:text-[#a1a1aa] [&_blockquote]:break-all
-            /* コードブロック (pre / code) */
-            [&_pre]:bg-[#030305] [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-6 [&_pre]:rounded-none [&_pre]:overflow-x-auto [&_pre]:my-8 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:sm:text-sm [&_pre]:text-[#d4b07b]
-            [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/10 [&_code]:px-2 [&_code]:py-1 [&_code]:text-[#d4b07b] [&_code]:break-all
-            /* 水平線 */
+            [&_p]:mb-6 [&_p]:tracking-wide [&_p]:text-[#e2e2e8]
+            [&_h2]:font-serif [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:text-white [&_h2]:mt-14 [&_h2]:mb-6 [&_h2]:pt-3 [&_h2]:pb-2 [&_h2]:border-l-4 [&_h2]:border-[#8f121d] [&_h2]:pl-4 [&_h2]:bg-gradient-to-r [&_h2]:from-[#8f121d]/15 [&_h2]:to-transparent
+            [&_h3]:font-serif [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:text-[#d4b07b] [&_h3]:mt-10 [&_h3]:mb-4 [&_h3]:border-b [&_h3]:border-white/10 [&_h3]:pb-2
+            [&_a]:text-[#d4b07b] [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-[#d4b07b]/40 hover:[&_a]:text-white transition-colors
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-3 [&_ul]:my-6
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-3 [&_ol]:my-6
+            [&_blockquote]:border-l-4 [&_blockquote]:border-[#d4b07b] [&_blockquote]:bg-[#060609] [&_blockquote]:p-6 [&_blockquote]:my-8 [&_blockquote]:italic [&_blockquote]:text-[#a1a1aa]
+            [&_pre]:bg-[#030305] [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-6 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:sm:text-sm [&_pre]:text-[#d4b07b]
+            [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/10 [&_code]:px-2 [&_code]:py-1 [&_code]:text-[#d4b07b]
             [&_hr]:border-white/10 [&_hr]:my-12"
           dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
         />
@@ -140,7 +132,7 @@ export default function JournalPage({
             onClick={() => setActiveTab(cat)} 
             className={`px-4 py-2 border uppercase transition-all ${
               activeTab.toLowerCase() === cat.toLowerCase() 
-                ? 'border-[#8f121d] bg-[#8f121d]/20 text-[#e2e2e8] font-bold' 
+                ? 'border-[#8f121d] bg-[#8f121d]/20 text-white font-bold' 
                 : 'border-white/10 text-[#71717a] hover:text-white'
             }`}
           >
