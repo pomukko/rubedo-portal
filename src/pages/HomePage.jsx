@@ -7,7 +7,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
   const currentAngleObj = vermiliaAngles.find(a => a.id === selectedAngle);
   const scrollRef = useRef(null);
 
-  // 最新順ソート ＆ 上限8件制限
   const latestEightArticles = [...articles]
     .sort((a, b) => {
       const dateA = new Date(a?.publishedAt || a?.createdAt || a?.updatedAt || 0);
@@ -24,7 +23,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
     }
   };
 
-  // スライド操作用
   const scroll = (direction) => {
     if (scrollRef.current) {
       const { scrollLeft, clientWidth } = scrollRef.current;
@@ -117,4 +115,162 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               </div>
               <div className="space-y-6 pt-8 border-t border-white/10">
                 <a href={CONFIG.LINKS.vermiliaItem} target="_blank" rel="noreferrer" className="w-full bg-[#8f121d] text-white text-xs font-mono tracking-[0.3em] py-5 text-center transition-all flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(143,18,29,0.35)] hover:bg-[#a31625]">
-                  ACQUIRE ON BO
+                  ACQUIRE ON BOOTH <ArrowUpRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 02: 新着記事 */}
+      <section className="py-36 border-t border-white/10 relative z-10 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-8 sm:px-12 mb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div className="space-y-3">
+              <span className="text-[10px] tracking-[0.4em] text-[#8f121d] uppercase font-mono block font-semibold">02 / NEW ARRIVALS</span>
+              <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-wide">新着記事</h2>
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 font-mono z-30">
+                <button 
+                  onClick={() => scroll('left')}
+                  className="p-3 border border-white/10 text-white hover:border-[#8f121d] transition-colors bg-[#040406]/90 backdrop-blur-md cursor-pointer"
+                  aria-label="Previous Articles"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => scroll('right')}
+                  className="p-3 border border-white/10 text-white hover:border-[#8f121d] transition-colors bg-[#040406]/90 backdrop-blur-md cursor-pointer"
+                  aria-label="Next Articles"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <button onClick={() => navigateTo('journal')} className="text-xs font-mono text-[#d4b07b] tracking-[0.25em] flex items-center gap-2 hover:text-white transition-colors z-30 cursor-pointer">
+                FULL ARCHIVE <ArrowUpRight className="w-4 h-4 text-[#8f121d]" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative w-full">
+          <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-48 lg:w-64 bg-gradient-to-r from-[#040406] via-[#040406]/80 to-transparent z-20 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-32 sm:w-64 lg:w-96 bg-gradient-to-l from-[#040406] via-[#040406]/80 to-transparent z-20 pointer-events-none"></div>
+
+          <div 
+            ref={scrollRef}
+            className="flex gap-8 overflow-x-auto scrollbar-none px-8 sm:px-12 lg:pl-[calc((100vw-80rem)/2+3rem)] lg:pr-24 scroll-smooth pb-8"
+          >
+            {latestEightArticles.map((article) => {
+              const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
+              const categoryName = getCategoryName(article?.category);
+              const eyecatchUrl = article?.eyecatch?.url;
+
+              return (
+                <article 
+                  key={article.id} 
+                  onClick={() => handleArticleClick(article.id)} 
+                  className="flex-none w-[280px] sm:w-[360px] lg:w-[380px] bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group relative z-10"
+                >
+                  {eyecatchUrl && (
+                    <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
+                      <img 
+                        src={eyecatchUrl} 
+                        alt={article.title || ''} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-8 space-y-6 flex-1 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a]">
+                        <span className="text-[#8f121d] font-bold">{categoryName}</span>
+                        <span>{articleDate}</span>
+                      </div>
+                      <h3 className="font-serif text-xl sm:text-2xl text-white group-hover:text-[#d4b07b] transition-colors leading-[1.4] line-clamp-2">
+                        {article.title || 'Untitled'}
+                      </h3>
+                      <p className="text-xs text-[#a1a1aa] font-light leading-[1.9] line-clamp-3">
+                        {article.lead || ''}
+                      </p>
+                    </div>
+
+                    <div className="pt-6 mt-6 border-t border-white/5 flex justify-between items-center font-mono text-[10px] text-[#71717a]">
+                      <span>BY {article.author || 'RUBEDO'}</span>
+                      <span className="text-white group-hover:translate-x-2 transition-transform flex items-center gap-1.5">
+                        READ <ChevronRight className="w-3.5 h-3.5 text-[#8f121d]" />
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 🌟 SECTION 03: DIRECTORY & EXHIBITION (Discord ＆ VOOTH 隣同士カード配置！) */}
+      <section className="py-36 border-t border-white/10 bg-[#060609] relative z-10">
+        <div className="max-w-7xl mx-auto px-8 sm:px-12">
+          <div className="mb-20">
+            <span className="text-[10px] tracking-[0.4em] text-[#8f121d] uppercase font-mono block mb-3 font-semibold">03 / EXTERNAL & EXHIBITION INDEX</span>
+            <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-wide">RUBEDO DIRECTORY</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* 左側：1. DISCORD COMMUNITY */}
+            <a 
+              href={CONFIG.LINKS.discordServer} 
+              target="_blank" 
+              rel="noreferrer" 
+              className="border border-[#d4b07b]/40 bg-[#d4b07b]/[0.02] hover:bg-[#d4b07b]/[0.06] hover:border-[#d4b07b] p-8 sm:p-12 flex flex-col justify-between gap-8 transition-all duration-500 group cursor-pointer"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center gap-2.5 text-[10px] font-mono tracking-[0.3em] text-[#d4b07b]">
+                  <MessageSquare className="w-4 h-4" />
+                  <span>OFFICIAL DISCORD COMMUNITY</span>
+                </div>
+                <h3 className="font-serif text-2xl sm:text-3xl text-white group-hover:text-[#d4b07b] transition-colors">
+                  RUBEDO 公式Discordサーバー
+                </h3>
+                <p className="text-xs text-[#a1a1aa] font-light leading-[1.9]">
+                  アセットの最新アップデート、制作進捗、不具合報告やサポート、クリエイター同士の情報交換が集まる公式コミュニティ。
+                </p>
+              </div>
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-[#d4b07b] tracking-[0.25em] border-b border-[#d4b07b]/40 pb-1 self-start">
+                ENTER DISCORD <ExternalLink className="w-3.5 h-3.5" />
+              </div>
+            </a>
+
+            {/* 🌟 右側：2. VOOTH 3D EXHIBITION HALL (Discordのすぐ隣に配置！) */}
+            <div 
+              onClick={() => navigateTo('vooth')}
+              className="border border-[#8f121d]/50 bg-[#8f121d]/[0.03] hover:bg-[#8f121d]/[0.10] hover:border-[#8f121d] p-8 sm:p-12 flex flex-col justify-between gap-8 transition-all duration-500 group cursor-pointer shadow-[0_0_30px_rgba(143,18,29,0.15)]"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center gap-2.5 text-[10px] font-mono tracking-[0.3em] text-[#8f121d] font-bold">
+                  <Box className="w-4 h-4 text-[#8f121d]" />
+                  <span>CONCEPT 3D EXHIBITION</span>
+                </div>
+                <h3 className="font-serif text-2xl sm:text-3xl text-white group-hover:text-[#d4b07b] transition-colors">
+                  VOOTH 3D展覧会ホール
+                </h3>
+                <p className="text-xs text-[#a1a1aa] font-light leading-[1.9]">
+                  BOOTH未公開のコンセプト3Dモデル、開発中の試作品、実験的アセットを集約・展示したオンラインバーチャルギャラリー。
+                </p>
+              </div>
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-white tracking-[0.25em] border-b border-[#8f121d] pb-1 self-start group-hover:text-[#d4b07b] transition-colors">
+                ENTER VOOTH <ArrowUpRight className="w-3.5 h-3.5 text-[#8f121d]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
