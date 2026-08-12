@@ -20,6 +20,23 @@ export default function JournalPage({
         return catName.toLowerCase() === activeTab.toLowerCase();
       });
 
+  // 安全な遷移ヘルパー
+  const handleArticleClick = (articleId) => {
+    if (typeof navigateTo === 'function') {
+      navigateTo('journal', null, articleId);
+    } else if (typeof setSelectedArticleId === 'function') {
+      setSelectedArticleId(articleId);
+    }
+  };
+
+  const handleBackToList = () => {
+    if (typeof navigateTo === 'function') {
+      navigateTo('journal', null, null);
+    } else if (typeof setSelectedArticleId === 'function') {
+      setSelectedArticleId(null);
+    }
+  };
+
   // 記事詳細表示時
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
@@ -28,7 +45,7 @@ export default function JournalPage({
     return (
       <div className="max-w-4xl mx-auto px-8 pt-40 pb-32 space-y-10 animate-fadeIn">
         <button 
-          onClick={() => navigateTo('journal')} 
+          onClick={handleBackToList} 
           className="flex items-center gap-2 font-mono text-[10px] text-[#71717a] hover:text-white transition-colors tracking-widest cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 text-[#8f121d]" /> BACK TO LIST
@@ -98,7 +115,7 @@ export default function JournalPage({
             return (
               <article 
                 key={article.id} 
-                onClick={() => navigateTo('journal', null, article.id)} 
+                onClick={() => handleArticleClick(article.id)} 
                 className="bg-[#060609] border border-white/10 p-8 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group"
               >
                 <div className="space-y-4">
