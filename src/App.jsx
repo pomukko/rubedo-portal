@@ -25,7 +25,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedArticleId, setSelectedArticleId] = useState(null);
 
-  // 🌟 URLのパス（/journal/xxx など）を解析して状態を自動同期する関数
+  // URLのパス（/journal/xxx など）を解析して状態を自動同期する関数
   const parseLocation = (articlesList = journalArticles) => {
     const path = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
@@ -87,7 +87,7 @@ export default function App() {
         setJournalArticles(fetchedContents);
         parseLocation(fetchedContents);
 
-        setTimeout(() => setLoading(false), 1000);
+        setTimeout(() => setLoading(false), 800);
       } catch (error) {
         console.error('記事データの取得に失敗しました:', error);
         setJournalArticles([]);
@@ -118,13 +118,14 @@ export default function App() {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
   }, [isMenuOpen]);
 
-  // 🌟 シネマティックページ遷移関数！
+  // 🌟 一瞬で黒で覆い、しっかりロードを見せる遷移関数！
   const navigateTo = (page, category = null, articleId = null) => {
     setIsMenuOpen(false);
     
-    // 画面遷移ローディング起動！（全画面暗転）
+    // 1. 瞬時に全画面ローディング起動！（チラ見え完全防止）
     setPageTransitioning(true);
 
+    // 2. 0.5秒間ローディング画面を見せている間に裏でページ切替＆スクロールトップ！
     setTimeout(() => {
       setCurrentPage(page);
       if (category) setActiveTab(category);
@@ -133,7 +134,7 @@ export default function App() {
 
       if (page === 'journal' && articleId) {
         setSelectedArticleId(articleId);
-        targetPath = `/journal/${articleId}`; // 🌟 /journal/記事ID に統一！
+        targetPath = `/journal/${articleId}`;
       } else if (page === 'journal') {
         setSelectedArticleId(null);
         targetPath = '/journal';
@@ -148,15 +149,14 @@ export default function App() {
         targetPath = '/';
       }
 
-      // URLの更新＆スクロール位置を暗闇の中でトップへ！
       window.history.pushState({}, '', targetPath);
       window.scrollTo({ top: 0, behavior: 'instant' });
 
-      // 余韻を残してローディング解除
+      // 3. 切り替え完了後、ローディング解除！
       setTimeout(() => {
         setPageTransitioning(false);
-      }, 300);
-    }, 700); // 0.7秒間しっかりローディングを見せる
+      }, 100);
+    }, 500);
   };
 
   const showLoading = loading || pageTransitioning;
@@ -165,9 +165,9 @@ export default function App() {
     <div className="min-h-screen bg-[#040406] text-[#e2e2e8] font-sans selection:bg-[#8f121d] selection:text-white relative overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none z-30 shadow-[inset_0_0_160px_rgba(0,0,0,0.9)]"></div>
 
-      {/* 🌟 画面遷移時＆初期化時の全画面シネマティックローディング */}
+      {/* 🌟 透明度ゼロ！クリックした瞬間に100%不透明の黒で覆うシネマティックローディング */}
       {showLoading && (
-        <div className="fixed inset-0 bg-[#040406] z-[100] flex flex-col items-center justify-center space-y-8 animate-fadeIn">
+        <div className="fixed inset-0 bg-[#040406] z-[100] flex flex-col items-center justify-center space-y-8 opacity-100">
           <div className="relative">
             <div className="w-12 h-12 bg-[#8f121d] animate-pulse shadow-[0_0_40px_rgba(143,18,29,0.8)]"></div>
             <div className="absolute inset-0 border border-white/10 scale-150 rotate-45"></div>
@@ -218,7 +218,7 @@ export default function App() {
             setActiveTab={setActiveTab} 
             selectedArticle={selectedArticle} 
             setSelectedArticleId={setSelectedArticleId} 
-            navigateTo={navigateTo} // 🌟 ここで navigateTo を確実に受け渡す！
+            navigateTo={navigateTo}
           />
         )}
         {currentPage === 'founders' && <FoundersPage navigateTo={navigateTo} LINKS={CONFIG.LINKS} />}
