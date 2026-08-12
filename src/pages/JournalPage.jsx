@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Image as ImageIcon, Link as LinkIcon, Tag } from 'lucide-react';
 import { formatDate, getCategoryName } from '../utils/formatters';
 
 export default function JournalPage({ 
@@ -37,13 +37,24 @@ export default function JournalPage({
     }
   };
 
-  // 🌟 記事詳細表示時（Webtoon無制限縦長対応版！）
+  // 🌟 記事詳細表示時
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
 
+    const rawMultipleImages = selectedArticle.images || selectedArticle.gallery || selectedArticle.multiple_images || selectedArticle.multipleImages || [];
+    const multipleImages = Array.isArray(rawMultipleImages) ? rawMultipleImages : [];
+
+    const rawTags = selectedArticle.tags || selectedArticle.tag_list || [];
+    const tags = Array.isArray(rawTags) 
+      ? rawTags.map(t => (typeof t === 'object' ? t.name || t.title || t.id : String(t)))
+      : (typeof rawTags === 'string' ? rawTags.split(',') : []);
+
+    const rawRelated = selectedArticle.related || selectedArticle.related_articles || selectedArticle.relatedArticles || [];
+    const relatedArticles = Array.isArray(rawRelated) ? rawRelated : (typeof rawRelated === 'object' ? [rawRelated] : []);
+
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-36 sm:pt-44 pb-32 space-y-10 animate-fadeIn w-full overflow-hidden">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-36 sm:pt-44 pb-32 space-y-12 animate-fadeIn w-full overflow-hidden">
         {/* 一覧に戻るボタン */}
         <button 
           onClick={handleBackToList} 
@@ -63,12 +74,21 @@ export default function JournalPage({
             {selectedArticle.author && <span className="text-[#d4b07b] border-l border-white/10 pl-4">BY {selectedArticle.author}</span>}
           </div>
 
-          {/* 記事タイトル */}
           <h1 className="font-serif text-3xl sm:text-5xl text-white font-normal leading-[1.3] tracking-wide break-all [overflow-wrap:anywhere]">
             {selectedArticle.title || 'Untitled'}
           </h1>
 
-          {/* リード文 */}
+          {tags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              <Tag className="w-3.5 h-3.5 text-[#d4b07b]" />
+              {tags.map((tag, idx) => (
+                <span key={idx} className="text-[10px] font-mono text-[#a1a1aa] border border-white/10 px-2.5 py-0.5 bg-white/[0.01]">
+                  #{tag.trim()}
+                </span>
+              ))}
+            </div>
+          )}
+
           {selectedArticle.lead && (
             <p className="text-lg sm:text-xl text-[#d4b07b]/90 border-l-2 border-[#8f121d] pl-5 py-1.5 font-light leading-relaxed italic bg-[#8f121d]/[0.03] break-all [overflow-wrap:anywhere]">
               {selectedArticle.lead}
@@ -76,7 +96,7 @@ export default function JournalPage({
           )}
         </div>
 
-        {/* 🌟 アイキャッチ画像（16:9固定を完全撤廃！縦長画像もそのまま上にスッと伸びる！） */}
+        {/* アイキャッチ画像 */}
         {selectedArticle.eyecatch?.url && (
           <div className="w-full my-6">
             <img 
@@ -87,23 +107,85 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 🌟 microCMSのリッチテキスト本文（Webtoonマンガ全自動アジャスト！） */}
+        {/* 本文 */}
         <div 
           className="article-body prose prose-invert max-w-none space-y-8 text-base sm:text-lg leading-[2.1] font-light text-[#e2e2e8] w-full overflow-hidden break-all [overflow-wrap:anywhere]
             [&_p]:mb-6 [&_p]:tracking-wide [&_p]:text-[#e2e2e8]
+            [&_h1]:font-serif [&_h1]:text-2xl [&_h1]:sm:text-3xl [&_h1]:text-white [&_h1]:mt-14 [&_h1]:mb-6 [&_h1]:border-b [&_h1]:border-[#8f121d] [&_h1]:pb-2
             [&_h2]:font-serif [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:text-white [&_h2]:mt-14 [&_h2]:mb-6 [&_h2]:pt-3 [&_h2]:pb-2 [&_h2]:border-l-4 [&_h2]:border-[#8f121d] [&_h2]:pl-4 [&_h2]:bg-gradient-to-r [&_h2]:from-[#8f121d]/15 [&_h2]:to-transparent
             [&_h3]:font-serif [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:text-[#d4b07b] [&_h3]:mt-10 [&_h3]:mb-4 [&_h3]:border-b [&_h3]:border-white/10 [&_h3]:pb-2
+            [&_h4]:font-sans [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-white [&_h4]:mt-8 [&_h4]:mb-3
             [&_a]:text-[#d4b07b] [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-[#d4b07b]/40 hover:[&_a]:text-white transition-colors
+            [&_table]:w-full [&_table]:my-8 [&_table]:border-collapse [&_table]:border [&_table]:border-white/10 [&_table]:font-sans [&_table]:text-sm
+            [&_th]:bg-[#8f121d]/20 [&_th]:text-[#d4b07b] [&_th]:font-mono [&_th]:p-3.5 [&_th]:border [&_th]:border-white/10 [&_th]:text-left
+            [&_td]:p-3.5 [&_td]:border [&_td]:border-white/10 [&_td]:bg-[#060609] [&_td]:text-[#e2e2e8]
+            [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:my-8 [&_iframe]:border [&_iframe]:border-white/10 [&_iframe]:bg-black
+            [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:font-mono [&_figcaption]:text-[#a1a1aa] [&_figcaption]:mt-2
             [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-3 [&_ul]:my-6
             [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-3 [&_ol]:my-6
             [&_blockquote]:border-l-4 [&_blockquote]:border-[#d4b07b] [&_blockquote]:bg-[#060609] [&_blockquote]:p-6 [&_blockquote]:my-8 [&_blockquote]:italic [&_blockquote]:text-[#a1a1aa]
             [&_pre]:bg-[#030305] [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-6 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:sm:text-sm [&_pre]:text-[#d4b07b]
             [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/10 [&_code]:px-2 [&_code]:py-1 [&_code]:text-[#d4b07b]
+            [&_del]:text-[#71717a] [&_del]:line-through
+            [&_mark]:bg-[#8f121d]/40 [&_mark]:text-white [&_mark]:px-1.5 [&_mark]:py-0.5
             [&_hr]:border-white/10 [&_hr]:my-12"
           dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
         />
 
-        {/* 記事下部フッターナビゲーション */}
+        {/* 複数画像ギャラリー */}
+        {multipleImages.length > 0 && (
+          <div className="space-y-6 pt-10 border-t border-white/10">
+            <div className="flex items-center gap-2 text-xs font-mono text-[#d4b07b] tracking-widest uppercase">
+              <ImageIcon className="w-4 h-4 text-[#8f121d]" />
+              <span>ARCHIVE GALLERY ({multipleImages.length})</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {multipleImages.map((imgObj, idx) => {
+                const imgUrl = typeof imgObj === 'string' ? imgObj : imgObj?.url;
+                if (!imgUrl) return null;
+                return (
+                  <div key={idx} className="aspect-square bg-[#060609] border border-white/10 overflow-hidden group relative">
+                    <img 
+                      src={imgUrl} 
+                      alt={`Gallery Image ${idx + 1}`} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 関連記事 */}
+        {relatedArticles.length > 0 && (
+          <div className="space-y-6 pt-10 border-t border-white/10">
+            <div className="flex items-center gap-2 text-xs font-mono text-[#d4b07b] tracking-widest uppercase">
+              <LinkIcon className="w-4 h-4 text-[#8f121d]" />
+              <span>RELATED ARCHIVES</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {relatedArticles.map((relItem, idx) => {
+                if (!relItem || typeof relItem !== 'object') return null;
+                return (
+                  <div 
+                    key={idx} 
+                    onClick={() => handleArticleClick(relItem.id)}
+                    className="bg-[#060609] border border-white/10 p-6 space-y-3 cursor-pointer hover:border-[#8f121d] transition-all group"
+                  >
+                    <span className="text-[9px] font-mono text-[#8f121d] uppercase block">RECOMMENDED</span>
+                    <h4 className="font-serif text-lg text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2">
+                      {relItem.title || 'Untitled Article'}
+                    </h4>
+                    {relItem.lead && <p className="text-xs text-[#a1a1aa] line-clamp-2 font-light">{relItem.lead}</p>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* フッターナビ */}
         <div className="pt-12 border-t border-white/10 flex justify-between items-center">
           <button 
             onClick={handleBackToList} 
@@ -117,7 +199,7 @@ export default function JournalPage({
     );
   }
 
-  // 記事一覧表示時
+  // 🌟 記事一覧表示時
   return (
     <div className="pt-36 pb-32 max-w-7xl mx-auto px-8 sm:px-12 space-y-16 animate-fadeIn">
       <div className="space-y-4 border-b border-white/10 pb-8">
@@ -151,24 +233,46 @@ export default function JournalPage({
           {filteredArticles.map(article => {
             const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
             const categoryName = getCategoryName(article?.category);
+            const eyecatchUrl = article?.eyecatch?.url;
 
             return (
               <article 
                 key={article.id} 
                 onClick={() => handleArticleClick(article.id)} 
-                className="bg-[#060609] border border-white/10 p-8 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group"
+                className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group"
               >
-                <div className="space-y-4">
-                  <div className="flex justify-between font-mono text-[10px] text-[#71717a]">
-                    <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
-                    <span>{articleDate}</span>
+                {/* 🌟 16:9 サムネイル画像表示部 */}
+                {eyecatchUrl && (
+                  <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
+                    <img 
+                      src={eyecatchUrl} 
+                      alt={article.title || ''} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
                   </div>
-                  <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2 break-all">{article.title || 'Untitled'}</h3>
-                  <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed break-all">{article.lead || ''}</p>
-                </div>
-                <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
-                  <span>BY {article.author || 'RUBEDO'}</span>
-                  <span className="text-white flex items-center gap-1">READ <ArrowRight className="w-3.5 h-3.5 text-[#8f121d]"/></span>
+                )}
+
+                {/* 記事カード本文テキスト */}
+                <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-4">
+                    <div className="flex justify-between font-mono text-[10px] text-[#71717a]">
+                      <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
+                      <span>{articleDate}</span>
+                    </div>
+                    <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2 break-all">
+                      {article.title || 'Untitled'}
+                    </h3>
+                    <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed break-all">
+                      {article.lead || ''}
+                    </p>
+                  </div>
+                  
+                  <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
+                    <span>BY {article.author || 'RUBEDO'}</span>
+                    <span className="text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                      READ <ArrowRight className="w-3.5 h-3.5 text-[#8f121d]"/>
+                    </span>
+                  </div>
                 </div>
               </article>
             );
