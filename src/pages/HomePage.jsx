@@ -118,8 +118,8 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {articles.slice(0, 3).map((article) => {
-              const articleDate = formatDate(article.publishedAt || article.createdAt || article.updatedAt);
-              const categoryName = getCategoryName(article.category);
+              const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
+              const categoryName = getCategoryName(article?.category);
 
               return (
                 <article 
