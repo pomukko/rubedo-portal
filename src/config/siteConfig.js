@@ -5,6 +5,7 @@ export const CONFIG = {
   LINKS: {
     numenX: 'https://x.com/Numen_rubedovrc',
     mumenX: 'https://x.com/__MUMEN',
+    twitter: 'https://x.com/RUBEDO_64',
     boothStore: 'https://rubedo0.booth.pm/',
     vermiliaItem: 'https://rubedo0.booth.pm/items/8165350',
     discordServer: 'https://discord.com/invite/tNS6Whqf5P',
