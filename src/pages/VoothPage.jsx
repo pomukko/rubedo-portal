@@ -93,7 +93,7 @@ export default function VoothPage({ navigateTo, CONFIG }) {
           <div className="flex items-center gap-5 text-xs text-[#a1a1aa] font-mono">
             <div className="flex items-center gap-2 bg-[#030305] px-3 py-1.5 border border-white/10 cursor-pointer hover:border-white/30 transition-all">
               <span className="w-2 h-2 rounded-full bg-[#8f121d] animate-pulse"></span>
-              <span className="text-white font-bold tracking-widest">DIOIMIA</span>
+              <span className="text-white font-bold tracking-widest">User</span>
             </div>
             <Bell className="w-4 h-4 cursor-pointer hover:text-white transition-colors hidden sm:block" />
             <Heart className="w-4 h-4 cursor-pointer hover:text-white transition-colors hidden sm:block" />
