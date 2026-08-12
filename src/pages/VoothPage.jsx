@@ -15,7 +15,6 @@ export default function VoothPage({ navigateTo, CONFIG }) {
       price: '¥ 12,000',
       likes: 389,
       isFlagship: true,
-      imageUrl: 'https://images.microcms-assets.io/assets/rubedo/example/vermilia_thumb.jpg', // アイキャッチ画像
       tag: 'FLAGSHIP MODEL'
     },
     {
@@ -59,20 +58,19 @@ export default function VoothPage({ navigateTo, CONFIG }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#1f1f22] text-[#e2e2e8] font-sans animate-fadeIn">
-      {/* 🌟 1. VOOTH 赤色トップヘッダー (BOOTH完全パロディ) */}
-      <header className="bg-[#28282c] border-b border-black/40 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+    <div className="min-h-screen bg-[#040406] text-[#e2e2e8] font-sans animate-fadeIn">
+      {/* 🌟 1. VOOTH トップヘッダー (RUBEDOカラー統一致命的かっこよさ！) */}
+      <header className="bg-[#07070a] border-b border-white/10 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
           
           {/* VOOTH ロゴ & 検索バー */}
-          <div className="flex items-center gap-4 flex-1">
-            {/* VOOTH ロゴ */}
+          <div className="flex items-center gap-6 flex-1">
+            {/* VOOTH ロゴ（PARODYテキスト削除） */}
             <div 
               onClick={() => navigateTo('home')} 
-              className="bg-[#fc4d51] text-white font-black text-xl px-3 py-1 tracking-tighter cursor-pointer hover:opacity-90 transition-opacity flex items-center gap-1 shadow-md"
+              className="bg-[#8f121d] text-white font-black text-xl px-4 py-1 tracking-tighter cursor-pointer hover:bg-[#a31625] transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(143,18,29,0.5)]"
             >
               <span>VOOTH</span>
-              <span className="text-[9px] bg-black/30 px-1 py-0.2 rounded font-mono font-normal">PARODY</span>
             </div>
 
             {/* 検索入力欄 */}
@@ -80,58 +78,60 @@ export default function VoothPage({ navigateTo, CONFIG }) {
               <input 
                 type="text" 
                 placeholder="展示アセットやキーワードを入力..." 
-                className="w-full bg-[#18181a] border border-white/10 rounded px-4 py-1.5 text-xs text-white focus:outline-none focus:border-[#fc4d51] transition-colors pl-3 pr-10"
+                className="w-full bg-[#030305] border border-white/10 rounded-none px-4 py-2 text-xs text-white focus:outline-none focus:border-[#8f121d] transition-colors pl-4 pr-10 font-mono"
               />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[#a1a1aa]">
-                <Search className="w-3.5 h-3.5 cursor-pointer hover:text-white" />
-                <SlidersHorizontal className="w-3.5 h-3.5 cursor-pointer hover:text-white ml-1 border-l border-white/10 pl-1" />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-[#71717a]">
+                <Search className="w-4 h-4 cursor-pointer hover:text-white transition-colors" />
+                <SlidersHorizontal className="w-4 h-4 cursor-pointer hover:text-white transition-colors border-l border-white/10 pl-2" />
               </div>
             </div>
           </div>
 
           {/* 右側 ユーザーアイコン領域 */}
-          <div className="flex items-center gap-4 text-xs text-[#a1a1aa] font-mono">
-            <div className="flex items-center gap-1 bg-[#18181a] px-2.5 py-1 rounded border border-white/5 cursor-pointer hover:text-white">
-              <span className="w-2 h-2 rounded-full bg-[#fc4d51]"></span>
-              <span className="text-white font-bold">DIOIMIA</span>
+          <div className="flex items-center gap-5 text-xs text-[#a1a1aa] font-mono">
+            <div className="flex items-center gap-2 bg-[#030305] px-3 py-1.5 border border-white/10 cursor-pointer hover:border-white/30 transition-all">
+              <span className="w-2 h-2 rounded-full bg-[#8f121d] animate-pulse"></span>
+              <span className="text-white font-bold tracking-widest">DIOIMIA</span>
             </div>
-            <Bell className="w-4 h-4 cursor-pointer hover:text-white hidden sm:block" />
-            <Heart className="w-4 h-4 cursor-pointer hover:text-white hidden sm:block" />
-            <ShoppingCart className="w-4 h-4 cursor-pointer hover:text-white hidden sm:block" />
-            <div className="flex items-center gap-1 cursor-pointer hover:text-white border-l border-white/10 pl-3">
-              <Globe className="w-3.5 h-3.5" />
+            <Bell className="w-4 h-4 cursor-pointer hover:text-white transition-colors hidden sm:block" />
+            <Heart className="w-4 h-4 cursor-pointer hover:text-white transition-colors hidden sm:block" />
+            <ShoppingCart className="w-4 h-4 cursor-pointer hover:text-white transition-colors hidden sm:block" />
+            <div className="flex items-center gap-1.5 cursor-pointer hover:text-white border-l border-white/10 pl-4 transition-colors">
+              <Globe className="w-3.5 h-3.5 text-[#d4b07b]" />
               <span>日本語</span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* 🌟 2. ショップヘッダーエリア (BOOTHのRUBEDOショップ画面再現) */}
-      <div className="bg-[#18181b] border-b border-white/10">
-        <div className="max-w-5xl mx-auto px-6 py-10 space-y-6">
+      {/* 🌟 2. ショップヘッダーエリア (RUBEDO漆黒＆ゴールド仕様) */}
+      <div className="bg-[#060609] border-b border-white/10 relative">
+        <div className="max-w-5xl mx-auto px-6 py-12 space-y-8">
           
           {/* ショップメインカード */}
-          <div className="bg-[#28282c] border border-white/10 p-6 sm:p-8 rounded-lg shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="flex items-center gap-6">
+          <div className="bg-[#030305] border border-white/10 p-8 rounded-none shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#8f121d]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="flex items-center gap-6 z-10">
               {/* RUBEDO アイコン */}
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-black border border-white/20 rounded-lg flex items-center justify-center p-2 shadow-inner flex-shrink-0">
-                <div className="border border-[#8f121d] w-full h-full bg-[#8f121d]/20 flex items-center justify-center">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#060609] border border-[#8f121d]/50 flex items-center justify-center p-2 shadow-[0_0_30px_rgba(143,18,29,0.3)] flex-shrink-0">
+                <div className="border border-white/10 w-full h-full bg-[#8f121d]/20 flex items-center justify-center">
                   <span className="font-serif text-white font-bold text-xs tracking-widest">RUBEDO</span>
                 </div>
               </div>
 
               {/* ショップ名 ＆ ID */}
               <div className="space-y-2">
-                <h1 className="font-serif text-2xl sm:text-3xl text-white font-normal tracking-wide">RUBEDO</h1>
-                <p className="text-xs font-mono text-[#a1a1aa]">RUBEDO EXHIBITION HALL</p>
+                <h1 className="font-serif text-3xl sm:text-4xl text-white font-normal tracking-wide">RUBEDO</h1>
+                <p className="text-xs font-mono text-[#d4b07b]">RUBEDO 3D EXHIBITION HALL</p>
                 
                 {/* フォローボタン */}
                 <button 
                   onClick={() => setIsFollowed(!isFollowed)}
-                  className={`px-5 py-1.5 rounded text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-md ${
+                  className={`px-6 py-2 text-xs font-mono font-bold transition-all flex items-center gap-2 cursor-pointer shadow-lg ${
                     isFollowed 
                       ? 'bg-white/10 text-white border border-white/20' 
-                      : 'bg-[#fc4d51] text-white hover:bg-[#e03e42]'
+                      : 'bg-[#8f121d] text-white hover:bg-[#a31625] shadow-[0_0_20px_rgba(143,18,29,0.4)]'
                   }`}
                 >
                   {isFollowed ? <Check className="w-3.5 h-3.5 text-green-400" /> : <span>＋</span>}
@@ -141,26 +141,26 @@ export default function VoothPage({ navigateTo, CONFIG }) {
             </div>
 
             {/* SNS ＆ シェアアイコン群 */}
-            <div className="flex items-center gap-3 text-[#a1a1aa]">
-              <a href={CONFIG.LINKS.discordServer} target="_blank" rel="noreferrer" className="w-9 h-9 bg-[#18181a] border border-white/10 rounded-full flex items-center justify-center hover:text-white hover:border-[#fc4d51] transition-colors">
+            <div className="flex items-center gap-3 text-[#a1a1aa] z-10">
+              <a href={CONFIG.LINKS.discordServer} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#060609] border border-white/10 flex items-center justify-center hover:text-white hover:border-[#8f121d] transition-all">
                 <Twitter className="w-4 h-4" />
               </a>
-              <a href={CONFIG.LINKS.discordServer} target="_blank" rel="noreferrer" className="w-9 h-9 bg-[#18181a] border border-white/10 rounded-full flex items-center justify-center hover:text-white hover:border-[#fc4d51] transition-colors">
+              <a href={CONFIG.LINKS.discordServer} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#060609] border border-white/10 flex items-center justify-center hover:text-white hover:border-[#8f121d] transition-all">
                 <Mail className="w-4 h-4" />
               </a>
-              <div className="w-9 h-9 bg-[#18181a] border border-white/10 rounded-full flex items-center justify-center hover:text-white cursor-pointer">
+              <div className="w-10 h-10 bg-[#060609] border border-white/10 flex items-center justify-center hover:text-white hover:border-[#8f121d] transition-all cursor-pointer">
                 <Share2 className="w-4 h-4" />
               </div>
             </div>
           </div>
 
           {/* 展覧会コンセプト案内ノティス */}
-          <div className="bg-[#8f121d]/10 border border-[#8f121d]/40 p-4 rounded text-xs text-[#d4b07b] flex items-center justify-between gap-4 font-mono">
-            <div className="flex items-center gap-2">
+          <div className="bg-[#8f121d]/10 border border-[#8f121d]/40 p-4 text-xs text-[#d4b07b] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono">
+            <div className="flex items-center gap-3">
               <span className="w-2 h-2 rounded-full bg-[#8f121d] animate-pulse"></span>
-              <span>【RUBEDO 3D EXHIBITION】ここはBOOTH未公開のコンセプト3Dモデル・展覧会ページです。</span>
+              <span>【RUBEDO 3D EXHIBITION】ここはBOOTH未公開のコンセプト3Dモデル・展覧会ホールです。</span>
             </div>
-            <button onClick={() => navigateTo('home')} className="text-white underline hover:text-[#d4b07b] flex items-center gap-1">
+            <button onClick={() => navigateTo('home')} className="text-white underline hover:text-[#d4b07b] flex items-center gap-1 cursor-pointer">
               PORTAL TOP <ArrowUpRight className="w-3 h-3" />
             </button>
           </div>
@@ -168,18 +168,18 @@ export default function VoothPage({ navigateTo, CONFIG }) {
         </div>
       </div>
 
-      {/* 🌟 3. 展覧会アイテム一覧 (BOOTH商品カードデザイン再現) */}
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        <div className="space-y-6 mb-8 flex justify-between items-center border-b border-white/10 pb-4">
-          <h2 className="font-serif text-xl text-white flex items-center gap-2">
+      {/* 🌟 3. 展覧会アイテム一覧 (BOOTHレイアウト ✕ RUBEDOダークデザイン) */}
+      <main className="max-w-5xl mx-auto px-6 py-16">
+        <div className="flex justify-between items-center border-b border-white/10 pb-4 mb-10">
+          <h2 className="font-serif text-2xl text-white flex items-center gap-3">
             <span>EXHIBITION ITEMS</span>
-            <span className="text-xs font-mono text-[#a1a1aa]">({exhibitionItems.length})</span>
+            <span className="text-xs font-mono text-[#8f121d]">({exhibitionItems.length})</span>
           </h2>
           <span className="text-xs font-mono text-[#a1a1aa]">SORT BY: NEWEST</span>
         </div>
 
         {/* グリッドカード配置 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {exhibitionItems.map((item) => {
             const isLiked = likedItems[item.id];
             const currentLikes = isLiked ? item.likes + 1 : item.likes;
@@ -187,15 +187,15 @@ export default function VoothPage({ navigateTo, CONFIG }) {
             return (
               <div 
                 key={item.id}
-                className="bg-[#28282c] border border-white/10 rounded-lg overflow-hidden flex flex-col justify-between hover:border-[#fc4d51]/70 transition-all cursor-pointer group shadow-lg"
+                className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-xl"
               >
-                {/* 🌟 サムネイル画像部 (1:1 正方形 BOOTH仕様) */}
-                <div className="aspect-square bg-black relative overflow-hidden flex items-center justify-center">
+                {/* サムネイル画像部 (1:1 正方形 BOOTH仕様) */}
+                <div className="aspect-square bg-[#030305] relative overflow-hidden flex items-center justify-center border-b border-white/10">
                   {item.imageUrl ? (
                     <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
-                    <div className="w-full h-full bg-[#121214] p-6 flex flex-col items-center justify-center text-center space-y-3">
-                      <div className="w-12 h-12 border border-[#8f121d] bg-[#8f121d]/20 flex items-center justify-center font-serif text-xs text-white">
+                    <div className="w-full h-full bg-[#030305] p-6 flex flex-col items-center justify-center text-center space-y-3">
+                      <div className="w-12 h-12 border border-[#8f121d] bg-[#8f121d]/20 flex items-center justify-center font-serif text-xs text-white shadow-[0_0_15px_rgba(143,18,29,0.4)]">
                         RUBEDO
                       </div>
                       <span className="text-[10px] font-mono text-[#d4b07b] tracking-widest">{item.tag}</span>
@@ -203,9 +203,9 @@ export default function VoothPage({ navigateTo, CONFIG }) {
                   )}
 
                   {/* BOOTH風バッジ */}
-                  <div className="absolute top-2 left-2 flex flex-col gap-1">
+                  <div className="absolute top-3 left-3 flex flex-col gap-1">
                     {item.badges.map((badge, bIdx) => (
-                      <span key={bIdx} className="bg-black/80 text-white text-[9px] font-mono px-2 py-0.5 rounded border border-white/10">
+                      <span key={bIdx} className="bg-[#040406]/90 text-white text-[9px] font-mono px-2 py-0.5 border border-white/10 backdrop-blur-md">
                         {badge}
                       </span>
                     ))}
@@ -213,31 +213,28 @@ export default function VoothPage({ navigateTo, CONFIG }) {
                 </div>
 
                 {/* カード情報テキスト部 */}
-                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                  <div className="space-y-1.5">
-                    {/* カテゴリー */}
-                    <span className="text-[10px] font-mono text-[#a1a1aa] block">{item.category}</span>
-                    
-                    {/* 商品名 */}
-                    <h3 className="text-xs text-white font-medium line-clamp-2 leading-relaxed group-hover:text-[#fc4d51] transition-colors">
+                <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-mono text-[#8f121d] block font-bold">{item.category}</span>
+                    <h3 className="text-xs text-white font-serif line-clamp-2 leading-relaxed group-hover:text-[#d4b07b] transition-colors">
                       {item.title}
                     </h3>
                   </div>
 
                   {/* 価格 ＆ いいねボタン (BOOTH忠実再現) */}
-                  <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-                    <span className={`font-mono text-sm font-bold ${item.price.includes('NON') ? 'text-[#a1a1aa]' : 'text-white'}`}>
+                  <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                    <span className={`font-mono text-xs font-bold ${item.price.includes('NON') ? 'text-[#71717a]' : 'text-[#d4b07b]'}`}>
                       {item.price}
                     </span>
 
                     {/* いいね（ハート）ボタン */}
                     <button 
                       onClick={(e) => toggleLike(item.id, e)}
-                      className={`flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded transition-colors ${
-                        isLiked ? 'bg-[#fc4d51]/20 text-[#fc4d51]' : 'text-[#a1a1aa] hover:text-white'
+                      className={`flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 transition-all cursor-pointer ${
+                        isLiked ? 'bg-[#8f121d]/20 text-[#8f121d] border border-[#8f121d]/50' : 'text-[#a1a1aa] hover:text-white'
                       }`}
                     >
-                      <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-[#fc4d51] text-[#fc4d51]' : ''}`} />
+                      <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-[#8f121d] text-[#8f121d]' : ''}`} />
                       <span>{currentLikes}</span>
                     </button>
                   </div>
@@ -249,9 +246,9 @@ export default function VoothPage({ navigateTo, CONFIG }) {
       </main>
 
       {/* フッター */}
-      <footer className="bg-[#18181b] border-t border-white/10 py-8 text-center text-xs font-mono text-[#a1a1aa] space-y-2">
-        <p>© 2026 RUBEDO - VOOTH PARODY EXHIBITION HALL</p>
-        <p className="text-[10px] text-[#52525b]">This page is an unofficial creative exhibition inspired by BOOTH UI.</p>
+      <footer className="bg-[#030305] border-t border-white/10 py-10 text-center text-xs font-mono text-[#71717a] space-y-2">
+        <p>© 2026 RUBEDO - VOOTH EXHIBITION HALL</p>
+        <p className="text-[10px] text-[#52525b]">This page is an unofficial creative exhibition hall inspired by BOOTH UI.</p>
       </footer>
     </div>
   );
