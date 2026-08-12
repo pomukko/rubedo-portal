@@ -28,10 +28,11 @@
   aspect-ratio: auto !important;
 }
 
-/* 🌟 スライダーのスクロールバー非表示 */
+/* 🌟 スライダーのスクロールバー非表示（標準CSS記法） */
 .scrollbar-none {
   scrollbar-width: none;
 }
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
