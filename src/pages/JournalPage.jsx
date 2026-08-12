@@ -37,40 +37,40 @@ export default function JournalPage({
     }
   };
 
-  // 🌟 記事詳細表示時（タイポグラフィ超強化版！）
+  // 🌟 記事詳細表示時（文字サイズ1.5倍！Note風タイポグラフィ完全強化版！）
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
 
     return (
-      <div className="max-w-4xl mx-auto px-6 sm:px-10 pt-36 sm:pt-44 pb-32 space-y-12 animate-fadeIn">
+      <div className="max-w-4xl mx-auto px-6 sm:px-10 pt-36 sm:pt-48 pb-36 space-y-14 animate-fadeIn">
         {/* 一覧に戻るボタン */}
         <button 
           onClick={handleBackToList} 
-          className="inline-flex items-center gap-2 font-mono text-xs text-[#a1a1aa] hover:text-white transition-colors tracking-widest cursor-pointer group border border-white/10 px-4 py-2 bg-white/[0.02] hover:border-[#8f121d]"
+          className="inline-flex items-center gap-3 font-mono text-sm sm:text-base text-[#a1a1aa] hover:text-white transition-colors tracking-widest cursor-pointer group border border-white/10 px-5 py-2.5 bg-white/[0.02] hover:border-[#8f121d]"
         >
-          <ArrowLeft className="w-4 h-4 text-[#8f121d] group-hover:-translate-x-1 transition-transform" /> 
-          <span>BACK TO JOURNAL LIST</span>
+          <ArrowLeft className="w-5 h-5 text-[#8f121d] group-hover:-translate-x-1.5 transition-transform" /> 
+          <span>RETURN TO LIST</span>
         </button>
 
         {/* 記事ヘッダー情報 */}
-        <div className="space-y-6 border-b border-white/10 pb-10">
-          <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-[#a1a1aa]">
-            <span className="bg-[#8f121d] text-white px-3 py-1 font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(143,18,29,0.5)]">
+        <div className="space-y-8 border-b border-white/10 pb-12">
+          <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm font-mono text-[#a1a1aa]">
+            <span className="bg-[#8f121d] text-white px-3.5 py-1.5 font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(143,18,29,0.6)]">
               {categoryName}
             </span>
             {articleDate && <span className="tracking-widest">{articleDate}</span>}
             {selectedArticle.author && <span className="text-[#d4b07b] border-l border-white/10 pl-4">BY {selectedArticle.author}</span>}
           </div>
 
-          {/* 記事タイトル（Note風にドーンと大きく！） */}
-          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-white font-normal leading-[1.25] tracking-wide">
+          {/* 記事タイトル（ドーンと1.5倍！） */}
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl text-white font-normal leading-[1.2] tracking-wide">
             {selectedArticle.title || 'Untitled'}
           </h1>
 
-          {/* リード文 */}
+          {/* 🌟 リード文（1.5倍巨大化！） */}
           {selectedArticle.lead && (
-            <p className="text-base sm:text-xl text-[#d4b07b]/90 border-l-2 border-[#8f121d] pl-5 py-1 font-light leading-relaxed italic bg-[#8f121d]/[0.03]">
+            <p className="text-xl sm:text-2xl lg:text-3xl text-[#d4b07b] border-l-4 border-[#8f121d] pl-6 py-2 font-light leading-[1.7] italic bg-[#8f121d]/[0.04]">
               {selectedArticle.lead}
             </p>
           )}
@@ -78,49 +78,49 @@ export default function JournalPage({
 
         {/* アイキャッチ画像 */}
         {selectedArticle.eyecatch?.url && (
-          <div className="aspect-video w-full overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+          <div className="aspect-video w-full overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.9)]">
             <img src={selectedArticle.eyecatch.url} alt={selectedArticle.title || ''} className="w-full h-full object-cover" />
           </div>
         )}
 
-        {/* 🌟 microCMSのリッチテキスト本文（Note/Zenn標準の爆速可読性カスタム！） */}
+        {/* 🌟 microCMSのリッチテキスト本文（文字サイズ1.5倍＆爆速視認性カスタム！） */}
         <div 
-          className="article-body prose prose-invert max-w-none space-y-8 text-base sm:text-lg leading-[2.1] sm:leading-[2.2] font-light text-[#e2e2e8]
-            /* 段落・テキスト */
-            [&_p]:mb-8 [&_p]:tracking-wide [&_p]:text-[#e2e2e8]
-            /* 見出し2（H2） Note風に目立たせる！ */
-            [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:sm:text-3xl [&_h2]:text-white [&_h2]:mt-16 [&_h2]:mb-8 [&_h2]:pt-4 [&_h2]:pb-3 [&_h2]:border-l-4 [&_h2]:border-[#8f121d] [&_h2]:pl-5 [&_h2]:bg-gradient-to-r [&_h2]:from-[#8f121d]/15 [&_h2]:to-transparent
+          className="article-body prose prose-invert max-w-none space-y-10 text-lg sm:text-xl lg:text-2xl leading-[2.1] sm:leading-[2.2] lg:leading-[2.3] font-light text-[#e2e2e8]
+            /* 本文段落 (1.5倍の文字サイズ) */
+            [&_p]:mb-10 [&_p]:tracking-wide [&_p]:text-[#e2e2e8]
+            /* 見出し2（H2） 超巨大＆インパクト！ */
+            [&_h2]:font-serif [&_h2]:text-3xl [&_h2]:sm:text-4xl [&_h2]:lg:text-5xl [&_h2]:text-white [&_h2]:mt-20 [&_h2]:mb-10 [&_h2]:pt-6 [&_h2]:pb-4 [&_h2]:border-l-8 [&_h2]:border-[#8f121d] [&_h2]:pl-6 [&_h2]:bg-gradient-to-r [&_h2]:from-[#8f121d]/20 [&_h2]:to-transparent
             /* 見出し3（H3） */
-            [&_h3]:font-serif [&_h3]:text-xl [&_h3]:sm:text-2xl [&_h3]:text-[#d4b07b] [&_h3]:mt-12 [&_h3]:mb-6 [&_h3]:border-b [&_h3]:border-white/10 [&_h3]:pb-2
+            [&_h3]:font-serif [&_h3]:text-2xl [&_h3]:sm:text-3xl [&_h3]:text-[#d4b07b] [&_h3]:mt-16 [&_h3]:mb-8 [&_h3]:border-b [&_h3]:border-white/15 [&_h3]:pb-3
             /* 見出し4（H4） */
-            [&_h4]:font-sans [&_h4]:text-lg [&_h4]:font-bold [&_h4]:text-white [&_h4]:mt-8 [&_h4]:mb-4
+            [&_h4]:font-sans [&_h4]:text-xl [&_h4]:sm:text-2xl [&_h4]:font-bold [&_h4]:text-white [&_h4]:mt-10 [&_h4]:mb-6
             /* 強調テキスト */
-            [&_strong]:font-bold [&_strong]:text-white [&_strong]:bg-[#8f121d]/30 [&_strong]:px-1.5 [&_strong]:py-0.5
+            [&_strong]:font-bold [&_strong]:text-white [&_strong]:bg-[#8f121d]/40 [&_strong]:px-2 [&_strong]:py-0.5
             /* リンク */
-            [&_a]:text-[#d4b07b] [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-[#d4b07b]/40 hover:[&_a]:text-white hover:[&_a]:decoration-white transition-colors
+            [&_a]:text-[#d4b07b] [&_a]:underline [&_a]:underline-offset-8 [&_a]:decoration-[#d4b07b]/50 hover:[&_a]:text-white hover:[&_a]:decoration-white transition-colors
             /* 箇条書きリスト (ul/ol) */
-            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-3 [&_ul]:my-6 [&_ul_li]:text-[#e2e2e8]
-            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-3 [&_ol]:my-6 [&_ol_li]:text-[#e2e2e8]
+            [&_ul]:list-disc [&_ul]:pl-8 [&_ul]:space-y-4 [&_ul]:my-8 [&_ul_li]:text-[#e2e2e8]
+            [&_ol]:list-decimal [&_ol]:pl-8 [&_ol]:space-y-4 [&_ol]:my-8 [&_ol_li]:text-[#e2e2e8]
             /* 引用 (blockquote) */
-            [&_blockquote]:border-l-4 [&_blockquote]:border-[#d4b07b] [&_blockquote]:bg-[#060609] [&_blockquote]:p-6 [&_blockquote]:my-8 [&_blockquote]:italic [&_blockquote]:text-[#a1a1aa]
+            [&_blockquote]:border-l-4 [&_blockquote]:border-[#d4b07b] [&_blockquote]:bg-[#060609] [&_blockquote]:p-8 [&_blockquote]:my-10 [&_blockquote]:italic [&_blockquote]:text-[#a1a1aa] [&_blockquote]:text-xl
             /* コードブロック (pre / code) */
-            [&_pre]:bg-[#030305] [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-6 [&_pre]:rounded-none [&_pre]:overflow-x-auto [&_pre]:my-8 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:sm:text-sm [&_pre]:text-[#d4b07b]
-            [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/10 [&_code]:px-2 [&_code]:py-1 [&_code]:text-[#d4b07b]
+            [&_pre]:bg-[#030305] [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-8 [&_pre]:rounded-none [&_pre]:overflow-x-auto [&_pre]:my-10 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:sm:text-base [&_pre]:text-[#d4b07b]
+            [&_code]:font-mono [&_code]:text-sm [&_code]:sm:text-base [&_code]:bg-white/10 [&_code]:px-2.5 [&_code]:py-1 [&_code]:text-[#d4b07b]
             /* 本文内画像 */
-            [&_img]:w-full [&_img]:my-10 [&_img]:border [&_img]:border-white/10
+            [&_img]:w-full [&_img]:my-12 [&_img]:border [&_img]:border-white/10
             /* 水平線 */
-            [&_hr]:border-white/10 [&_hr]:my-12"
+            [&_hr]:border-white/10 [&_hr]:my-16"
           dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
         />
 
         {/* 記事下部フッターナビゲーション */}
-        <div className="pt-12 border-t border-white/10 flex justify-between items-center">
+        <div className="pt-16 border-t border-white/10 flex justify-between items-center">
           <button 
             onClick={handleBackToList} 
-            className="inline-flex items-center gap-2 font-mono text-xs text-[#d4b07b] hover:text-white transition-colors tracking-widest cursor-pointer"
+            className="inline-flex items-center gap-3 font-mono text-sm sm:text-base text-[#d4b07b] hover:text-white transition-colors tracking-widest cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4 text-[#8f121d]" /> 
-            <span>RETURN TO ARCHIVE LIST</span>
+            <ArrowLeft className="w-5 h-5 text-[#8f121d]" /> 
+            <span>RETURN TO JOURNAL LIST</span>
           </button>
         </div>
       </div>
