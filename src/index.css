@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* 🌟 シネマティック・フェードインアニメーション */
 @keyframes fadeIn {
   from { 
@@ -22,9 +18,9 @@
 .article-body img,
 .webtoon-image {
   width: 100% !important;
-  max-width: 520px !important; /* PC画面で一番読みやすいマンガ幅 */
-  height: auto !important;     /* 縦長アスペクト比を100%解放 */
-  max-height: none !important; /* 縦制限撤廃 */
+  max-width: 520px !important;
+  height: auto !important;
+  max-height: none !important;
   object-fit: contain !important;
   margin-left: auto !important;
   margin-right: auto !important;
@@ -32,11 +28,10 @@
   aspect-ratio: auto !important;
 }
 
-/* 🌟 スライダーのスクロールバー非表示（超クリーン記法） */
+/* 🌟 スライダーのスクロールバー非表示 */
 .scrollbar-none {
   scrollbar-width: none;
 }
-
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
