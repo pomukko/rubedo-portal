@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* 🌟 シネマティック・フェードインアニメーション */
 @keyframes fadeIn {
   from { 
@@ -28,11 +32,11 @@
   aspect-ratio: auto !important;
 }
 
-/* 🌟 スライダーのスクロールバー非表示 */
+/* 🌟 スライダーのスクロールバー非表示（超クリーン記法） */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
-}
-.scrollbar-none {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
