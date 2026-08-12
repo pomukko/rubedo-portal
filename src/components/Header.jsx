@@ -42,8 +42,8 @@ export default function Header({
               <span className="uppercase">{isMuted ? 'SOUND OFF' : 'SOUND ON'}</span>
             </button>
 
-            {/* BOOTH STORE LINK */}
-            <a href={CONFIG.LINKS.boothStore} target="_blank" rel="noreferrer" className="text-[10px] tracking-[0.3em] font-mono text-[#d4b07b] border border-[#d4b07b]/30 bg-[#d4b07b]/[0.02] px-5 py-2.5 hover:bg-[#d4b07b]/15 transition-all flex items-center gap-2">
+            {/* BOOTH STORE LINK (安全ガード付き) */}
+            <a href={CONFIG?.LINKS?.boothStore || '#'} target="_blank" rel="noreferrer" className="text-[10px] tracking-[0.3em] font-mono text-[#d4b07b] border border-[#d4b07b]/30 bg-[#d4b07b]/[0.02] px-5 py-2.5 hover:bg-[#d4b07b]/15 transition-all flex items-center gap-2">
               BOOTH <ArrowUpRight className="w-3 h-3" />
             </a>
 
@@ -61,7 +61,7 @@ export default function Header({
         </div>
       </header>
 
-      {/* 🌟 100%復元！ MENUボタンを押した時に全画面表示されるオーバーレイメニュー */}
+      {/* OVERLAY MENU */}
       {isMenuOpen && (
         <div className="fixed inset-0 bg-[#040406]/98 z-40 backdrop-blur-3xl flex flex-col justify-between p-8 sm:p-20 animate-fadeIn">
           <div className="pt-24 max-w-4xl mx-auto w-full space-y-8">
