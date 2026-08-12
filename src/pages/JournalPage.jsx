@@ -7,8 +7,8 @@ export default function JournalPage({
   activeTab, 
   setActiveTab, 
   selectedArticle, 
-  setSelectedArticleId, 
-  navigateTo 
+  setSelectedArticleId,
+  navigateTo
 }) {
   const categories = ['all', 'Modeling', 'VRChat', 'Shader', 'Dialogue'];
   
@@ -16,11 +16,11 @@ export default function JournalPage({
   const filteredArticles = activeTab === 'all' 
     ? journalArticles 
     : journalArticles.filter(a => {
-        const catName = getCategoryName(a.category);
+        const catName = getCategoryName(a?.category);
         return catName.toLowerCase() === activeTab.toLowerCase();
       });
 
-  // 安全な遷移ヘルパー
+  // 安全な画面遷移ハンドラー
   const handleArticleClick = (articleId) => {
     if (typeof navigateTo === 'function') {
       navigateTo('journal', null, articleId);
@@ -109,8 +109,8 @@ export default function JournalPage({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {filteredArticles.map(article => {
-            const articleDate = formatDate(article.publishedAt || article.createdAt || article.updatedAt);
-            const categoryName = getCategoryName(article.category);
+            const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
+            const categoryName = getCategoryName(article?.category);
 
             return (
               <article 
