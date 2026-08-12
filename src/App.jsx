@@ -38,7 +38,7 @@ export default function App() {
       return;
     }
 
-    // 2. /entry/記事ID（旧URLからのリダイレクト互換）
+    // 2. /entry/記事ID（旧URLからの互換）
     if (path.startsWith('/entry/')) {
       const articleId = path.replace('/entry/', '');
       setCurrentPage('journal');
@@ -118,14 +118,14 @@ export default function App() {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
   }, [isMenuOpen]);
 
-  // 🌟 一瞬で黒で覆い、しっかりロードを見せる遷移関数！
+  // 🌟 チラ見えゼロ！完璧なステップ制御遷移関数
   const navigateTo = (page, category = null, articleId = null) => {
     setIsMenuOpen(false);
     
-    // 1. 瞬時に全画面ローディング起動！（チラ見え完全防止）
+    // Step 1: 即座に全画面不透明（100%黒）で画面を完全遮断！
     setPageTransitioning(true);
 
-    // 2. 0.5秒間ローディング画面を見せている間に裏でページ切替＆スクロールトップ！
+    // Step 2: 0.2秒後（完全に画面が隠れた状態）で裏のデータとURL・スクロール位置を一括更新
     setTimeout(() => {
       setCurrentPage(page);
       if (category) setActiveTab(category);
@@ -152,20 +152,22 @@ export default function App() {
       window.history.pushState({}, '', targetPath);
       window.scrollTo({ top: 0, behavior: 'instant' });
 
-      // 3. 切り替え完了後、ローディング解除！
+      // Step 3: さらに0.4秒間ロード画面を見せてから、スッと新しいページを開く
       setTimeout(() => {
         setPageTransitioning(false);
-      }, 100);
-    }, 500);
+      }, 400);
+    }, 200);
   };
 
   const showLoading = loading || pageTransitioning;
+
+  const selectedArticle = journalArticles.find(a => a.id === selectedArticleId);
 
   return (
     <div className="min-h-screen bg-[#040406] text-[#e2e2e8] font-sans selection:bg-[#8f121d] selection:text-white relative overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none z-30 shadow-[inset_0_0_160px_rgba(0,0,0,0.9)]"></div>
 
-      {/* 🌟 透明度ゼロ！クリックした瞬間に100%不透明の黒で覆うシネマティックローディング */}
+      {/* 🌟 透け感ゼロ！不透明度100%のソリッドな暗転ローディング */}
       {showLoading && (
         <div className="fixed inset-0 bg-[#040406] z-[100] flex flex-col items-center justify-center space-y-8 opacity-100">
           <div className="relative">
@@ -218,7 +220,7 @@ export default function App() {
             setActiveTab={setActiveTab} 
             selectedArticle={selectedArticle} 
             setSelectedArticleId={setSelectedArticleId} 
-            navigateTo={navigateTo}
+            navigateTo={navigateTo} /* 🌟 ここで navigateTo を確実に渡す！ */
           />
         )}
         {currentPage === 'founders' && <FoundersPage navigateTo={navigateTo} LINKS={CONFIG.LINKS} />}
