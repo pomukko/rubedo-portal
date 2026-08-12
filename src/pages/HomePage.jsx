@@ -6,6 +6,14 @@ import { formatDate, getCategoryName } from '../utils/formatters';
 export default function HomePage({ navigateTo, articles = [], setSelectedArticleId, selectedAngle, setSelectedAngle, CONFIG }) {
   const currentAngleObj = vermiliaAngles.find(a => a.id === selectedAngle);
 
+  const handleArticleClick = (articleId) => {
+    if (typeof navigateTo === 'function') {
+      navigateTo('journal', null, articleId);
+    } else if (typeof setSelectedArticleId === 'function') {
+      setSelectedArticleId(articleId);
+    }
+  };
+
   return (
     <div className="animate-fadeIn">
       {/* HERO SECTION */}
@@ -116,7 +124,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               return (
                 <article 
                   key={article.id} 
-                  onClick={() => navigateTo('journal', null, article.id)} 
+                  onClick={() => handleArticleClick(article.id)} 
                   className="bg-[#060609] border border-white/10 p-10 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group"
                 >
                   <div className="space-y-6">
