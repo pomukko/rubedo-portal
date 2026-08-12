@@ -37,13 +37,13 @@ export default function JournalPage({
     }
   };
 
-  // 🌟 記事詳細表示時（Webtoon縦長マンガ対応 ＆ 壁突き抜け完全防御版！）
+  // 🌟 記事詳細表示時（Webtoonマンガ完全最適化ビューアー！）
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
 
     return (
-      <div className="max-w-5xl mx-auto px-6 sm:px-12 pt-36 sm:pt-44 pb-32 space-y-10 animate-fadeIn overflow-hidden">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-36 sm:pt-44 pb-32 space-y-10 animate-fadeIn w-full overflow-hidden">
         {/* 一覧に戻るボタン */}
         <button 
           onClick={handleBackToList} 
@@ -54,7 +54,7 @@ export default function JournalPage({
         </button>
 
         {/* 記事ヘッダー情報 */}
-        <div className="space-y-6 border-b border-white/10 pb-8 break-words">
+        <div className="space-y-6 border-b border-white/10 pb-8 w-full overflow-hidden">
           <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-[#a1a1aa]">
             <span className="bg-[#8f121d] text-white px-3 py-1 font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(143,18,29,0.5)] break-all">
               {categoryName}
@@ -63,14 +63,14 @@ export default function JournalPage({
             {selectedArticle.author && <span className="text-[#d4b07b] border-l border-white/10 pl-4">BY {selectedArticle.author}</span>}
           </div>
 
-          {/* 記事タイトル（突き抜け防止ガード付き） */}
-          <h1 className="font-serif text-3xl sm:text-5xl text-white font-normal leading-[1.3] tracking-wide break-words">
+          {/* 記事タイトル */}
+          <h1 className="font-serif text-3xl sm:text-5xl text-white font-normal leading-[1.3] tracking-wide break-all [overflow-wrap:anywhere]">
             {selectedArticle.title || 'Untitled'}
           </h1>
 
-          {/* 🌟 リード文（長文URLも壁の手前で自動折返し！） */}
+          {/* リード文 */}
           {selectedArticle.lead && (
-            <p className="text-lg sm:text-xl text-[#d4b07b]/90 border-l-2 border-[#8f121d] pl-5 py-1.5 font-light leading-relaxed italic bg-[#8f121d]/[0.03] break-all">
+            <p className="text-lg sm:text-xl text-[#d4b07b]/90 border-l-2 border-[#8f121d] pl-5 py-1.5 font-light leading-relaxed italic bg-[#8f121d]/[0.03] break-all [overflow-wrap:anywhere]">
               {selectedArticle.lead}
             </p>
           )}
@@ -83,24 +83,26 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 🌟 microCMSのリッチテキスト本文（Webtoonマンガ最適化 ＆ 長文突き抜け防止！） */}
+        {/* 🌟 microCMSのリッチテキスト本文（Webtoonマンガビューアー表示！） */}
         <div 
-          className="article-body prose prose-invert max-w-none space-y-8 text-base sm:text-lg leading-[2.1] font-light text-[#e2e2e8] break-words
+          className="article-body prose prose-invert max-w-none space-y-8 text-base sm:text-lg leading-[2.1] font-light text-[#e2e2e8] w-full overflow-hidden break-all [overflow-wrap:anywhere]
             /* 本文段落 */
-            [&_p]:mb-8 [&_p]:tracking-wide [&_p]:text-[#e2e2e8] [&_p]:break-words [&_p]:[overflow-wrap:anywhere]
+            [&_p]:mb-6 [&_p]:tracking-wide [&_p]:text-[#e2e2e8] [&_p]:break-all [&_p]:[overflow-wrap:anywhere]
             /* 見出し2（H2） */
-            [&_h2]:font-serif [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:text-white [&_h2]:mt-14 [&_h2]:mb-6 [&_h2]:pt-3 [&_h2]:pb-2 [&_h2]:border-l-4 [&_h2]:border-[#8f121d] [&_h2]:pl-4 [&_h2]:bg-gradient-to-r [&_h2]:from-[#8f121d]/15 [&_h2]:to-transparent [&_h2]:break-words
+            [&_h2]:font-serif [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:text-white [&_h2]:mt-14 [&_h2]:mb-6 [&_h2]:pt-3 [&_h2]:pb-2 [&_h2]:border-l-4 [&_h2]:border-[#8f121d] [&_h2]:pl-4 [&_h2]:bg-gradient-to-r [&_h2]:from-[#8f121d]/15 [&_h2]:to-transparent [&_h2]:break-all
             /* 見出し3（H3） */
-            [&_h3]:font-serif [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:text-[#d4b07b] [&_h3]:mt-10 [&_h3]:mb-4 [&_h3]:border-b [&_h3]:border-white/10 [&_h3]:pb-2 [&_h3]:break-words
-            /* 🌟 リンク・長文URLの壁突き抜け完全防止 */
+            [&_h3]:font-serif [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:text-[#d4b07b] [&_h3]:mt-10 [&_h3]:mb-4 [&_h3]:border-b [&_h3]:border-white/10 [&_h3]:pb-2 [&_h3]:break-all
+            /* リンク */
             [&_a]:text-[#d4b07b] [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-[#d4b07b]/40 [&_a]:break-all [&_a]:[overflow-wrap:anywhere] hover:[&_a]:text-white hover:[&_a]:decoration-white transition-colors
-            /* 🌟 Webtoon（縦長マンガ画像）完全対応設定！ */
-            [&_img]:max-w-full [&_img]:sm:max-w-3xl [&_img]:mx-auto [&_img]:h-auto [&_img]:object-contain [&_img]:my-6 [&_img]:border [&_img]:border-white/10 [&_img]:shadow-[0_0_30px_rgba(0,0,0,0.5)]
+            
+            /* 🌟🌟🌟 Webtoon（超縦長マンガ画像）完全最適化設定！ 🌟🌟🌟 */
+            [&_img]:w-full [&_img]:max-w-md [&_img]:sm:max-w-lg [&_img]:mx-auto [&_img]:h-auto [&_img]:object-contain [&_img]:my-2 [&_img]:block [&_img]:shadow-[0_0_20px_rgba(0,0,0,0.8)]
+            
             /* 箇条書きリスト (ul/ol) */
-            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-3 [&_ul]:my-6 [&_ul_li]:text-[#e2e2e8] [&_ul_li]:break-words
-            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-3 [&_ol]:my-6 [&_ol_li]:text-[#e2e2e8] [&_ol_li]:break-words
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-3 [&_ul]:my-6 [&_ul_li]:text-[#e2e2e8] [&_ul_li]:break-all
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-3 [&_ol]:my-6 [&_ol_li]:text-[#e2e2e8] [&_ol_li]:break-all
             /* 引用 (blockquote) */
-            [&_blockquote]:border-l-4 [&_blockquote]:border-[#d4b07b] [&_blockquote]:bg-[#060609] [&_blockquote]:p-6 [&_blockquote]:my-8 [&_blockquote]:italic [&_blockquote]:text-[#a1a1aa] [&_blockquote]:break-words
+            [&_blockquote]:border-l-4 [&_blockquote]:border-[#d4b07b] [&_blockquote]:bg-[#060609] [&_blockquote]:p-6 [&_blockquote]:my-8 [&_blockquote]:italic [&_blockquote]:text-[#a1a1aa] [&_blockquote]:break-all
             /* コードブロック (pre / code) */
             [&_pre]:bg-[#030305] [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-6 [&_pre]:rounded-none [&_pre]:overflow-x-auto [&_pre]:my-8 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:sm:text-sm [&_pre]:text-[#d4b07b]
             [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/10 [&_code]:px-2 [&_code]:py-1 [&_code]:text-[#d4b07b] [&_code]:break-all
@@ -138,7 +140,7 @@ export default function JournalPage({
             onClick={() => setActiveTab(cat)} 
             className={`px-4 py-2 border uppercase transition-all ${
               activeTab.toLowerCase() === cat.toLowerCase() 
-                ? 'border-[#8f121d] bg-[#8f121d]/20 text-white font-bold' 
+                ? 'border-[#8f121d] bg-[#8f121d]/20 text-[#e2e2e8] font-bold' 
                 : 'border-white/10 text-[#71717a] hover:text-white'
             }`}
           >
@@ -169,8 +171,8 @@ export default function JournalPage({
                     <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
                     <span>{articleDate}</span>
                   </div>
-                  <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2 break-words">{article.title || 'Untitled'}</h3>
-                  <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed break-words">{article.lead || ''}</p>
+                  <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2 break-all">{article.title || 'Untitled'}</h3>
+                  <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed break-all">{article.lead || ''}</p>
                 </div>
                 <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
                   <span>BY {article.author || 'RUBEDO'}</span>
