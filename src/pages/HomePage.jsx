@@ -120,24 +120,45 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
             {articles.slice(0, 3).map((article) => {
               const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
               const categoryName = getCategoryName(article?.category);
+              const eyecatchUrl = article?.eyecatch?.url;
 
               return (
                 <article 
                   key={article.id} 
                   onClick={() => handleArticleClick(article.id)} 
-                  className="bg-[#060609] border border-white/10 p-10 flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group"
+                  className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all duration-500 cursor-pointer group"
                 >
-                  <div className="space-y-6">
-                    <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a]">
-                      <span className="text-[#8f121d] font-bold">{categoryName}</span>
-                      <span>{articleDate}</span>
+                  {/* 🌟 16:9 サムネイル画像表示部（トップページ） */}
+                  {eyecatchUrl && (
+                    <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
+                      <img 
+                        src={eyecatchUrl} 
+                        alt={article.title || ''} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
                     </div>
-                    <h3 className="font-serif text-2xl text-white group-hover:text-[#d4b07b] transition-colors leading-[1.4] line-clamp-2">{article.title || 'Untitled'}</h3>
-                    <p className="text-xs text-[#a1a1aa] font-light leading-[1.9] line-clamp-3">{article.lead || ''}</p>
-                  </div>
-                  <div className="pt-8 mt-8 border-t border-white/5 flex justify-between items-center font-mono text-[10px] text-[#71717a]">
-                    <span>BY {article.author || 'RUBEDO'}</span>
-                    <span className="text-white group-hover:translate-x-2 transition-transform flex items-center gap-1.5">READ <ChevronRight className="w-3.5 h-3.5 text-[#8f121d]" /></span>
+                  )}
+
+                  <div className="p-10 space-y-6 flex-1 flex flex-col justify-between">
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a]">
+                        <span className="text-[#8f121d] font-bold">{categoryName}</span>
+                        <span>{articleDate}</span>
+                      </div>
+                      <h3 className="font-serif text-2xl text-white group-hover:text-[#d4b07b] transition-colors leading-[1.4] line-clamp-2">
+                        {article.title || 'Untitled'}
+                      </h3>
+                      <p className="text-xs text-[#a1a1aa] font-light leading-[1.9] line-clamp-3">
+                        {article.lead || ''}
+                      </p>
+                    </div>
+
+                    <div className="pt-8 mt-8 border-t border-white/5 flex justify-between items-center font-mono text-[10px] text-[#71717a]">
+                      <span>BY {article.author || 'RUBEDO'}</span>
+                      <span className="text-white group-hover:translate-x-2 transition-transform flex items-center gap-1.5">
+                        READ <ChevronRight className="w-3.5 h-3.5 text-[#8f121d]" />
+                      </span>
+                    </div>
                   </div>
                 </article>
               );
