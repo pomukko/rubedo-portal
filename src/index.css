@@ -1,26 +1,38 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/* 🌟 シネマティック・フェードインアニメーション */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(4px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 .animate-fadeIn {
   animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* 🌟 Webtoon・縦長マンガ画像のための絶対解放ルール！ */
+/* 🌟 Webtoon・縦長マンガ画像のための絶対解放ルール */
 .article-body img,
 .webtoon-image {
   width: 100% !important;
-  max-width: 520px !important; /* PC画面で読みやすいスマホマンガサイズ */
-  height: auto !important;     /* 縦のアスペクト比を完全に解放！ */
-  max-height: none !important; /* 縦の上限を撤廃！ */
+  max-width: 520px !important; /* PC画面で一番読みやすいマンガ幅 */
+  height: auto !important;     /* 縦長アスペクト比を100%解放 */
+  max-height: none !important; /* 縦制限撤廃 */
   object-fit: contain !important;
   margin-left: auto !important;
   margin-right: auto !important;
   display: block !important;
-  aspect-ratio: auto !important; /* 16:9を強制解除！ */
+  aspect-ratio: auto !important;
+}
+
+/* 🌟 スライダーのスクロールバー非表示 */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
