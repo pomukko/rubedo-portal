@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User } from 'lucide-react';
-import { formatDate, getCategoryName, optimizeImage } from '../utils/formatters';
+import { formatDate, getCategoryName, getAuthorName, optimizeImage } from '../utils/formatters';
 
 export default function JournalPage({ 
   journalArticles = [], 
@@ -21,7 +21,7 @@ export default function JournalPage({
     setPage(1);
   };
 
-  // 🌟 最新順ソート
+  // 最新順ソート
   const sortedArticles = useMemo(() => {
     return [...journalArticles].sort((a, b) => {
       const dateA = new Date(a?.publishedAt || a?.createdAt || a?.updatedAt || 0);
@@ -63,7 +63,7 @@ export default function JournalPage({
     }
   };
 
-  // 🌟 本文（HTML）から H2 / H3 見出しを解析して「自動目次（TOC）」を抽出する関数
+  // 自動目次抽出
   const tocList = useMemo(() => {
     if (!selectedArticle?.body) return [];
     const html = selectedArticle.body;
@@ -74,7 +74,7 @@ export default function JournalPage({
 
     while ((match = regex.exec(html)) !== null) {
       const level = parseInt(match[1], 10);
-      const rawText = match[2].replace(/<[^>]+>/g, ''); // タグ除去
+      const rawText = match[2].replace(/<[^>]+>/g, '');
       if (rawText.trim()) {
         items.push({
           id: `heading-${index++}`,
@@ -86,7 +86,6 @@ export default function JournalPage({
     return items;
   }, [selectedArticle]);
 
-  // 🌟 目次クリック時のスムーススクロールハンドラー
   const scrollToHeading = (text) => {
     const headings = document.querySelectorAll('.article-body h2, .article-body h3');
     for (let h of headings) {
@@ -101,23 +100,18 @@ export default function JournalPage({
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
+    
+    // 🌟 セレクトフィールドから著者名を抽出 (Numen / MUMEN / RUBEDO)
+    const authorName = getAuthorName(selectedArticle.author);
 
-    // 著者情報の安全抽出（文字列・オブジェクト両対応）
-    const authorObj = typeof selectedArticle.author === 'object' ? selectedArticle.author : null;
-    const authorName = authorObj ? (authorObj.name || authorObj.title) : (selectedArticle.author || 'RUBEDO');
-    const authorAvatar = authorObj?.avatar?.url || authorObj?.icon?.url;
-
-    // 複数画像フィールドの抽出
     const rawMultipleImages = selectedArticle.images || selectedArticle.gallery || selectedArticle.multiple_images || selectedArticle.multipleImages || [];
     const multipleImages = Array.isArray(rawMultipleImages) ? rawMultipleImages : [];
 
-    // タグフィールドの抽出（複数コンテンツ参照対応）
     const rawTags = selectedArticle.tags || selectedArticle.tag_list || [];
     const tags = Array.isArray(rawTags) 
       ? rawTags.map(t => (typeof t === 'object' ? t.name || t.title || t.id : String(t)))
       : (typeof rawTags === 'string' ? rawTags.split(',') : []);
 
-    // 関連記事の抽出
     const rawRelated = selectedArticle.related || selectedArticle.related_articles || selectedArticle.relatedArticles || [];
     const relatedArticles = Array.isArray(rawRelated) ? rawRelated : (typeof rawRelated === 'object' ? [rawRelated] : []);
 
@@ -140,13 +134,9 @@ export default function JournalPage({
             </span>
             {articleDate && <span className="tracking-widest">{articleDate}</span>}
             
-            {/* 著者表示（アバター画像があればアイコン付き！） */}
+            {/* 著者表示 */}
             <div className="flex items-center gap-2 border-l border-white/10 pl-4 text-[#d4b07b]">
-              {authorAvatar ? (
-                <img src={optimizeImage(authorAvatar)} alt={authorName} className="w-5 h-5 rounded-full object-cover border border-white/20" />
-              ) : (
-                <User className="w-3.5 h-3.5 text-[#8f121d]" />
-              )}
+              <User className="w-3.5 h-3.5 text-[#8f121d]" />
               <span>BY {authorName}</span>
             </div>
           </div>
@@ -175,7 +165,7 @@ export default function JournalPage({
           )}
         </div>
 
-        {/* アイキャッチ画像（Imgix自動最適化！） */}
+        {/* アイキャッチ画像 */}
         {selectedArticle.eyecatch?.url && (
           <div className="w-full my-6">
             <img 
@@ -186,7 +176,7 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 🌟🌟🌟 自動生成される「目次（INDEX BOX）」 🌟🌟🌟 */}
+        {/* 自動生成目次 */}
         {tocList.length > 0 && (
           <div className="bg-[#060609] border border-[#8f121d]/40 p-6 sm:p-8 space-y-4 my-8 relative overflow-hidden shadow-[0_0_30px_rgba(143,18,29,0.1)]">
             <div className="flex items-center gap-2.5 text-xs font-mono tracking-[0.3em] text-[#d4b07b] border-b border-white/10 pb-3">
@@ -302,7 +292,7 @@ export default function JournalPage({
     );
   }
 
-  // 🌟 記事一覧表示時（リアルタイム全文検索バー付き！）
+  // 記事一覧表示時
   return (
     <div className="pt-36 pb-32 max-w-7xl mx-auto px-8 sm:px-12 space-y-12 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/10 pb-8 gap-6">
@@ -310,7 +300,7 @@ export default function JournalPage({
           <h1 className="font-serif text-5xl sm:text-7xl text-white">JOURNAL & HOW-TO</h1>
         </div>
 
-        {/* 🌟 全文検索インプットバー */}
+        {/* 全文検索インプットバー */}
         <div className="relative w-full md:w-80">
           <input 
             type="text"
@@ -323,7 +313,7 @@ export default function JournalPage({
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#71717a] hover:text-white font-mono"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#71717a] hover:text-white font-mono cursor-pointer"
             >
               CLEAR
             </button>
@@ -363,9 +353,8 @@ export default function JournalPage({
               const categoryName = getCategoryName(article?.category);
               const eyecatchUrl = article?.eyecatch?.url;
 
-              // 著者名
-              const authorObj = typeof article?.author === 'object' ? article.author : null;
-              const authorName = authorObj ? (authorObj.name || authorObj.title) : (article?.author || 'RUBEDO');
+              // 著者名抽出
+              const authorName = getAuthorName(article?.author);
 
               return (
                 <article 
