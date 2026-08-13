@@ -84,13 +84,13 @@
   text-decoration: line-through;
 }
 
-/* --- 標準見出し (H1〜H5) ＆ 目次ジャンプ位置補正 --- */
+/* --- 標準見出し (H1〜H5) ＆ 目次ジャンプ位置補正 (1.3倍の約285pxへ拡張) --- */
 .article-body h1,
 .article-body h2,
 .article-body h3,
 .article-body h4,
 .article-body h5 {
-  scroll-margin-top: 220px;
+  scroll-margin-top: 285px;
 }
 
 .article-body h1 {
@@ -154,7 +154,6 @@
   line-height: 2;
 }
 
-/* 引用内の段落・改行・空行を絶対保持する設定 */
 .article-body blockquote p {
   margin-top: 0;
   margin-bottom: 1.2rem;
