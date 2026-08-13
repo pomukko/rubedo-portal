@@ -85,7 +85,15 @@
   text-decoration: line-through;
 }
 
-/* --- 標準見出し (H1〜H5) --- */
+/* --- 標準見出し (H1〜H5) ＆ 目次ジャンプ補正 --- */
+.article-body h1,
+.article-body h2,
+.article-body h3,
+.article-body h4,
+.article-body h5 {
+  scroll-margin-top: 150px; /* 固定ヘッダー分のオフセット確保 */
+}
+
 .article-body h1 {
   font-size: 1.85rem;
   font-weight: 700;
