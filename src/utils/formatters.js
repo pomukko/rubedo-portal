@@ -61,7 +61,7 @@ export const getSubCategoryName = (article) => {
   return list.length > 0 ? list[0] : '';
 };
 
-// 🌟 メインカテゴリ名抽出（記事全体を渡して全自動探索 ＋ 逆引き救済付き！）
+// 🌟 メインカテゴリ名抽出
 export const getCategoryName = (categoryOrArticle) => {
   if (!categoryOrArticle) return 'CREATIVE / 3DCG';
 
@@ -95,7 +95,6 @@ export const getCategoryName = (categoryOrArticle) => {
 
   let catStr = extractString(rawCat).trim();
 
-  // マッチング判定
   if (catStr) {
     const lower = catStr.toLowerCase();
     for (const validCat of VALID_MAIN_CATEGORIES) {
@@ -108,7 +107,6 @@ export const getCategoryName = (categoryOrArticle) => {
     if (lower.includes('lab') || lower.includes('research')) return 'LAB / RESEARCH';
   }
 
-  // 🌟【自動救済】サブカテゴリーのタグからメインカテゴリーを逆引き特定！
   if (articleObj) {
     const subList = getSubCategories(articleObj);
     for (const subName of subList) {
@@ -120,6 +118,32 @@ export const getCategoryName = (categoryOrArticle) => {
   }
 
   return 'CREATIVE / 3DCG';
+};
+
+// 🌟 単一画像（ただの画像フィールド）抽出ヘルパー
+export const getSingleImageUrl = (article) => {
+  if (!article) return '';
+  const imgObj = article.image || article.photo || article.picture || article.subImage || article.sub_image || article.singleImage || article.main_image;
+  if (!imgObj) return '';
+  if (typeof imgObj === 'string') return imgObj;
+  return imgObj.url || '';
+};
+
+// 🌟 複数画像フィールド抽出ヘルパー
+export const getMultipleImageUrls = (article) => {
+  if (!article) return [];
+  const raw = article.images || article.gallery || article.photos || article.multipleImages || article.multiple_images || article.galleryImages || [];
+  if (!Array.isArray(raw)) {
+    if (typeof raw === 'object' && raw !== null && raw.url) {
+      return [raw.url];
+    }
+    return [];
+  }
+  return raw.map(item => {
+    if (!item) return '';
+    if (typeof item === 'string') return item;
+    return item.url || '';
+  }).filter(Boolean);
 };
 
 // 🌟 著者名抽出
