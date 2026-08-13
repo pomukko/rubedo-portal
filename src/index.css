@@ -1,4 +1,4 @@
-/* 🌟 シネマティック・フェードインアニメーション */
+/* Animation */
 @keyframes fadeIn {
   from { 
     opacity: 0; 
@@ -14,7 +14,7 @@
   animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* 🌟 Webtoon・縦長マンガ画像のための絶対解放ルール */
+/* Webtoon & Manga Images */
 .article-body img,
 .webtoon-image {
   width: 100% !important;
@@ -25,10 +25,9 @@
   margin-left: auto !important;
   margin-right: auto !important;
   display: block !important;
-  aspect-ratio: auto !important;
 }
 
-/* 🌟 リッチテキスト本文（.article-body）装飾スタイル */
+/* Article Body Typography */
 .article-body p {
   margin-bottom: 1.5rem;
   letter-spacing: 0.025em;
@@ -55,7 +54,7 @@
   padding-bottom: 0.5rem;
   border-left: 4px solid #8f121d;
   padding-left: 1rem;
-  background: linear-gradient(to right, rgba(143, 18, 29, 0.15), transparent);
+  background-color: rgba(143, 18, 29, 0.15);
 }
 
 .article-body h3 {
@@ -80,9 +79,6 @@
 .article-body a {
   color: #d4b07b;
   text-decoration: underline;
-  text-underline-offset: 4px;
-  text-decoration-color: rgba(212, 176, 123, 0.4);
-  transition: color 0.2s;
 }
 
 .article-body a:hover {
@@ -116,7 +112,7 @@
 
 .article-body iframe {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 400px;
   margin-top: 2rem;
   margin-bottom: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -185,10 +181,11 @@
   margin-bottom: 3rem;
 }
 
-/* 🌟 スライダーのスクロールバー非表示 */
+/* Scrollbar Hide */
 .scrollbar-none {
   scrollbar-width: none;
 }
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
