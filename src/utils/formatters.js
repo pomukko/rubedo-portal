@@ -120,16 +120,22 @@ export const getCategoryName = (categoryOrArticle) => {
   return 'CREATIVE / 3DCG';
 };
 
-// 🌟 単一画像（ただの画像フィールド）抽出ヘルパー
+// 🌟 単一画像（ただの画像フィールド）抽出ヘルパー（100%型安全）
 export const getSingleImageUrl = (article) => {
   if (!article) return '';
   const imgObj = article.image || article.photo || article.picture || article.subImage || article.sub_image || article.singleImage || article.main_image;
   if (!imgObj) return '';
   if (typeof imgObj === 'string') return imgObj;
+  if (Array.isArray(imgObj)) {
+    const first = imgObj[0];
+    if (!first) return '';
+    if (typeof first === 'string') return first;
+    return first.url || '';
+  }
   return imgObj.url || '';
 };
 
-// 🌟 複数画像フィールド抽出ヘルパー
+// 🌟 複数画像フィールド抽出ヘルパー（100%型安全）
 export const getMultipleImageUrls = (article) => {
   if (!article) return [];
   const raw = article.images || article.gallery || article.photos || article.multipleImages || article.multiple_images || article.galleryImages || [];
