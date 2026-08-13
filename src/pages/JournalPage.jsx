@@ -351,11 +351,9 @@ export default function JournalPage({
 
     const eyecatchUrl = selectedArticle.eyecatch?.url;
     const rawSingleUrl = getSingleImageUrl(selectedArticle);
-    // 重複防止（アイキャッチと同じURLなら非表示）
     const singleImageUrl = (rawSingleUrl && rawSingleUrl !== eyecatchUrl) ? rawSingleUrl : '';
     
     const rawMultipleUrls = getMultipleImageUrls(selectedArticle);
-    // ギャラリーもアイキャッチや単一画像との重複を除外
     const multipleImageUrls = rawMultipleUrls.filter(url => url && url !== eyecatchUrl && url !== singleImageUrl);
 
     const rawTags = selectedArticle.tags || selectedArticle.tag_list || [];
@@ -392,10 +390,12 @@ export default function JournalPage({
 
             {articleDate && <span className="tracking-widest ml-2">{articleDate}</span>}
             
-            <div className="flex items-center gap-1.5 text-[#a1a1aa] border-l border-white/10 pl-3">
-              <Clock className="w-3.5 h-3.5 text-[#d4b07b]" />
-              <span>約{readTimeStats.minutes}分（{readTimeStats.count.toLocaleString()}文字）</span>
-            </div>
+            {readTimeStats.count > 0 && (
+              <div className="flex items-center gap-1.5 text-[#a1a1aa] border-l border-white/10 pl-3">
+                <Clock className="w-3.5 h-3.5 text-[#d4b07b]" />
+                <span>約{readTimeStats.minutes}分（{readTimeStats.count.toLocaleString()}文字）</span>
+              </div>
+            )}
 
             <div className="flex items-center gap-2 border-l border-white/10 pl-3 text-[#d4b07b]">
               <User className="w-3.5 h-3.5 text-[#8f121d]" />
@@ -425,7 +425,7 @@ export default function JournalPage({
           )}
         </div>
 
-        {/* 🌟 1. アイキャッチ画像表示 */}
+        {/* 1. アイキャッチ画像表示 */}
         {eyecatchUrl && (
           <div className="w-full my-6">
             <img 
@@ -437,7 +437,7 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 🌟 2. 単一画像フィールド（ただの画像）もWebtoon縦長マンガに完全対応！ */}
+        {/* 2. 単一画像フィールド（ただの画像） */}
         {singleImageUrl && (
           <div className="w-full my-6">
             <img 
@@ -479,11 +479,11 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* リッチテキスト本文 */}
+        {/* 🌟 3. リッチテキスト本文（「本文がありません。」の表示を完全に削除！） */}
         <div 
           ref={articleBodyRef}
           className="article-body max-w-none w-full overflow-hidden"
-          dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
+          dangerouslySetInnerHTML={{ __html: selectedArticle.body || '' }}
         />
 
         {/* 𝕏 シェア ＆ URLコピーエリア */}
@@ -686,127 +686,4 @@ export default function JournalPage({
               <button
                 key={subCat}
                 onClick={() => handleSubTabChange(subCat)}
-                className={`px-3 py-1 rounded-none border transition-all cursor-pointer ${
-                  activeSubTab.toLowerCase() === subCat.toLowerCase()
-                    ? 'border-[#d4b07b] bg-[#d4b07b]/20 text-white font-bold'
-                    : 'border-white/10 text-[#71717a] hover:text-white'
-                }`}
-              >
-                #{subCat}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 記事一覧グリッド表示 */}
-      {filteredArticles.length === 0 ? (
-        <div className="py-20 text-center space-y-4 border border-white/5 bg-[#060609]">
-          <p className="font-serif text-lg text-[#71717a]">
-            {searchQuery ? `「${searchQuery}」に一致する記事が見つかりませんでした。` : '該当するカテゴリーの記事が見つかりませんでした。'}
-          </p>
-          <p className="font-mono text-xs text-[#52525b]">NO ARTICLES FOUND IN THIS CATEGORY.</p>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {paginatedArticles.map(article => {
-              const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
-              const categoryName = getCategoryName(article);
-              const subCategories = getSubCategories(article);
-              const eyecatchUrl = article?.eyecatch?.url;
-              const authorName = getAuthorName(article?.author);
-
-              const displaySubCategories = activeSubTab === 'all'
-                ? []
-                : subCategories.filter(s => typeof s === 'string' && s.trim().toLowerCase() === activeSubTab.trim().toLowerCase());
-
-              return (
-                <article 
-                  key={article.id} 
-                  onClick={() => handleArticleClick(article.id)} 
-                  className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-lg"
-                >
-                  {eyecatchUrl && (
-                    <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
-                      <img 
-                        src={optimizeImage(eyecatchUrl)} 
-                        alt={article.title || ''} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                    </div>
-                  )}
-
-                  <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-4">
-                      {/* メイン ＆ 選択時のみのサブカテゴリーバッジ表示 */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[10px]">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
-                          {displaySubCategories.map((subName, sIdx) => (
-                            <span key={sIdx} className="text-[#d4b07b] border border-[#d4b07b]/30 px-1.5 py-0.5 bg-[#d4b07b]/5 break-all">
-                              #{subName}
-                            </span>
-                          ))}
-                        </div>
-                        <span className="text-[#71717a]">{articleDate}</span>
-                      </div>
-
-                      <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2 break-all">
-                        {article.title || 'Untitled'}
-                      </h3>
-                      <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed break-all">
-                        {article.lead || ''}
-                      </p>
-                    </div>
-                    
-                    <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
-                      <span>BY {authorName}</span>
-                      <span className="text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                        READ <ArrowRight className="w-3.5 h-3.5 text-[#8f121d]"/>
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="pt-16 border-t border-white/10 flex justify-center items-center gap-3 font-mono text-xs">
-              <button 
-                onClick={() => handlePageChange(page - 1)} 
-                disabled={page === 1}
-                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pNum => (
-                <button
-                  key={pNum}
-                  onClick={() => handlePageChange(pNum)}
-                  className={`w-10 h-10 border transition-all cursor-pointer ${
-                    page === pNum 
-                      ? 'border-[#8f121d] bg-[#8f121d] text-white font-bold shadow-[0_0_15px_rgba(143,18,29,0.5)]' 
-                      : 'border-white/10 text-[#a1a1aa] hover:border-white/30 hover:text-white'
-                  }`}
-                >
-                  {pNum}
-                </button>
-              ))}
-
-              <button 
-                onClick={() => handlePageChange(page + 1)} 
-                disabled={page === totalPages}
-                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
+                className={`px-3 py-1 rounded
