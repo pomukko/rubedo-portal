@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User, Layers, Clock, Copy, Check, Share2, X, RefreshCw } from 'lucide-react';
 import { formatDate, getCategoryName, getSubCategories, getAuthorName, optimizeImage } from '../utils/formatters';
 
@@ -24,25 +25,52 @@ const SUB_CATEGORIES_MAP = {
   ]
 };
 
-// 🌟【プロ仕様】ホイールズーム ＆ ドラッグ移動対応ライトボックスコンポーネント
+// 🌟【完全修正版】画面中央固定 ＆ 黒スモーク ＆ 完璧スクロールロック対応ライトボックス
 function ImageLightboxModal({ src, onClose }) {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const containerRef = useRef(null);
 
-  // ホイールで拡大縮小 (1.0倍〜5.0倍)
-  const handleWheel = (e) => {
-    e.preventDefault();
-    const delta = -e.deltaY * 0.0015;
-    setScale((prevScale) => {
-      const nextScale = Math.min(Math.max(1, prevScale + delta), 5);
-      if (nextScale === 1) setPosition({ x: 0, y: 0 });
-      return nextScale;
-    });
-  };
+  // 背景スクロールを完全ロック ＆ ホイールイベントによる画面移動を禁止
+  useEffect(() => {
+    const originalStyle = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
 
-  // ドラッグ操作（拡大時のみ移動可）
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const delta = -e.deltaY * 0.002;
+      setScale((prevScale) => {
+        const nextScale = Math.min(Math.max(1, prevScale + delta), 5);
+        if (nextScale === 1) setPosition({ x: 0, y: 0 });
+        return nextScale;
+      });
+    };
+
+    // passive: false で画面スクロールを物理的に絶対防止
+    container.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      document.body.style.overflow = originalStyle;
+      container.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
+  // ESCキーで閉じる
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   const handleMouseDown = (e) => {
     if (scale <= 1) return;
     setIsDragging(true);
@@ -65,20 +93,22 @@ function ImageLightboxModal({ src, onClose }) {
     setPosition({ x: 0, y: 0 });
   };
 
-  return (
+  // createPortalで document.body 直下にレンダリングし、画面の中心に100%固定！
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center overflow-hidden animate-fadeIn select-none"
-      onWheel={handleWheel}
+      ref={containerRef}
+      className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center overflow-hidden select-none"
+      style={{ top: 0, left: 0, width: '100vw', height: '100vh' }}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* 閉じる ＆ ズームリセット ボタン */}
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+      {/* 閉じる ＆ リセットボタン */}
+      <div className="absolute top-6 right-6 z-[10000] flex items-center gap-3">
         {scale > 1 && (
           <button 
             onClick={resetZoom}
-            className="text-xs font-mono text-white bg-white/10 px-3 py-2 rounded-full hover:bg-[#8f121d] transition-colors cursor-pointer border border-white/20 flex items-center gap-1.5"
+            className="text-xs font-mono text-white bg-white/10 px-3.5 py-2 rounded-full hover:bg-[#8f121d] transition-colors cursor-pointer border border-white/20 flex items-center gap-1.5 shadow-xl"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>RESET ({Math.round(scale * 100)}%)</span>
@@ -86,18 +116,18 @@ function ImageLightboxModal({ src, onClose }) {
         )}
         <button 
           onClick={onClose}
-          className="text-white bg-white/10 p-2.5 rounded-full hover:bg-[#8f121d] transition-colors cursor-pointer border border-white/20"
+          className="text-white bg-white/10 p-2.5 rounded-full hover:bg-[#8f121d] transition-colors cursor-pointer border border-white/20 shadow-xl"
         >
           <X className="w-6 h-6" />
         </button>
       </div>
 
-      {/* 操作ガイドチップ */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 bg-black/70 border border-white/15 px-5 py-2 text-[11px] font-mono text-[#d1d1d6] pointer-events-none rounded-full backdrop-blur-sm">
-        💡 マウスホイールで拡大縮小 / ドラッグで視点移動 / 背景クリックで閉じる
+      {/* 操作ガイド */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[10000] bg-black/80 border border-white/20 px-5 py-2 text-[11px] font-mono text-[#d1d1d6] pointer-events-none rounded-full shadow-xl">
+        ホイールで拡大縮小 / ドラッグで移動 / 背景クリックで閉じる
       </div>
 
-      {/* 画像メインエリア */}
+      {/* 画像本体 */}
       <div 
         className={`w-full h-full flex items-center justify-center p-4 ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-out'}`}
         onMouseDown={handleMouseDown}
@@ -110,16 +140,17 @@ function ImageLightboxModal({ src, onClose }) {
           alt="Zoomed" 
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            transition: isDragging ? 'none' : 'transform 0.15s ease-out',
-            maxHeight: '90vh',
-            maxWidth: '90vw',
+            transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+            maxHeight: '88vh',
+            maxWidth: '88vw',
             objectFit: 'contain'
           }}
           className="shadow-2xl border border-white/10 pointer-events-auto" 
           draggable={false}
         />
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -246,12 +277,12 @@ export default function JournalPage({
     return items;
   }, [selectedArticle]);
 
-  // 🎯【修正版】ヘッダー高さを計算してズレなく正確にスクロールする関数！
+  // ヘッダー高さを考慮した目次ジャンプ
   const scrollToHeading = (text) => {
     const headings = document.querySelectorAll('.article-body h1, .article-body h2, .article-body h3');
     for (let h of headings) {
       if (h.textContent.trim() === text) {
-        const HEADER_OFFSET = 150; // 固定ヘッダーの高さ＋余白
+        const HEADER_OFFSET = 150;
         const elementPosition = h.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - HEADER_OFFSET;
 
@@ -268,13 +299,11 @@ export default function JournalPage({
   useEffect(() => {
     if (!selectedArticle || !articleBodyRef.current) return;
 
-    // 画像クリックで全画面拡大
     const images = articleBodyRef.current.querySelectorAll('img');
     images.forEach(img => {
       img.onclick = () => setLightboxImg(img.src);
     });
 
-    // preタグにコピーボタン付与
     const pres = articleBodyRef.current.querySelectorAll('pre');
     pres.forEach((pre) => {
       if (pre.parentNode.classList.contains('code-wrapper')) return;
@@ -399,7 +428,7 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* ✂️【修正版】上下余白 ＆ 高級グラデーション区切り線付き目次 */}
+        {/* 上下余白 ＆ 高級グラデーション区切り線付き目次 */}
         {tocList.length > 0 && (
           <div className="my-14 space-y-8">
             <hr className="border-0 h-[1px] bg-gradient-to-r from-[#8f121d]/80 via-white/15 to-transparent my-0" />
@@ -556,7 +585,7 @@ export default function JournalPage({
           </button>
         </div>
 
-        {/* 🔍【新機能】ズーム＆ドラッグ対応 全画面ライトボックス */}
+        {/* 🔍【完全解決版】画面中央固定 ＆ スクロール非連動ライトボックス */}
         {lightboxImg && (
           <ImageLightboxModal 
             src={lightboxImg} 
@@ -676,7 +705,7 @@ export default function JournalPage({
                 <article 
                   key={article.id} 
                   onClick={() => handleArticleClick(article.id)} 
-                  className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-lg"
+                  className="bg-[#060609] border border-[#white/10] overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-lg"
                 >
                   {eyecatchUrl && (
                     <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
