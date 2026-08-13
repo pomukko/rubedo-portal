@@ -85,13 +85,13 @@
   text-decoration: line-through;
 }
 
-/* --- 標準見出し (H1〜H5) ＆ 目次ジャンプ補正 --- */
+/* --- 標準見出し (H1〜H5) ＆ 目次ジャンプ位置補正 --- */
 .article-body h1,
 .article-body h2,
 .article-body h3,
 .article-body h4,
 .article-body h5 {
-  scroll-margin-top: 150px; /* 固定ヘッダー分のオフセット確保 */
+  scroll-margin-top: 220px; /* 画面上部からゆとりを持たせたジャンプ位置 */
 }
 
 .article-body h1 {
@@ -139,7 +139,7 @@
   line-height: 1.4;
 }
 
-/* --- 💡 コールアウト・補足BOX (Zenn風) --- */
+/* --- 💡 コールアウト・補足BOX --- */
 .article-body blockquote {
   margin-top: 2.25rem;
   margin-bottom: 2.25rem;
@@ -159,7 +159,7 @@
   color: #d1d1d6;
 }
 
-/* --- 🔗 リンク ＆ カード表現 --- */
+/* --- 🔗 リンク --- */
 .article-body a {
   color: #d4b07b;
   text-decoration: underline;
@@ -172,7 +172,7 @@
   opacity: 0.8;
 }
 
-/* --- 📋 コードブロック ＆ コピーボタン --- */
+/* --- 📋 コードブロック --- */
 .code-wrapper {
   position: relative;
   margin-top: 2rem;
