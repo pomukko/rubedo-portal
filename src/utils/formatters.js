@@ -9,7 +9,7 @@ export const formatDate = (dateString) => {
   return `${yyyy}.${mm}.${dd}`;
 };
 
-// 🌟 カテゴリ名抽出（セレクトフィールド・オブジェクト・文字列完全対応）
+// 🌟 メインカテゴリ名抽出
 export const getCategoryName = (category) => {
   if (!category) return 'CREATIVE / 3DCG';
   if (Array.isArray(category)) {
@@ -21,6 +21,22 @@ export const getCategoryName = (category) => {
     return category.name || category.title || category.value || category.id || 'CREATIVE / 3DCG';
   }
   return String(category);
+};
+
+// 🌟 サブカテゴリ名抽出（subCategory / sub_category / subcategory など柔軟対応）
+export const getSubCategoryName = (article) => {
+  if (!article) return '';
+  const sub = article?.subCategory || article?.sub_category || article?.subcategory || article?.subCategories;
+  if (!sub) return '';
+  if (Array.isArray(sub)) {
+    const first = sub[0];
+    if (typeof first === 'object') return first.name || first.title || first.value || first.id || '';
+    return String(first);
+  }
+  if (typeof sub === 'object') {
+    return sub.name || sub.title || sub.value || sub.id || '';
+  }
+  return String(sub);
 };
 
 // 🌟 著者名抽出 (Numen / MUMEN / RUBEDO)
