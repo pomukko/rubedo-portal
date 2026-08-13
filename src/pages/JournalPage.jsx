@@ -191,9 +191,10 @@ export default function JournalPage({
     });
   }, [journalArticles]);
 
+  // 🌟 メインカテゴリー自動レスキュー適用フィルター
   const filteredArticles = useMemo(() => {
     return sortedArticles.filter(a => {
-      const catName = getCategoryName(a?.category);
+      const catName = getCategoryName(a); // 記事全体を渡して全自動補正！
       const subCatList = getSubCategories(a);
 
       const matchMain = activeTab === 'all' || catName.trim().toLowerCase() === activeTab.trim().toLowerCase();
@@ -260,7 +261,6 @@ export default function JournalPage({
       const level = parseInt(match[1], 10);
       const innerHtml = match[2];
 
-      // 太字タグが含まれていたら目次から除外
       if (/<strong\b/i.test(innerHtml) || /<b\b/i.test(innerHtml)) {
         continue;
       }
@@ -277,12 +277,12 @@ export default function JournalPage({
     return items;
   }, [selectedArticle]);
 
-  // 🎯【更新】画面上部から285px（ゆったり見やすい位置）へスムーズジャンプ
+  // 画面上部から285pxへスムーズジャンプ
   const scrollToHeading = (text) => {
     const headings = document.querySelectorAll('.article-body h1, .article-body h2, .article-body h3');
     for (let h of headings) {
       if (h.textContent.trim() === text) {
-        const HEADER_OFFSET = 285; // 上部から約285px下へゆったり位置調整
+        const HEADER_OFFSET = 285;
         const elementPosition = h.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - HEADER_OFFSET;
 
@@ -342,7 +342,7 @@ export default function JournalPage({
   // 記事詳細表示時
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
-    const categoryName = getCategoryName(selectedArticle.category);
+    const categoryName = getCategoryName(selectedArticle); // 🌟 記事全体を渡して補正判定！
     const subCategories = getSubCategories(selectedArticle);
     const authorName = getAuthorName(selectedArticle.author);
 
@@ -431,10 +431,8 @@ export default function JournalPage({
         {/* 目次エリア */}
         {tocList.length > 0 && (
           <div className="my-20">
-            {/* 上部区切り線 */}
             <div className="w-full h-[1px] bg-[#8f121d]/60 mb-12" />
 
-            {/* 目次本体 */}
             <div className="bg-[#060609] border border-[#8f121d]/40 p-6 sm:p-8 space-y-4 relative overflow-hidden shadow-[0_0_30px_rgba(143,18,29,0.1)]">
               <div className="flex items-center gap-2.5 text-xs font-mono tracking-[0.3em] text-[#d4b07b] border-b border-white/10 pb-3">
                 <List className="w-4 h-4 text-[#8f121d]" />
@@ -456,7 +454,6 @@ export default function JournalPage({
               </ul>
             </div>
 
-            {/* 下部区切り線 */}
             <div className="w-full h-[1px] bg-[#8f121d]/60 mt-12" />
           </div>
         )}
@@ -695,7 +692,7 @@ export default function JournalPage({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {paginatedArticles.map(article => {
               const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
-              const categoryName = getCategoryName(article?.category);
+              const categoryName = getCategoryName(article); // 🌟 記事全体を渡して全自動補正判定！
               const subCategories = getSubCategories(article);
               const eyecatchUrl = article?.eyecatch?.url;
               const authorName = getAuthorName(article?.author);
