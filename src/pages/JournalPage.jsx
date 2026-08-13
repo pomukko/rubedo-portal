@@ -53,10 +53,10 @@ export default function JournalPage({
     setPage(1);
   };
 
-  // 現在のメインカテゴリーに応じたサブカテゴリーリストを取得
+  // 🌟 ALL ARCHIVES の時はサブカテゴリーリストを空（非表示）にし、個別カテゴリ選択時のみ取得！
   const currentSubCategories = useMemo(() => {
     if (activeTab === 'all') {
-      return Object.values(SUB_CATEGORIES_MAP).flat();
+      return []; // ALLの時は非表示
     }
     return SUB_CATEGORIES_MAP[activeTab] || [];
   }, [activeTab]);
@@ -70,7 +70,7 @@ export default function JournalPage({
     });
   }, [journalArticles]);
 
-  // 🌟 複数サブカテゴリー（Multi-select）対応のWフィルター処理！
+  // 複数サブカテゴリー（Multi-select）対応のWフィルター処理
   const filteredArticles = useMemo(() => {
     return sortedArticles.filter(a => {
       const catName = getCategoryName(a?.category);
@@ -79,7 +79,7 @@ export default function JournalPage({
       // メインカテゴリー判定
       const matchMain = activeTab === 'all' || catName.trim().toLowerCase() === activeTab.trim().toLowerCase();
 
-      // サブカテゴリー判定（記事が持っているサブカテゴリのいずれかに選択中のタブが含まれているか）
+      // サブカテゴリー判定
       const matchSub = activeSubTab === 'all' || subCatList.some(s => s.trim().toLowerCase() === activeSubTab.trim().toLowerCase());
 
       return matchMain && matchSub;
@@ -147,7 +147,7 @@ export default function JournalPage({
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
-    const subCategories = getSubCategories(selectedArticle); // 複数サブカテゴリ
+    const subCategories = getSubCategories(selectedArticle);
     const authorName = getAuthorName(selectedArticle.author);
 
     const rawMultipleImages = selectedArticle.images || selectedArticle.gallery || selectedArticle.multiple_images || selectedArticle.multipleImages || [];
@@ -180,7 +180,7 @@ export default function JournalPage({
               {categoryName}
             </span>
 
-            {/* 🌟 複数のサブカテゴリーバッジを表示！ */}
+            {/* 複数のサブカテゴリーバッジを表示 */}
             {subCategories.map((subName, idx) => (
               <span key={idx} className="border border-[#d4b07b]/60 text-[#d4b07b] bg-[#d4b07b]/10 px-3 py-1 font-semibold tracking-wider break-all">
                 {subName}
@@ -394,7 +394,7 @@ export default function JournalPage({
           ))}
         </div>
 
-        {/* 🌟 2段目：サブカテゴリー（サブタグ）の動的絞り込みバー！ */}
+        {/* 🌟 2段目：個別メインカテゴリー選択時のみ表示されるサブタグバー！ */}
         {currentSubCategories.length > 0 && (
           <div className="bg-[#060609] border border-white/10 p-4 flex flex-wrap items-center gap-2 text-xs font-mono animate-fadeIn">
             <div className="flex items-center gap-1.5 text-[#d4b07b] mr-3 font-bold border-r border-white/10 pr-4">
@@ -444,7 +444,7 @@ export default function JournalPage({
             {paginatedArticles.map(article => {
               const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
               const categoryName = getCategoryName(article?.category);
-              const subCategories = getSubCategories(article); // 複数選択されたサブカテゴリの配列
+              const subCategories = getSubCategories(article);
               const eyecatchUrl = article?.eyecatch?.url;
               const authorName = getAuthorName(article?.author);
 
