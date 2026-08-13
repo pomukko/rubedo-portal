@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User, Layers, Clock, Copy, Check, Share2, X, RefreshCw } from 'lucide-react';
-import { formatDate, getCategoryName, getSubCategories, getAuthorName, optimizeImage } from '../utils/formatters';
+import { formatDate, getCategoryName, getSubCategories, getAuthorName, optimizeImage, getSingleImageUrl, getMultipleImageUrls } from '../utils/formatters';
 
 const SUB_CATEGORIES_MAP = {
   'CREATIVE / 3DCG': [
@@ -191,10 +191,9 @@ export default function JournalPage({
     });
   }, [journalArticles]);
 
-  // 🌟 メインカテゴリー自動レスキュー適用フィルター
   const filteredArticles = useMemo(() => {
     return sortedArticles.filter(a => {
-      const catName = getCategoryName(a); // 記事全体を渡して全自動補正！
+      const catName = getCategoryName(a);
       const subCatList = getSubCategories(a);
 
       const matchMain = activeTab === 'all' || catName.trim().toLowerCase() === activeTab.trim().toLowerCase();
@@ -299,6 +298,7 @@ export default function JournalPage({
   useEffect(() => {
     if (!selectedArticle || !articleBodyRef.current) return;
 
+    // 本文内の全画像を全画面ライトボックス化！
     const images = articleBodyRef.current.querySelectorAll('img');
     images.forEach(img => {
       img.onclick = () => setLightboxImg(img.src);
@@ -342,12 +342,14 @@ export default function JournalPage({
   // 記事詳細表示時
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
-    const categoryName = getCategoryName(selectedArticle); // 🌟 記事全体を渡して補正判定！
+    const categoryName = getCategoryName(selectedArticle);
     const subCategories = getSubCategories(selectedArticle);
     const authorName = getAuthorName(selectedArticle.author);
 
-    const rawMultipleImages = selectedArticle.images || selectedArticle.gallery || selectedArticle.multiple_images || selectedArticle.multipleImages || [];
-    const multipleImages = Array.isArray(rawMultipleImages) ? rawMultipleImages : [];
+    // 🌟【画像対応強化】単一画像（ただの画像フィールド）＆ 複数画像フィールドの完全自動取得！
+    const eyecatchUrl = selectedArticle.eyecatch?.url;
+    const singleImageUrl = getSingleImageUrl(selectedArticle);
+    const multipleImageUrls = getMultipleImageUrls(selectedArticle);
 
     const rawTags = selectedArticle.tags || selectedArticle.tag_list || [];
     const tags = Array.isArray(rawTags) 
@@ -416,15 +418,29 @@ export default function JournalPage({
           )}
         </div>
 
-        {/* アイキャッチ画像 */}
-        {selectedArticle.eyecatch?.url && (
+        {/* 🌟 1. アイキャッチ画像表示 */}
+        {eyecatchUrl && (
           <div className="w-full my-6">
             <img 
-              src={optimizeImage(selectedArticle.eyecatch.url)} 
+              src={optimizeImage(eyecatchUrl)} 
               alt={selectedArticle.title || ''} 
-              onClick={() => setLightboxImg(selectedArticle.eyecatch.url)}
+              onClick={() => setLightboxImg(eyecatchUrl)}
               className="webtoon-image border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] cursor-zoom-in" 
             />
+          </div>
+        )}
+
+        {/* 🌟 2. 単一画像フィールド（ただの画像）がある場合のスタイリッシュ表示 */}
+        {singleImageUrl && (
+          <div className="w-full my-8">
+            <div className="bg-[#060609] border border-white/10 p-2 overflow-hidden group relative">
+              <img 
+                src={optimizeImage(singleImageUrl)} 
+                alt="Article Sub Attachment" 
+                onClick={() => setLightboxImg(singleImageUrl)}
+                className="w-full h-auto max-h-[600px] object-contain mx-auto cursor-zoom-in hover:scale-[1.01] transition-transform duration-300" 
+              />
+            </div>
           </div>
         )}
 
@@ -458,7 +474,7 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* リッチテキスト本文 */}
+        {/* 🌟 3. リッチテキスト本文（本文内に直接貼った画像も100%全画面ズーム対応！） */}
         <div 
           ref={articleBodyRef}
           className="article-body max-w-none w-full overflow-hidden"
@@ -487,6 +503,30 @@ export default function JournalPage({
             </button>
           </div>
         </div>
+
+        {/* 🌟 4. 複数画像ギャラリー（複数画像フィールド）がある場合のグリッド表示 */}
+        {multipleImageUrls.length > 0 && (
+          <div className="space-y-6 pt-10 border-t border-white/10">
+            <div className="flex items-center gap-2 text-xs font-mono text-[#d4b07b] tracking-widest uppercase">
+              <ImageIcon className="w-4 h-4 text-[#8f121d]" />
+              <span>ARCHIVE GALLERY ({multipleImageUrls.length})</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {multipleImageUrls.map((imgUrl, idx) => {
+                if (!imgUrl) return null;
+                return (
+                  <div key={idx} onClick={() => setLightboxImg(imgUrl)} className="aspect-square bg-[#060609] border border-white/10 overflow-hidden group relative cursor-zoom-in">
+                    <img 
+                      src={optimizeImage(imgUrl)} 
+                      alt={`Gallery Image ${idx + 1}`} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* 前の記事 / 次の記事 ナビゲーション */}
         {(prevArticle || nextArticle) && (
@@ -518,31 +558,6 @@ export default function JournalPage({
                 </h4>
               </div>
             )}
-          </div>
-        )}
-
-        {/* 複数画像ギャラリー */}
-        {multipleImages.length > 0 && (
-          <div className="space-y-6 pt-10 border-t border-white/10">
-            <div className="flex items-center gap-2 text-xs font-mono text-[#d4b07b] tracking-widest uppercase">
-              <ImageIcon className="w-4 h-4 text-[#8f121d]" />
-              <span>ARCHIVE GALLERY ({multipleImages.length})</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {multipleImages.map((imgObj, idx) => {
-                const imgUrl = typeof imgObj === 'string' ? imgObj : imgObj?.url;
-                if (!imgUrl) return null;
-                return (
-                  <div key={idx} onClick={() => setLightboxImg(imgUrl)} className="aspect-square bg-[#060609] border border-white/10 overflow-hidden group relative cursor-zoom-in">
-                    <img 
-                      src={optimizeImage(imgUrl)} 
-                      alt={`Gallery Image ${idx + 1}`} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                    />
-                  </div>
-                );
-              })}
-            </div>
           </div>
         )}
 
@@ -692,7 +707,7 @@ export default function JournalPage({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {paginatedArticles.map(article => {
               const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
-              const categoryName = getCategoryName(article); // 🌟 記事全体を渡して全自動補正判定！
+              const categoryName = getCategoryName(article);
               const subCategories = getSubCategories(article);
               const eyecatchUrl = article?.eyecatch?.url;
               const authorName = getAuthorName(article?.author);
