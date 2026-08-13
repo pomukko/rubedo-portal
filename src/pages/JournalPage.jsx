@@ -1,6 +1,29 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User } from 'lucide-react';
-import { formatDate, getCategoryName, getAuthorName, optimizeImage } from '../utils/formatters';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User, Layers } from 'lucide-react';
+import { formatDate, getCategoryName, getSubCategoryName, getAuthorName, optimizeImage } from '../utils/formatters';
+
+// 🌟 メインカテゴリーとサブカテゴリーのマップ定義
+const SUB_CATEGORIES_MAP = {
+  'CREATIVE / 3DCG': [
+    'VRChat',
+    'Blender & 3D',
+    'Shader & Material',
+    'Gimmick & SDK',
+    'Unity & UE5'
+  ],
+  'NEWS / RELEASE': [
+    'Update',
+    'Event & Info',
+    'Dialogue & Note'
+  ],
+  'LAB / RESEARCH': [
+    'Mental & Mind',
+    'Nutrition & Cooking',
+    'Essay & Philosophy',
+    'Physical & Tuning',
+    'Self Experiment'
+  ]
+};
 
 export default function JournalPage({ 
   journalArticles = [], 
@@ -12,15 +35,32 @@ export default function JournalPage({
   searchQuery,
   setSearchQuery
 }) {
-  // 🌟 確定した3大メインカテゴリー
   const categories = ['all', 'CREATIVE / 3DCG', 'NEWS / RELEASE', 'LAB / RESEARCH'];
+  const [activeSubTab, setActiveSubTab] = useState('all'); // サブカテゴリー選択状態
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
-  const handleTabChange = (cat) => {
+  // メインカテゴリー変更時
+  const handleMainTabChange = (cat) => {
     setActiveTab(cat);
+    setActiveSubTab('all'); // サブカテゴリーをリセット
     setPage(1);
   };
+
+  // サブカテゴリー変更時
+  const handleSubTabChange = (subCat) => {
+    setActiveSubTab(subCat);
+    setPage(1);
+  };
+
+  // 現在のメインカテゴリーに応じたサブカテゴリーリストを取得
+  const currentSubCategories = useMemo(() => {
+    if (activeTab === 'all') {
+      // 全表示時はすべてのサブカテゴリーをユニーク取得
+      return Object.values(SUB_CATEGORIES_MAP).flat();
+    }
+    return SUB_CATEGORIES_MAP[activeTab] || [];
+  }, [activeTab]);
 
   // 最新順ソート
   const sortedArticles = useMemo(() => {
@@ -31,14 +71,21 @@ export default function JournalPage({
     });
   }, [journalArticles]);
 
-  // カテゴリフィルター
+  // 🌟 メイン ＆ サブカテゴリーのWフィルター処理
   const filteredArticles = useMemo(() => {
-    if (activeTab === 'all') return sortedArticles;
     return sortedArticles.filter(a => {
       const catName = getCategoryName(a?.category);
-      return catName.trim().toLowerCase() === activeTab.trim().toLowerCase();
+      const subCatName = getSubCategoryName(a);
+
+      // メインカテゴリー判定
+      const matchMain = activeTab === 'all' || catName.trim().toLowerCase() === activeTab.trim().toLowerCase();
+
+      // サブカテゴリー判定
+      const matchSub = activeSubTab === 'all' || subCatName.trim().toLowerCase() === activeSubTab.trim().toLowerCase();
+
+      return matchMain && matchSub;
     });
-  }, [sortedArticles, activeTab]);
+  }, [sortedArticles, activeTab, activeSubTab]);
 
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE) || 1;
   const paginatedArticles = filteredArticles.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -101,6 +148,7 @@ export default function JournalPage({
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
+    const subCategoryName = getSubCategoryName(selectedArticle);
     const authorName = getAuthorName(selectedArticle.author);
 
     const rawMultipleImages = selectedArticle.images || selectedArticle.gallery || selectedArticle.multiple_images || selectedArticle.multipleImages || [];
@@ -127,11 +175,20 @@ export default function JournalPage({
 
         {/* 記事ヘッダー情報 */}
         <div className="space-y-6 border-b border-white/10 pb-8 w-full overflow-hidden">
-          <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-[#a1a1aa]">
+          <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-[#a1a1aa]">
+            {/* メインカテゴリー */}
             <span className="bg-[#8f121d] text-white px-3 py-1 font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(143,18,29,0.5)] break-all">
               {categoryName}
             </span>
-            {articleDate && <span className="tracking-widest">{articleDate}</span>}
+
+            {/* 🌟 サブカテゴリーバッジ表示！ */}
+            {subCategoryName && (
+              <span className="border border-[#d4b07b]/60 text-[#d4b07b] bg-[#d4b07b]/10 px-3 py-1 font-semibold tracking-wider break-all">
+                {subCategoryName}
+              </span>
+            )}
+
+            {articleDate && <span className="tracking-widest ml-2">{articleDate}</span>}
             
             {/* 著者表示 */}
             <div className="flex items-center gap-2 border-l border-white/10 pl-4 text-[#d4b07b]">
@@ -219,7 +276,7 @@ export default function JournalPage({
             [&_pre]:bg-[#030305] [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-6 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:sm:text-sm [&_pre]:text-[#d4b07b]
             [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/10 [&_code]:px-2 [&_code]:py-1 [&_code]:text-[#d4b07b]
             [&_del]:text-[#71717a] [&_del]:line-through
-            [&_mark]:bg-[#8f121d]/40 [&_mark]:text-white [&_mark]:px-1.5 [&_mark]:py-0.5
+            [&_mark]:bg-[#8f121d]/40 [&_mark]:text-[#white] [&_mark]:px-1.5 [&_mark]:py-0.5
             [&_hr]:border-white/10 [&_hr]:my-12"
           dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
         />
@@ -293,7 +350,7 @@ export default function JournalPage({
 
   // 記事一覧表示時
   return (
-    <div className="pt-36 pb-32 max-w-7xl mx-auto px-8 sm:px-12 space-y-12 animate-fadeIn">
+    <div className="pt-36 pb-32 max-w-7xl mx-auto px-8 sm:px-12 space-y-10 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/10 pb-8 gap-6">
         <div className="space-y-4">
           <h1 className="font-serif text-5xl sm:text-7xl text-white">JOURNAL & HOW-TO</h1>
@@ -320,29 +377,67 @@ export default function JournalPage({
         </div>
       </div>
       
-      {/* 🌟 確定した3大カテゴリーのタブ切り替えバー */}
-      <div className="flex flex-wrap gap-3 border-b border-white/10 pb-4 text-xs font-mono">
-        {categories.map(cat => (
-          <button 
-            key={cat} 
-            onClick={() => handleTabChange(cat)} 
-            className={`px-4 py-2 border uppercase transition-all cursor-pointer ${
-              activeTab.toLowerCase() === cat.toLowerCase() 
-                ? 'border-[#8f121d] bg-[#8f121d]/20 text-white font-bold' 
-                : 'border-white/10 text-[#71717a] hover:text-white'
-            }`}
-          >
-            {cat === 'all' ? 'ALL' : cat}
-          </button>
-        ))}
+      {/* 🌟 1段目：メインカテゴリーの切り替えタブ */}
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-3 text-xs font-mono">
+          {categories.map(cat => (
+            <button 
+              key={cat} 
+              onClick={() => handleMainTabChange(cat)} 
+              className={`px-5 py-2.5 border uppercase transition-all cursor-pointer ${
+                activeTab.toLowerCase() === cat.toLowerCase() 
+                  ? 'border-[#8f121d] bg-[#8f121d] text-white font-bold shadow-[0_0_15px_rgba(143,18,29,0.5)]' 
+                  : 'border-white/10 text-[#71717a] hover:text-white hover:border-white/30'
+              }`}
+            >
+              {cat === 'all' ? 'ALL ARCHIVES' : cat}
+            </button>
+          ))}
+        </div>
+
+        {/* 🌟 2段目：サブカテゴリー（サブタグ）の動的絞り込みバー！ */}
+        {currentSubCategories.length > 0 && (
+          <div className="bg-[#060609] border border-white/10 p-4 flex flex-wrap items-center gap-2 text-xs font-mono animate-fadeIn">
+            <div className="flex items-center gap-1.5 text-[#d4b07b] mr-3 font-bold border-r border-white/10 pr-4">
+              <Layers className="w-3.5 h-3.5 text-[#8f121d]" />
+              <span>SUB-CATEGORY:</span>
+            </div>
+
+            <button
+              onClick={() => handleSubTabChange('all')}
+              className={`px-3 py-1 rounded-none border transition-all cursor-pointer ${
+                activeSubTab === 'all'
+                  ? 'border-[#d4b07b] bg-[#d4b07b]/20 text-white font-bold'
+                  : 'border-white/10 text-[#71717a] hover:text-white'
+              }`}
+            >
+              ALL SUB
+            </button>
+
+            {currentSubCategories.map(subCat => (
+              <button
+                key={subCat}
+                onClick={() => handleSubTabChange(subCat)}
+                className={`px-3 py-1 rounded-none border transition-all cursor-pointer ${
+                  activeSubTab.toLowerCase() === subCat.toLowerCase()
+                    ? 'border-[#d4b07b] bg-[#d4b07b]/20 text-white font-bold'
+                    : 'border-white/10 text-[#71717a] hover:text-white'
+                }`}
+              >
+                #{subCat}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* 記事一覧グリッド表示 */}
       {filteredArticles.length === 0 ? (
         <div className="py-20 text-center space-y-4 border border-white/5 bg-[#060609]">
           <p className="font-serif text-lg text-[#71717a]">
-            {searchQuery ? `「${searchQuery}」に一致する記事が見つかりませんでした。` : '該当する記事が見つかりませんでした。'}
+            {searchQuery ? `「${searchQuery}」に一致する記事が見つかりませんでした。` : '該当するカテゴリーの記事が見つかりませんでした。'}
           </p>
-          <p className="font-mono text-xs text-[#52525b]">NO ARTICLES FOUND.</p>
+          <p className="font-mono text-xs text-[#52525b]">NO ARTICLES FOUND IN THIS CATEGORY.</p>
         </div>
       ) : (
         <>
@@ -350,6 +445,7 @@ export default function JournalPage({
             {paginatedArticles.map(article => {
               const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
               const categoryName = getCategoryName(article?.category);
+              const subCategoryName = getSubCategoryName(article);
               const eyecatchUrl = article?.eyecatch?.url;
               const authorName = getAuthorName(article?.author);
 
@@ -357,7 +453,7 @@ export default function JournalPage({
                 <article 
                   key={article.id} 
                   onClick={() => handleArticleClick(article.id)} 
-                  className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group"
+                  className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-lg"
                 >
                   {eyecatchUrl && (
                     <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
@@ -371,10 +467,19 @@ export default function JournalPage({
 
                   <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
                     <div className="space-y-4">
-                      <div className="flex justify-between font-mono text-[10px] text-[#71717a]">
-                        <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
-                        <span>{articleDate}</span>
+                      {/* メイン ＆ サブカテゴリーバッジ */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[10px]">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
+                          {subCategoryName && (
+                            <span className="text-[#d4b07b] border border-[#d4b07b]/30 px-1.5 py-0.2 bg-[#d4b07b]/5 break-all">
+                              #{subCategoryName}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[#71717a]">{articleDate}</span>
                       </div>
+
                       <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2 break-all">
                         {article.title || 'Untitled'}
                       </h3>
