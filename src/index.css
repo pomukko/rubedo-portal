@@ -27,10 +27,16 @@
   display: block !important;
   margin-top: 2rem !important;
   margin-bottom: 2rem !important;
+  cursor: zoom-in;
+  transition: opacity 0.2s;
+}
+
+.article-body img:hover {
+  opacity: 0.9;
 }
 
 /* ==================================================
-   🌟 ARTICLE BODY - NOTE-LIKE TYPOGRAPHY & SPACING
+   ARTICLE BODY - NOTE & ZENN LIKE TYPOGRAPHY
    ================================================== */
 
 .article-body {
@@ -43,16 +49,15 @@
   overflow-wrap: anywhere;
 }
 
-/* --- Note風のゆったりした改行・段落スペーシング --- */
+/* --- 段落・改行スペーシング --- */
 .article-body p {
   margin-top: 0;
   margin-bottom: 1.8rem;
   color: #e2e2e8;
   font-weight: 400;
-  min-height: 1.8em; /* 空段落でも1行分の高さを絶対保証 */
+  min-height: 1.8em;
 }
 
-/* 空段落がブラウザに潰されるのを100%防止する魔法の擬似要素 */
 .article-body p:empty::before {
   content: "\00a0";
 }
@@ -80,7 +85,7 @@
   text-decoration: line-through;
 }
 
-/* --- シンプル＆標準的な見出し（H1〜H5） --- */
+/* --- 標準見出し (H1〜H5) --- */
 .article-body h1 {
   font-size: 1.85rem;
   font-weight: 700;
@@ -88,9 +93,6 @@
   margin-top: 3.5rem;
   margin-bottom: 1.5rem;
   line-height: 1.4;
-  padding: 0;
-  border: none;
-  background: none;
 }
 
 .article-body h2 {
@@ -100,9 +102,6 @@
   margin-top: 3rem;
   margin-bottom: 1.25rem;
   line-height: 1.4;
-  padding: 0;
-  border: none;
-  background: none;
 }
 
 .article-body h3 {
@@ -112,9 +111,6 @@
   margin-top: 2.5rem;
   margin-bottom: 1rem;
   line-height: 1.4;
-  padding: 0;
-  border: none;
-  background: none;
 }
 
 .article-body h4 {
@@ -124,9 +120,6 @@
   margin-top: 2rem;
   margin-bottom: 0.875rem;
   line-height: 1.4;
-  padding: 0;
-  border: none;
-  background: none;
 }
 
 .article-body h5 {
@@ -136,39 +129,71 @@
   margin-top: 1.75rem;
   margin-bottom: 0.75rem;
   line-height: 1.4;
-  padding: 0;
-  border: none;
-  background: none;
 }
 
-/* --- リンク --- */
+/* --- 💡 コールアウト・補足BOX (Zenn風) --- */
+.article-body blockquote {
+  margin-top: 2.25rem;
+  margin-bottom: 2.25rem;
+  padding: 1.25rem 1.5rem;
+  background-color: #08080d;
+  border-left: 4px solid #8f121d;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d1d1d6;
+  font-size: 0.95rem;
+}
+
+.article-body blockquote p {
+  margin-bottom: 0;
+  min-height: auto;
+  color: #d1d1d6;
+}
+
+/* --- 🔗 リンク ＆ カード表現 --- */
 .article-body a {
   color: #d4b07b;
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-underline-offset: 4px;
   transition: opacity 0.2s ease;
+  word-break: break-all;
 }
 
 .article-body a:hover {
   opacity: 0.8;
 }
 
-/* --- 引用 (Blockquote) --- */
-.article-body blockquote {
-  margin-top: 2.25rem;
-  margin-bottom: 2.25rem;
-  padding: 1.25rem 1.5rem;
-  background-color: #060609;
-  border-left: 3px solid #71717a;
-  color: #a1a1aa;
-  font-style: normal;
-  font-size: 0.95rem;
+/* --- 📋 コードブロック ＆ コピーボタン --- */
+.code-wrapper {
+  position: relative;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
-.article-body blockquote p {
-  margin-bottom: 0;
-  color: #a1a1aa;
-  min-height: auto;
+.article-body pre {
+  background-color: #030305;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 1.5rem;
+  padding-top: 2.5rem;
+  font-family: "JetBrains Mono", Consolas, Monaco, monospace;
+  font-size: 0.875rem;
+  color: #d4b07b;
+  overflow-x: auto;
+  line-height: 1.7;
+}
+
+.article-body code {
+  font-family: "JetBrains Mono", Consolas, Monaco, monospace;
+  font-size: 0.85rem;
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 0.15rem 0.4rem;
+  color: #d4b07b;
+}
+
+.article-body pre code {
+  background-color: transparent;
+  padding: 0;
 }
 
 /* --- リスト (UL / OL) --- */
@@ -191,33 +216,6 @@
 .article-body li {
   margin-bottom: 0.5rem;
   line-height: 1.8;
-}
-
-/* --- コード --- */
-.article-body pre {
-  background-color: #030305;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1.25rem;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  font-family: monospace;
-  font-size: 0.875rem;
-  color: #e2e2e8;
-  overflow-x: auto;
-  line-height: 1.6;
-}
-
-.article-body code {
-  font-family: monospace;
-  font-size: 0.85rem;
-  background-color: rgba(255, 255, 255, 0.08);
-  padding: 0.15rem 0.35rem;
-  color: #e2e2e8;
-}
-
-.article-body pre code {
-  background-color: transparent;
-  padding: 0;
 }
 
 /* --- テーブル --- */
