@@ -9,7 +9,7 @@ export const formatDate = (dateString) => {
   return `${yyyy}.${mm}.${dd}`;
 };
 
-// 🌟 カテゴリ名抽出（文字列・オブジェクト両対応）
+// 🌟 カテゴリ名抽出
 export const getCategoryName = (category) => {
   if (!category) return 'GENERAL';
   if (typeof category === 'string') return category;
@@ -17,6 +17,18 @@ export const getCategoryName = (category) => {
     return category.name || category.title || category.id || 'GENERAL';
   }
   return 'GENERAL';
+};
+
+// 🌟 著者名抽出（セレクトフィールド: Numen / MUMEN / RUBEDO 完全対応！）
+export const getAuthorName = (author) => {
+  if (!author) return 'RUBEDO';
+  if (Array.isArray(author)) {
+    return author[0] || 'RUBEDO';
+  }
+  if (typeof author === 'object') {
+    return author.name || author.title || author.value || 'RUBEDO';
+  }
+  return String(author);
 };
 
 // 🌟 Imgix 画像自動軽量化（WebP自動変換 ＆ 圧縮）
