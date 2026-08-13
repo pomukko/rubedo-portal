@@ -247,7 +247,7 @@ export default function JournalPage({
     };
   }, [selectedArticle, sortedArticles]);
 
-  // 🌟【改善版】自動目次抽出 (H1, H2, H3) ※太字（strong / b）が入っている見出しは除外！
+  // 自動目次抽出 (H1, H2, H3) ※太字（strong / b）が入っている見出しは除外！
   const tocList = useMemo(() => {
     if (!selectedArticle?.body) return [];
     const html = selectedArticle.body;
@@ -260,7 +260,6 @@ export default function JournalPage({
       const level = parseInt(match[1], 10);
       const innerHtml = match[2];
 
-      // 🌟【新条件】見出しの中に <strong> や <b> (太字タグ) が含まれていたら目次から除外！
       if (/<strong\b/i.test(innerHtml) || /<b\b/i.test(innerHtml)) {
         continue;
       }
@@ -277,12 +276,12 @@ export default function JournalPage({
     return items;
   }, [selectedArticle]);
 
-  // 🎯【改善版】画面上部から220px（余裕のある位置）へスムーズジャンプ
+  // 画面上部から220px（余裕のある位置）へスムーズジャンプ
   const scrollToHeading = (text) => {
     const headings = document.querySelectorAll('.article-body h1, .article-body h2, .article-body h3');
     for (let h of headings) {
       if (h.textContent.trim() === text) {
-        const HEADER_OFFSET = 220; // ゆとりのあるジャンプ位置
+        const HEADER_OFFSET = 220;
         const elementPosition = h.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - HEADER_OFFSET;
 
@@ -428,12 +427,13 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* ✂️【高級感ソリッド線 ＆ 2倍余白】目次エリア */}
+        {/* ✂️【余白2倍！ space-y-32】高級感ソリッド線 目次エリア */}
         {tocList.length > 0 && (
-          <div className="my-24 space-y-16">
-            {/* 上部区切り線：ぼかし抜きのシンプルな高級感深紅ライン */}
+          <div className="my-36 space-y-32">
+            {/* 上部区切り線 */}
             <div className="w-full h-[1px] bg-[#8f121d]/60" />
 
+            {/* 目次本体 */}
             <div className="bg-[#060609] border border-[#8f121d]/40 p-6 sm:p-8 space-y-4 my-0 relative overflow-hidden shadow-[0_0_30px_rgba(143,18,29,0.1)]">
               <div className="flex items-center gap-2.5 text-xs font-mono tracking-[0.3em] text-[#d4b07b] border-b border-white/10 pb-3">
                 <List className="w-4 h-4 text-[#8f121d]" />
@@ -455,7 +455,7 @@ export default function JournalPage({
               </ul>
             </div>
 
-            {/* 下部区切り線：ぼかし抜きのシンプルな高級感深紅ライン */}
+            {/* 下部区切り線 */}
             <div className="w-full h-[1px] bg-[#8f121d]/60" />
           </div>
         )}
@@ -709,86 +709,3 @@ export default function JournalPage({
                   onClick={() => handleArticleClick(article.id)} 
                   className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-lg"
                 >
-                  {eyecatchUrl && (
-                    <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
-                      <img 
-                        src={optimizeImage(eyecatchUrl)} 
-                        alt={article.title || ''} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                    </div>
-                  )}
-
-                  <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-4">
-                      {/* メイン ＆ 選択時のみのサブカテゴリーバッジ表示 */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[10px]">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
-                          {displaySubCategories.map((subName, sIdx) => (
-                            <span key={sIdx} className="text-[#d4b07b] border border-[#d4b07b]/30 px-1.5 py-0.5 bg-[#d4b07b]/5 break-all">
-                              #{subName}
-                            </span>
-                          ))}
-                        </div>
-                        <span className="text-[#71717a]">{articleDate}</span>
-                      </div>
-
-                      <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2 break-all">
-                        {article.title || 'Untitled'}
-                      </h3>
-                      <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed break-all">
-                        {article.lead || ''}
-                      </p>
-                    </div>
-                    
-                    <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
-                      <span>BY {authorName}</span>
-                      <span className="text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                        READ <ArrowRight className="w-3.5 h-3.5 text-[#8f121d]"/>
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="pt-16 border-t border-white/10 flex justify-center items-center gap-3 font-mono text-xs">
-              <button 
-                onClick={() => handlePageChange(page - 1)} 
-                disabled={page === 1}
-                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pNum => (
-                <button
-                  key={pNum}
-                  onClick={() => handlePageChange(pNum)}
-                  className={`w-10 h-10 border transition-all cursor-pointer ${
-                    page === pNum 
-                      ? 'border-[#8f121d] bg-[#8f121d] text-white font-bold shadow-[0_0_15px_rgba(143,18,29,0.5)]' 
-                      : 'border-white/10 text-[#a1a1aa] hover:border-white/30 hover:text-white'
-                  }`}
-                >
-                  {pNum}
-                </button>
-              ))}
-
-              <button 
-                onClick={() => handlePageChange(page + 1)} 
-                disabled={page === totalPages}
-                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
