@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User, Layers } from 'lucide-react';
 import { formatDate, getCategoryName, getSubCategories, getAuthorName, optimizeImage } from '../utils/formatters';
 
-// 🌟 メインカテゴリーとサブカテゴリーのマップ定義
 const SUB_CATEGORIES_MAP = {
   'CREATIVE / 3DCG': [
     'VRChat',
@@ -36,24 +35,21 @@ export default function JournalPage({
   setSearchQuery
 }) {
   const categories = ['all', 'CREATIVE / 3DCG', 'NEWS / RELEASE', 'LAB / RESEARCH'];
-  const [activeSubTab, setActiveSubTab] = useState('all'); // サブカテゴリー選択状態
+  const [activeSubTab, setActiveSubTab] = useState('all');
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
-  // メインカテゴリー変更時
   const handleMainTabChange = (cat) => {
     setActiveTab(cat);
-    setActiveSubTab('all'); // サブカテゴリーをリセット
+    setActiveSubTab('all');
     setPage(1);
   };
 
-  // サブカテゴリー変更時
   const handleSubTabChange = (subCat) => {
     setActiveSubTab(subCat);
     setPage(1);
   };
 
-  // 個別メインカテゴリー選択時のみサブカテゴリーリストを取得
   const currentSubCategories = useMemo(() => {
     if (activeTab === 'all') {
       return [];
@@ -61,7 +57,6 @@ export default function JournalPage({
     return SUB_CATEGORIES_MAP[activeTab] || [];
   }, [activeTab]);
 
-  // 最新順ソート
   const sortedArticles = useMemo(() => {
     return [...journalArticles].sort((a, b) => {
       const dateA = new Date(a?.publishedAt || a?.createdAt || a?.updatedAt || 0);
@@ -70,7 +65,6 @@ export default function JournalPage({
     });
   }, [journalArticles]);
 
-  // 複数サブカテゴリー（Multi-select）対応のWフィルター処理
   const filteredArticles = useMemo(() => {
     return sortedArticles.filter(a => {
       const catName = getCategoryName(a?.category);
@@ -107,11 +101,11 @@ export default function JournalPage({
     }
   };
 
-  // 自動目次抽出
+  // 🌟 自動目次抽出 (H1, H2, H3 対応)
   const tocList = useMemo(() => {
     if (!selectedArticle?.body) return [];
     const html = selectedArticle.body;
-    const regex = /<h([23])\b[^>]*>(.*?)<\/h[23]>/gi;
+    const regex = /<h([123])\b[^>]*>(.*?)<\/h[123]>/gi;
     const items = [];
     let match;
     let index = 0;
@@ -131,7 +125,7 @@ export default function JournalPage({
   }, [selectedArticle]);
 
   const scrollToHeading = (text) => {
-    const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+    const headings = document.querySelectorAll('.article-body h1, .article-body h2, .article-body h3');
     for (let h of headings) {
       if (h.textContent.trim() === text) {
         h.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -140,7 +134,7 @@ export default function JournalPage({
     }
   };
 
-  // 🌟【記事詳細表示時】全サブカテゴリーをフルで表示！
+  // 記事詳細表示時
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
@@ -172,12 +166,10 @@ export default function JournalPage({
         {/* 記事ヘッダー情報 */}
         <div className="space-y-6 border-b border-white/10 pb-8 w-full overflow-hidden">
           <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-[#a1a1aa]">
-            {/* メインカテゴリー */}
             <span className="bg-[#8f121d] text-white px-3 py-1 font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(143,18,29,0.5)] break-all">
               {categoryName}
             </span>
 
-            {/* 記事詳細では付与された全サブカテゴリーバッジを表示！ */}
             {subCategories.map((subName, idx) => (
               <span key={idx} className="border border-[#d4b07b]/60 text-[#d4b07b] bg-[#d4b07b]/10 px-3 py-1 font-semibold tracking-wider break-all">
                 {subName}
@@ -186,7 +178,6 @@ export default function JournalPage({
 
             {articleDate && <span className="tracking-widest ml-2">{articleDate}</span>}
             
-            {/* 著者表示 */}
             <div className="flex items-center gap-2 border-l border-white/10 pl-4 text-[#d4b07b]">
               <User className="w-3.5 h-3.5 text-[#8f121d]" />
               <span>BY {authorName}</span>
@@ -197,7 +188,6 @@ export default function JournalPage({
             {selectedArticle.title || 'Untitled'}
           </h1>
 
-          {/* タグ一覧 */}
           {tags.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 pt-2">
               <Tag className="w-3.5 h-3.5 text-[#d4b07b]" />
@@ -209,7 +199,6 @@ export default function JournalPage({
             </div>
           )}
 
-          {/* リード文 */}
           {selectedArticle.lead && (
             <p className="text-lg sm:text-xl text-[#d4b07b]/90 border-l-2 border-[#8f121d] pl-5 py-1.5 font-light leading-relaxed italic bg-[#8f121d]/[0.03] break-all [overflow-wrap:anywhere]">
               {selectedArticle.lead}
@@ -241,7 +230,7 @@ export default function JournalPage({
                   key={idx} 
                   onClick={() => scrollToHeading(item.text)}
                   className={`cursor-pointer hover:text-white transition-colors flex items-center gap-2 ${
-                    item.level === 3 ? 'pl-4 text-[11px] text-[#71717a]' : 'font-medium text-[#e2e2e8]'
+                    item.level === 3 ? 'pl-6 text-[11px] text-[#71717a]' : item.level === 2 ? 'pl-3 font-medium text-[#e2e2e8]' : 'font-bold text-white'
                   }`}
                 >
                   <span className="text-[#8f121d] text-[9px]">►</span>
@@ -252,9 +241,9 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* リッチテキスト本文 */}
+        {/* 🌟 完全にクリーンアップされたリッチテキスト本文 */}
         <div 
-          className="article-body max-w-none space-y-8 text-base sm:text-lg leading-[2.1] font-light text-[#e2e2e8] w-full overflow-hidden break-all [overflow-wrap:anywhere]"
+          className="article-body max-w-none w-full overflow-hidden"
           dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
         />
 
@@ -426,9 +415,6 @@ export default function JournalPage({
               const eyecatchUrl = article?.eyecatch?.url;
               const authorName = getAuthorName(article?.author);
 
-              // 🌟【カード表示用サブタグ制御】
-              // サブカテゴリーが選択中（ALL SUB以外）の時だけ、その「選択中サブカテゴリー」を1つだけバッジ表示！
-              // サブカテゴリー未選択（ALL SUB時）はサブタグ非表示でカードを超スッキリ保持！
               const displaySubCategories = activeSubTab === 'all'
                 ? []
                 : subCategories.filter(s => typeof s === 'string' && s.trim().toLowerCase() === activeSubTab.trim().toLowerCase());
