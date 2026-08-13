@@ -56,12 +56,13 @@ export const getSubCategories = (article) => {
   return list;
 };
 
+// 🌟 単一サブカテゴリ名取得
 export const getSubCategoryName = (article) => {
   const list = getSubCategories(article);
   return list.length > 0 ? list[0] : '';
 };
 
-// 🌟 メインカテゴリ名抽出
+// 🌟 メインカテゴリ名抽出（全自動補正・救済付き）
 export const getCategoryName = (categoryOrArticle) => {
   if (!categoryOrArticle) return 'CREATIVE / 3DCG';
 
@@ -120,7 +121,7 @@ export const getCategoryName = (categoryOrArticle) => {
   return 'CREATIVE / 3DCG';
 };
 
-// 🌟 単一画像（ただの画像フィールド）抽出ヘルパー（100%型安全）
+// 🌟 単一画像（ただの画像フィールド）抽出ヘルパー
 export const getSingleImageUrl = (article) => {
   if (!article) return '';
   const imgObj = article.image || article.photo || article.picture || article.subImage || article.sub_image || article.singleImage || article.main_image;
@@ -135,7 +136,7 @@ export const getSingleImageUrl = (article) => {
   return imgObj.url || '';
 };
 
-// 🌟 複数画像フィールド抽出ヘルパー（100%型安全）
+// 🌟 複数画像フィールド抽出ヘルパー
 export const getMultipleImageUrls = (article) => {
   if (!article) return [];
   const raw = article.images || article.gallery || article.photos || article.multipleImages || article.multiple_images || article.galleryImages || [];
@@ -177,3 +178,17 @@ export const optimizeImage = (url) => {
   }
   return url;
 };
+
+// デフォルトエクスポート（補救用）
+const formatters = {
+  formatDate,
+  getSubCategories,
+  getSubCategoryName,
+  getCategoryName,
+  getSingleImageUrl,
+  getMultipleImageUrls,
+  getAuthorName,
+  optimizeImage
+};
+
+export default formatters;
