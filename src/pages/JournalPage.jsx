@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User, Layers, Clock, Copy, Check, Share2, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User, Layers, Clock, Copy, Check, Share2, X, RefreshCw } from 'lucide-react';
 import { formatDate, getCategoryName, getSubCategories, getAuthorName, optimizeImage } from '../utils/formatters';
 
 const SUB_CATEGORIES_MAP = {
@@ -24,6 +24,105 @@ const SUB_CATEGORIES_MAP = {
   ]
 };
 
+// 🌟【プロ仕様】ホイールズーム ＆ ドラッグ移動対応ライトボックスコンポーネント
+function ImageLightboxModal({ src, onClose }) {
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  // ホイールで拡大縮小 (1.0倍〜5.0倍)
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const delta = -e.deltaY * 0.0015;
+    setScale((prevScale) => {
+      const nextScale = Math.min(Math.max(1, prevScale + delta), 5);
+      if (nextScale === 1) setPosition({ x: 0, y: 0 });
+      return nextScale;
+    });
+  };
+
+  // ドラッグ操作（拡大時のみ移動可）
+  const handleMouseDown = (e) => {
+    if (scale <= 1) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || scale <= 1) return;
+    setPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  const resetZoom = (e) => {
+    if (e) e.stopPropagation();
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center overflow-hidden animate-fadeIn select-none"
+      onWheel={handleWheel}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      {/* 閉じる ＆ ズームリセット ボタン */}
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+        {scale > 1 && (
+          <button 
+            onClick={resetZoom}
+            className="text-xs font-mono text-white bg-white/10 px-3 py-2 rounded-full hover:bg-[#8f121d] transition-colors cursor-pointer border border-white/20 flex items-center gap-1.5"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>RESET ({Math.round(scale * 100)}%)</span>
+          </button>
+        )}
+        <button 
+          onClick={onClose}
+          className="text-white bg-white/10 p-2.5 rounded-full hover:bg-[#8f121d] transition-colors cursor-pointer border border-white/20"
+        >
+          <X className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* 操作ガイドチップ */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 bg-black/70 border border-white/15 px-5 py-2 text-[11px] font-mono text-[#d1d1d6] pointer-events-none rounded-full backdrop-blur-sm">
+        💡 マウスホイールで拡大縮小 / ドラッグで視点移動 / 背景クリックで閉じる
+      </div>
+
+      {/* 画像メインエリア */}
+      <div 
+        className={`w-full h-full flex items-center justify-center p-4 ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-out'}`}
+        onMouseDown={handleMouseDown}
+        onClick={(e) => {
+          if (e.target === e.currentTarget && !isDragging) onClose();
+        }}
+      >
+        <img 
+          src={src} 
+          alt="Zoomed" 
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+            maxHeight: '90vh',
+            maxWidth: '90vw',
+            objectFit: 'contain'
+          }}
+          className="shadow-2xl border border-white/10 pointer-events-auto" 
+          draggable={false}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function JournalPage({ 
   journalArticles = [], 
   activeTab, 
@@ -37,9 +136,8 @@ export default function JournalPage({
   const categories = ['all', 'CREATIVE / 3DCG', 'NEWS / RELEASE', 'LAB / RESEARCH'];
   const [activeSubTab, setActiveSubTab] = useState('all');
   const [page, setPage] = useState(1);
-  const [lightboxImg, setLightboxImg] = useState(null); // 画像ライトボックス用
-  const [copiedUrl, setCopiedUrl] = useState(false); // URLコピー完了用
-  const [copiedCodeIdx, setCopiedCodeIdx] = useState(null); // コードコピー用
+  const [lightboxImg, setLightboxImg] = useState(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
   const articleBodyRef = useRef(null);
   const ITEMS_PER_PAGE = 12;
 
@@ -110,22 +208,22 @@ export default function JournalPage({
     if (!selectedArticle?.body) return { minutes: 1, count: 0 };
     const plainText = selectedArticle.body.replace(/<[^>]+>/g, '').replace(/\s+/g, '');
     const count = plainText.length;
-    const minutes = Math.max(1, Math.ceil(count / 600)); // 1分間あたり600文字計算
+    const minutes = Math.max(1, Math.ceil(count / 600));
     return { minutes, count };
   }, [selectedArticle]);
 
-  // ⬅️ ➡️ 前の記事 / 次の記事 取得
+  // 前の記事 / 次の記事 取得
   const { prevArticle, nextArticle } = useMemo(() => {
     if (!selectedArticle) return { prevArticle: null, nextArticle: null };
     const idx = sortedArticles.findIndex(a => a.id === selectedArticle.id);
     if (idx === -1) return { prevArticle: null, nextArticle: null };
     return {
-      prevArticle: sortedArticles[idx + 1] || null, // より古い記事
-      nextArticle: sortedArticles[idx - 1] || null  // より新しい記事
+      prevArticle: sortedArticles[idx + 1] || null,
+      nextArticle: sortedArticles[idx - 1] || null
     };
   }, [selectedArticle, sortedArticles]);
 
-  // 自動目次抽出 (H1, H2, H3 対応)
+  // 自動目次抽出 (H1, H2, H3)
   const tocList = useMemo(() => {
     if (!selectedArticle?.body) return [];
     const html = selectedArticle.body;
@@ -148,29 +246,37 @@ export default function JournalPage({
     return items;
   }, [selectedArticle]);
 
+  // 🎯【修正版】ヘッダー高さを計算してズレなく正確にスクロールする関数！
   const scrollToHeading = (text) => {
     const headings = document.querySelectorAll('.article-body h1, .article-body h2, .article-body h3');
     for (let h of headings) {
       if (h.textContent.trim() === text) {
-        h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const HEADER_OFFSET = 150; // 固定ヘッダーの高さ＋余白
+        const elementPosition = h.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - HEADER_OFFSET;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
         break;
       }
     }
   };
 
-  // 📋 本文内画像クリック（ライトボックス） ＆ コードコピー機能の初期化
+  // 本文内画像クリック ＆ コードコピー機能の初期化
   useEffect(() => {
     if (!selectedArticle || !articleBodyRef.current) return;
 
-    // 画像クリックで拡大
+    // 画像クリックで全画面拡大
     const images = articleBodyRef.current.querySelectorAll('img');
     images.forEach(img => {
       img.onclick = () => setLightboxImg(img.src);
     });
 
-    // preタグ（コードブロック）にコピーボタン付与
+    // preタグにコピーボタン付与
     const pres = articleBodyRef.current.querySelectorAll('pre');
-    pres.forEach((pre, idx) => {
+    pres.forEach((pre) => {
       if (pre.parentNode.classList.contains('code-wrapper')) return;
 
       const wrapper = document.createElement('div');
@@ -192,7 +298,6 @@ export default function JournalPage({
     });
   }, [selectedArticle]);
 
-  // 𝕏 シェア ＆ URLコピー処理
   const handleShareX = () => {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(`「${selectedArticle?.title || ''}」- RUBEDO PORTAL`);
@@ -249,13 +354,11 @@ export default function JournalPage({
 
             {articleDate && <span className="tracking-widest ml-2">{articleDate}</span>}
             
-            {/* ⏱️ 読了目安時間 ＆ 文字数表示 */}
             <div className="flex items-center gap-1.5 text-[#a1a1aa] border-l border-white/10 pl-3">
               <Clock className="w-3.5 h-3.5 text-[#d4b07b]" />
               <span>約{readTimeStats.minutes}分（{readTimeStats.count.toLocaleString()}文字）</span>
             </div>
 
-            {/* 著者表示 */}
             <div className="flex items-center gap-2 border-l border-white/10 pl-3 text-[#d4b07b]">
               <User className="w-3.5 h-3.5 text-[#8f121d]" />
               <span>BY {authorName}</span>
@@ -296,27 +399,33 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 自動生成目次 */}
+        {/* ✂️【修正版】上下余白 ＆ 高級グラデーション区切り線付き目次 */}
         {tocList.length > 0 && (
-          <div className="bg-[#060609] border border-[#8f121d]/40 p-6 sm:p-8 space-y-4 my-8 relative overflow-hidden shadow-[0_0_30px_rgba(143,18,29,0.1)]">
-            <div className="flex items-center gap-2.5 text-xs font-mono tracking-[0.3em] text-[#d4b07b] border-b border-white/10 pb-3">
-              <List className="w-4 h-4 text-[#8f121d]" />
-              <span>INDEX / 目次</span>
+          <div className="my-14 space-y-8">
+            <hr className="border-0 h-[1px] bg-gradient-to-r from-[#8f121d]/80 via-white/15 to-transparent my-0" />
+
+            <div className="bg-[#060609] border border-[#8f121d]/40 p-6 sm:p-8 space-y-4 my-0 relative overflow-hidden shadow-[0_0_30px_rgba(143,18,29,0.1)]">
+              <div className="flex items-center gap-2.5 text-xs font-mono tracking-[0.3em] text-[#d4b07b] border-b border-white/10 pb-3">
+                <List className="w-4 h-4 text-[#8f121d]" />
+                <span>INDEX / 目次</span>
+              </div>
+              <ul className="space-y-2.5 font-mono text-xs text-[#a1a1aa]">
+                {tocList.map((item, idx) => (
+                  <li 
+                    key={idx} 
+                    onClick={() => scrollToHeading(item.text)}
+                    className={`cursor-pointer hover:text-white transition-colors flex items-center gap-2 ${
+                      item.level === 3 ? 'pl-6 text-[11px] text-[#71717a]' : item.level === 2 ? 'pl-3 font-medium text-[#e2e2e8]' : 'font-bold text-white'
+                    }`}
+                  >
+                    <span className="text-[#8f121d] text-[9px]">►</span>
+                    <span className="hover:underline underline-offset-4 decoration-[#8f121d]">{item.text}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="space-y-2.5 font-mono text-xs text-[#a1a1aa]">
-              {tocList.map((item, idx) => (
-                <li 
-                  key={idx} 
-                  onClick={() => scrollToHeading(item.text)}
-                  className={`cursor-pointer hover:text-white transition-colors flex items-center gap-2 ${
-                    item.level === 3 ? 'pl-6 text-[11px] text-[#71717a]' : item.level === 2 ? 'pl-3 font-medium text-[#e2e2e8]' : 'font-bold text-white'
-                  }`}
-                >
-                  <span className="text-[#8f121d] text-[9px]">►</span>
-                  <span className="hover:underline underline-offset-4 decoration-[#8f121d]">{item.text}</span>
-                </li>
-              ))}
-            </ul>
+
+            <hr className="border-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-[#8f121d]/80 my-0" />
           </div>
         )}
 
@@ -350,7 +459,7 @@ export default function JournalPage({
           </div>
         </div>
 
-        {/* ⬅️ ➡️ 前の記事 / 次の記事 ナビゲーション */}
+        {/* 前の記事 / 次の記事 ナビゲーション */}
         {(prevArticle || nextArticle) && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-10 border-t border-white/10">
             {nextArticle ? (
@@ -447,24 +556,12 @@ export default function JournalPage({
           </button>
         </div>
 
-        {/* 🔍 画像拡大ライトボックス モーダル */}
+        {/* 🔍【新機能】ズーム＆ドラッグ対応 全画面ライトボックス */}
         {lightboxImg && (
-          <div 
-            onClick={() => setLightboxImg(null)}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out animate-fadeIn"
-          >
-            <button 
-              onClick={() => setLightboxImg(null)}
-              className="absolute top-6 right-6 text-white bg-white/10 p-3 rounded-full hover:bg-[#8f121d] transition-colors cursor-pointer"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <img 
-              src={lightboxImg} 
-              alt="Zoomed" 
-              className="max-w-full max-h-[90vh] object-contain shadow-2xl border border-white/10" 
-            />
-          </div>
+          <ImageLightboxModal 
+            src={lightboxImg} 
+            onClose={() => setLightboxImg(null)} 
+          />
         )}
       </div>
     );
