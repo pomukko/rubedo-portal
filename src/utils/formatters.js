@@ -23,20 +23,36 @@ export const getCategoryName = (category) => {
   return String(category);
 };
 
-// 🌟 サブカテゴリ名抽出（subCategory / sub_category / subcategory など柔軟対応）
-export const getSubCategoryName = (article) => {
-  if (!article) return '';
+// 🌟 サブカテゴリ（複数選択・Multi-select対応！）配列で返す
+export const getSubCategories = (article) => {
+  if (!article) return [];
   const sub = article?.subCategory || article?.sub_category || article?.subcategory || article?.subCategories;
-  if (!sub) return '';
+  if (!sub) return [];
+
+  // 配列で届いた場合
   if (Array.isArray(sub)) {
-    const first = sub[0];
-    if (typeof first === 'object') return first.name || first.title || first.value || first.id || '';
-    return String(first);
+    return sub.map(item => {
+      if (typeof item === 'object') {
+        return item.name || item.title || item.value || item.id || '';
+      }
+      return String(item);
+    }).filter(Boolean);
   }
+
+  // 単一オブジェクトの場合
   if (typeof sub === 'object') {
-    return sub.name || sub.title || sub.value || sub.id || '';
+    const name = sub.name || sub.title || sub.value || sub.id || '';
+    return name ? [name] : [];
   }
-  return String(sub);
+
+  // 単一文字列の場合
+  return [String(sub)];
+};
+
+// 単一文字列で取得したい時用（後方互換）
+export const getSubCategoryName = (article) => {
+  const list = getSubCategories(article);
+  return list.length > 0 ? list[0] : '';
 };
 
 // 🌟 著者名抽出 (Numen / MUMEN / RUBEDO)
