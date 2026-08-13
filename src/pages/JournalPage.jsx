@@ -77,7 +77,7 @@ export default function JournalPage({
       const subCatList = getSubCategories(a);
 
       const matchMain = activeTab === 'all' || catName.trim().toLowerCase() === activeTab.trim().toLowerCase();
-      const matchSub = activeSubTab === 'all' || subCatList.some(s => s.trim().toLowerCase() === activeSubTab.trim().toLowerCase());
+      const matchSub = activeSubTab === 'all' || subCatList.some(s => typeof s === 'string' && s.trim().toLowerCase() === activeSubTab.trim().toLowerCase());
 
       return matchMain && matchSub;
     });
@@ -144,7 +144,7 @@ export default function JournalPage({
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
-    const subCategories = getSubCategories(selectedArticle); // 記事内の全サブカテゴリ
+    const subCategories = getSubCategories(selectedArticle);
     const authorName = getAuthorName(selectedArticle.author);
 
     const rawMultipleImages = selectedArticle.images || selectedArticle.gallery || selectedArticle.multiple_images || selectedArticle.multipleImages || [];
@@ -254,26 +254,7 @@ export default function JournalPage({
 
         {/* リッチテキスト本文 */}
         <div 
-          className="article-body prose prose-invert max-w-none space-y-8 text-base sm:text-lg leading-[2.1] font-light text-[#e2e2e8] w-full overflow-hidden break-all [overflow-wrap:anywhere]
-            [&_p]:mb-6 [&_p]:tracking-wide [&_p]:text-[#e2e2e8]
-            [&_h1]:font-serif [&_h1]:text-2xl [&_h1]:sm:text-3xl [&_h1]:text-white [&_h1]:mt-14 [&_h1]:mb-6 [&_h1]:border-b [&_h1]:border-[#8f121d] [&_h1]:pb-2
-            [&_h2]:font-serif [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:text-white [&_h2]:mt-14 [&_h2]:mb-6 [&_h2]:pt-3 [&_h2]:pb-2 [&_h2]:border-l-4 [&_h2]:border-[#8f121d] [&_h2]:pl-4 [&_h2]:bg-gradient-to-r [&_h2]:from-[#8f121d]/15 [&_h2]:to-transparent
-            [&_h3]:font-serif [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:text-[#d4b07b] [&_h3]:mt-10 [&_h3]:mb-4 [&_h3]:border-b [&_h3]:border-white/10 [&_h3]:pb-2
-            [&_h4]:font-sans [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-white [&_h4]:mt-8 [&_h4]:mb-3
-            [&_a]:text-[#d4b07b] [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-[#d4b07b]/40 hover:[&_a]:text-white transition-colors
-            [&_table]:w-full [&_table]:my-8 [&_table]:border-collapse [&_table]:border [&_table]:border-white/10 [&_table]:font-sans [&_table]:text-sm
-            [&_th]:bg-[#8f121d]/20 [&_th]:text-[#d4b07b] [&_th]:font-mono [&_th]:p-3.5 [&_th]:border [&_th]:border-white/10 [&_th]:text-left
-            [&_td]:p-3.5 [&_td]:border [&_td]:border-white/10 [&_td]:bg-[#060609] [&_td]:text-[#e2e2e8]
-            [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:my-8 [&_iframe]:border [&_iframe]:border-white/10 [&_iframe]:bg-black
-            [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:font-mono [&_figcaption]:text-[#a1a1aa] [&_figcaption]:mt-2
-            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-3 [&_ul]:my-6
-            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-3 [&_ol]:my-6
-            [&_blockquote]:border-l-4 [&_blockquote]:border-[#d4b07b] [&_blockquote]:bg-[#060609] [&_blockquote]:p-6 [&_blockquote]:my-8 [&_blockquote]:italic [&_blockquote]:text-[#a1a1aa]
-            [&_pre]:bg-[#030305] [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-6 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:sm:text-sm [&_pre]:text-[#d4b07b]
-            [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/10 [&_code]:px-2 [&_code]:py-1 [&_code]:text-[#d4b07b]
-            [&_del]:text-[#71717a] [&_del]:line-through
-            [&_mark]:bg-[#8f121d]/40 [&_mark]:text-white [&_mark]:px-1.5 [&_mark]:py-0.5
-            [&_hr]:border-white/10 [&_hr]:my-12"
+          className="article-body max-w-none space-y-8 text-base sm:text-lg leading-[2.1] font-light text-[#e2e2e8] w-full overflow-hidden break-all [overflow-wrap:anywhere]"
           dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
         />
 
@@ -395,4 +376,149 @@ export default function JournalPage({
         {currentSubCategories.length > 0 && (
           <div className="bg-[#060609] border border-white/10 p-4 flex flex-wrap items-center gap-2 text-xs font-mono animate-fadeIn">
             <div className="flex items-center gap-1.5 text-[#d4b07b] mr-3 font-bold border-r border-white/10 pr-4">
-              <Layers className="w-3.5 h-3.5 text-
+              <Layers className="w-3.5 h-3.5 text-[#8f121d]" />
+              <span>SUB-CATEGORY:</span>
+            </div>
+
+            <button
+              onClick={() => handleSubTabChange('all')}
+              className={`px-3 py-1 rounded-none border transition-all cursor-pointer ${
+                activeSubTab === 'all'
+                  ? 'border-[#d4b07b] bg-[#d4b07b]/20 text-white font-bold'
+                  : 'border-white/10 text-[#71717a] hover:text-white'
+              }`}
+            >
+              ALL SUB
+            </button>
+
+            {currentSubCategories.map(subCat => (
+              <button
+                key={subCat}
+                onClick={() => handleSubTabChange(subCat)}
+                className={`px-3 py-1 rounded-none border transition-all cursor-pointer ${
+                  activeSubTab.toLowerCase() === subCat.toLowerCase()
+                    ? 'border-[#d4b07b] bg-[#d4b07b]/20 text-white font-bold'
+                    : 'border-white/10 text-[#71717a] hover:text-white'
+                }`}
+              >
+                #{subCat}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 記事一覧グリッド表示 */}
+      {filteredArticles.length === 0 ? (
+        <div className="py-20 text-center space-y-4 border border-white/5 bg-[#060609]">
+          <p className="font-serif text-lg text-[#71717a]">
+            {searchQuery ? `「${searchQuery}」に一致する記事が見つかりませんでした。` : '該当するカテゴリーの記事が見つかりませんでした。'}
+          </p>
+          <p className="font-mono text-xs text-[#52525b]">NO ARTICLES FOUND IN THIS CATEGORY.</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {paginatedArticles.map(article => {
+              const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
+              const categoryName = getCategoryName(article?.category);
+              const subCategories = getSubCategories(article);
+              const eyecatchUrl = article?.eyecatch?.url;
+              const authorName = getAuthorName(article?.author);
+
+              // 🌟【カード表示用サブタグ制御】
+              // サブカテゴリーが選択中（ALL SUB以外）の時だけ、その「選択中サブカテゴリー」を1つだけバッジ表示！
+              // サブカテゴリー未選択（ALL SUB時）はサブタグ非表示でカードを超スッキリ保持！
+              const displaySubCategories = activeSubTab === 'all'
+                ? []
+                : subCategories.filter(s => typeof s === 'string' && s.trim().toLowerCase() === activeSubTab.trim().toLowerCase());
+
+              return (
+                <article 
+                  key={article.id} 
+                  onClick={() => handleArticleClick(article.id)} 
+                  className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-lg"
+                >
+                  {eyecatchUrl && (
+                    <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
+                      <img 
+                        src={optimizeImage(eyecatchUrl)} 
+                        alt={article.title || ''} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      {/* メイン ＆ 選択時のみのサブカテゴリーバッジ表示 */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[10px]">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
+                          {displaySubCategories.map((subName, sIdx) => (
+                            <span key={sIdx} className="text-[#d4b07b] border border-[#d4b07b]/30 px-1.5 py-0.5 bg-[#d4b07b]/5 break-all">
+                              #{subName}
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-[#71717a]">{articleDate}</span>
+                      </div>
+
+                      <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2 break-all">
+                        {article.title || 'Untitled'}
+                      </h3>
+                      <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed break-all">
+                        {article.lead || ''}
+                      </p>
+                    </div>
+                    
+                    <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
+                      <span>BY {authorName}</span>
+                      <span className="text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                        READ <ArrowRight className="w-3.5 h-3.5 text-[#8f121d]"/>
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="pt-16 border-t border-white/10 flex justify-center items-center gap-3 font-mono text-xs">
+              <button 
+                onClick={() => handlePageChange(page - 1)} 
+                disabled={page === 1}
+                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pNum => (
+                <button
+                  key={pNum}
+                  onClick={() => handlePageChange(pNum)}
+                  className={`w-10 h-10 border transition-all cursor-pointer ${
+                    page === pNum 
+                      ? 'border-[#8f121d] bg-[#8f121d] text-white font-bold shadow-[0_0_15px_rgba(143,18,29,0.5)]' 
+                      : 'border-white/10 text-[#a1a1aa] hover:border-white/30 hover:text-white'
+                  }`}
+                >
+                  {pNum}
+                </button>
+              ))}
+
+              <button 
+                onClick={() => handlePageChange(page + 1)} 
+                disabled={page === totalPages}
+                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
