@@ -12,7 +12,8 @@ export default function JournalPage({
   searchQuery,
   setSearchQuery
 }) {
-  const categories = ['all', 'Modeling', 'VRChat', 'Shader', 'Dialogue'];
+  // 🌟 確定した3大メインカテゴリー
+  const categories = ['all', 'CREATIVE / 3DCG', 'NEWS / RELEASE', 'LAB / RESEARCH'];
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
@@ -35,7 +36,7 @@ export default function JournalPage({
     if (activeTab === 'all') return sortedArticles;
     return sortedArticles.filter(a => {
       const catName = getCategoryName(a?.category);
-      return catName.toLowerCase() === activeTab.toLowerCase();
+      return catName.trim().toLowerCase() === activeTab.trim().toLowerCase();
     });
   }, [sortedArticles, activeTab]);
 
@@ -100,8 +101,6 @@ export default function JournalPage({
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
-    
-    // 🌟 セレクトフィールドから著者名を抽出 (Numen / MUMEN / RUBEDO)
     const authorName = getAuthorName(selectedArticle.author);
 
     const rawMultipleImages = selectedArticle.images || selectedArticle.gallery || selectedArticle.multiple_images || selectedArticle.multipleImages || [];
@@ -300,7 +299,7 @@ export default function JournalPage({
           <h1 className="font-serif text-5xl sm:text-7xl text-white">JOURNAL & HOW-TO</h1>
         </div>
 
-        {/* 全文検索インプットバー */}
+        {/* 全文検索バー */}
         <div className="relative w-full md:w-80">
           <input 
             type="text"
@@ -321,7 +320,7 @@ export default function JournalPage({
         </div>
       </div>
       
-      {/* カテゴリフィルター */}
+      {/* 🌟 確定した3大カテゴリーのタブ切り替えバー */}
       <div className="flex flex-wrap gap-3 border-b border-white/10 pb-4 text-xs font-mono">
         {categories.map(cat => (
           <button 
@@ -352,8 +351,6 @@ export default function JournalPage({
               const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
               const categoryName = getCategoryName(article?.category);
               const eyecatchUrl = article?.eyecatch?.url;
-
-              // 著者名抽出
               const authorName = getAuthorName(article?.author);
 
               return (
