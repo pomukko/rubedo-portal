@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User, Layers } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User, Layers, Clock, Copy, Check, Share2, X } from 'lucide-react';
 import { formatDate, getCategoryName, getSubCategories, getAuthorName, optimizeImage } from '../utils/formatters';
 
 const SUB_CATEGORIES_MAP = {
@@ -37,6 +37,10 @@ export default function JournalPage({
   const categories = ['all', 'CREATIVE / 3DCG', 'NEWS / RELEASE', 'LAB / RESEARCH'];
   const [activeSubTab, setActiveSubTab] = useState('all');
   const [page, setPage] = useState(1);
+  const [lightboxImg, setLightboxImg] = useState(null); // 画像ライトボックス用
+  const [copiedUrl, setCopiedUrl] = useState(false); // URLコピー完了用
+  const [copiedCodeIdx, setCopiedCodeIdx] = useState(null); // コードコピー用
+  const articleBodyRef = useRef(null);
   const ITEMS_PER_PAGE = 12;
 
   const handleMainTabChange = (cat) => {
@@ -101,7 +105,27 @@ export default function JournalPage({
     }
   };
 
-  // 🌟 自動目次抽出 (H1, H2, H3 対応)
+  // ⏱️ 読了時間 ＆ 文字数計算
+  const readTimeStats = useMemo(() => {
+    if (!selectedArticle?.body) return { minutes: 1, count: 0 };
+    const plainText = selectedArticle.body.replace(/<[^>]+>/g, '').replace(/\s+/g, '');
+    const count = plainText.length;
+    const minutes = Math.max(1, Math.ceil(count / 600)); // 1分間あたり600文字計算
+    return { minutes, count };
+  }, [selectedArticle]);
+
+  // ⬅️ ➡️ 前の記事 / 次の記事 取得
+  const { prevArticle, nextArticle } = useMemo(() => {
+    if (!selectedArticle) return { prevArticle: null, nextArticle: null };
+    const idx = sortedArticles.findIndex(a => a.id === selectedArticle.id);
+    if (idx === -1) return { prevArticle: null, nextArticle: null };
+    return {
+      prevArticle: sortedArticles[idx + 1] || null, // より古い記事
+      nextArticle: sortedArticles[idx - 1] || null  // より新しい記事
+    };
+  }, [selectedArticle, sortedArticles]);
+
+  // 自動目次抽出 (H1, H2, H3 対応)
   const tocList = useMemo(() => {
     if (!selectedArticle?.body) return [];
     const html = selectedArticle.body;
@@ -132,6 +156,53 @@ export default function JournalPage({
         break;
       }
     }
+  };
+
+  // 📋 本文内画像クリック（ライトボックス） ＆ コードコピー機能の初期化
+  useEffect(() => {
+    if (!selectedArticle || !articleBodyRef.current) return;
+
+    // 画像クリックで拡大
+    const images = articleBodyRef.current.querySelectorAll('img');
+    images.forEach(img => {
+      img.onclick = () => setLightboxImg(img.src);
+    });
+
+    // preタグ（コードブロック）にコピーボタン付与
+    const pres = articleBodyRef.current.querySelectorAll('pre');
+    pres.forEach((pre, idx) => {
+      if (pre.parentNode.classList.contains('code-wrapper')) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-wrapper relative group';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+
+      const btn = document.createElement('button');
+      btn.className = 'absolute top-3 right-3 bg-white/10 hover:bg-[#8f121d] text-white text-[10px] font-mono px-2.5 py-1 transition-all cursor-pointer border border-white/10 flex items-center gap-1.5 opacity-80 group-hover:opacity-100';
+      btn.innerHTML = `<span>COPY</span>`;
+      btn.onclick = () => {
+        navigator.clipboard.writeText(pre.innerText);
+        btn.innerHTML = `<span class="text-[#d4b07b]">COPIED!</span>`;
+        setTimeout(() => {
+          btn.innerHTML = `<span>COPY</span>`;
+        }, 2000);
+      };
+      wrapper.appendChild(btn);
+    });
+  }, [selectedArticle]);
+
+  // 𝕏 シェア ＆ URLコピー処理
+  const handleShareX = () => {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`「${selectedArticle?.title || ''}」- RUBEDO PORTAL`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+  };
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
   };
 
   // 記事詳細表示時
@@ -178,7 +249,14 @@ export default function JournalPage({
 
             {articleDate && <span className="tracking-widest ml-2">{articleDate}</span>}
             
-            <div className="flex items-center gap-2 border-l border-white/10 pl-4 text-[#d4b07b]">
+            {/* ⏱️ 読了目安時間 ＆ 文字数表示 */}
+            <div className="flex items-center gap-1.5 text-[#a1a1aa] border-l border-white/10 pl-3">
+              <Clock className="w-3.5 h-3.5 text-[#d4b07b]" />
+              <span>約{readTimeStats.minutes}分（{readTimeStats.count.toLocaleString()}文字）</span>
+            </div>
+
+            {/* 著者表示 */}
+            <div className="flex items-center gap-2 border-l border-white/10 pl-3 text-[#d4b07b]">
               <User className="w-3.5 h-3.5 text-[#8f121d]" />
               <span>BY {authorName}</span>
             </div>
@@ -212,7 +290,8 @@ export default function JournalPage({
             <img 
               src={optimizeImage(selectedArticle.eyecatch.url)} 
               alt={selectedArticle.title || ''} 
-              className="webtoon-image border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]" 
+              onClick={() => setLightboxImg(selectedArticle.eyecatch.url)}
+              className="webtoon-image border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] cursor-zoom-in" 
             />
           </div>
         )}
@@ -241,11 +320,68 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 🌟 完全にクリーンアップされたリッチテキスト本文 */}
+        {/* リッチテキスト本文 */}
         <div 
+          ref={articleBodyRef}
           className="article-body max-w-none w-full overflow-hidden"
           dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
         />
+
+        {/* 𝕏 シェア ＆ URLコピーエリア */}
+        <div className="pt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+          <div className="text-xs font-mono text-[#a1a1aa] uppercase tracking-widest">
+            SHARE THIS ARCHIVE
+          </div>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleShareX}
+              className="px-4 py-2 bg-white/5 border border-white/10 text-white text-xs font-mono flex items-center gap-2 hover:bg-[#8f121d] hover:border-[#8f121d] transition-all cursor-pointer"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>POST ON 𝕏</span>
+            </button>
+            <button 
+              onClick={handleCopyUrl}
+              className="px-4 py-2 bg-white/5 border border-white/10 text-white text-xs font-mono flex items-center gap-2 hover:border-[#d4b07b] hover:text-[#d4b07b] transition-all cursor-pointer"
+            >
+              {copiedUrl ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedUrl ? 'COPIED!' : 'COPY URL'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ⬅️ ➡️ 前の記事 / 次の記事 ナビゲーション */}
+        {(prevArticle || nextArticle) && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-10 border-t border-white/10">
+            {nextArticle ? (
+              <div 
+                onClick={() => handleArticleClick(nextArticle.id)}
+                className="bg-[#060609] border border-white/10 p-6 space-y-2 cursor-pointer hover:border-[#8f121d] transition-all group"
+              >
+                <span className="text-[10px] font-mono text-[#8f121d] flex items-center gap-1">
+                  <ArrowLeft className="w-3 h-3" /> NEXT ARCHIVE (NEWER)
+                </span>
+                <h4 className="font-serif text-sm text-white group-hover:text-[#d4b07b] transition-colors line-clamp-1">
+                  {nextArticle.title}
+                </h4>
+              </div>
+            ) : <div />}
+
+            {prevArticle && (
+              <div 
+                onClick={() => handleArticleClick(prevArticle.id)}
+                className="bg-[#060609] border border-white/10 p-6 space-y-2 cursor-pointer hover:border-[#8f121d] transition-all group text-right"
+              >
+                <span className="text-[10px] font-mono text-[#8f121d] flex items-center justify-end gap-1">
+                  PREV ARCHIVE (OLDER) <ArrowRight className="w-3 h-3" />
+                </span>
+                <h4 className="font-serif text-sm text-white group-hover:text-[#d4b07b] transition-colors line-clamp-1">
+                  {prevArticle.title}
+                </h4>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 複数画像ギャラリー */}
         {multipleImages.length > 0 && (
@@ -259,7 +395,7 @@ export default function JournalPage({
                 const imgUrl = typeof imgObj === 'string' ? imgObj : imgObj?.url;
                 if (!imgUrl) return null;
                 return (
-                  <div key={idx} className="aspect-square bg-[#060609] border border-white/10 overflow-hidden group relative">
+                  <div key={idx} onClick={() => setLightboxImg(imgUrl)} className="aspect-square bg-[#060609] border border-white/10 overflow-hidden group relative cursor-zoom-in">
                     <img 
                       src={optimizeImage(imgUrl)} 
                       alt={`Gallery Image ${idx + 1}`} 
@@ -310,6 +446,26 @@ export default function JournalPage({
             <span>RETURN TO JOURNAL LIST</span>
           </button>
         </div>
+
+        {/* 🔍 画像拡大ライトボックス モーダル */}
+        {lightboxImg && (
+          <div 
+            onClick={() => setLightboxImg(null)}
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out animate-fadeIn"
+          >
+            <button 
+              onClick={() => setLightboxImg(null)}
+              className="absolute top-6 right-6 text-white bg-white/10 p-3 rounded-full hover:bg-[#8f121d] transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img 
+              src={lightboxImg} 
+              alt="Zoomed" 
+              className="max-w-full max-h-[90vh] object-contain shadow-2xl border border-white/10" 
+            />
+          </div>
+        )}
       </div>
     );
   }
