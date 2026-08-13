@@ -53,10 +53,10 @@ export default function JournalPage({
     setPage(1);
   };
 
-  // 🌟 ALL ARCHIVES の時はサブカテゴリーリストを空（非表示）にし、個別カテゴリ選択時のみ取得！
+  // 個別メインカテゴリー選択時のみサブカテゴリーリストを取得
   const currentSubCategories = useMemo(() => {
     if (activeTab === 'all') {
-      return []; // ALLの時は非表示
+      return [];
     }
     return SUB_CATEGORIES_MAP[activeTab] || [];
   }, [activeTab]);
@@ -74,12 +74,9 @@ export default function JournalPage({
   const filteredArticles = useMemo(() => {
     return sortedArticles.filter(a => {
       const catName = getCategoryName(a?.category);
-      const subCatList = getSubCategories(a); // 複数選択されたサブカテゴリの配列
+      const subCatList = getSubCategories(a);
 
-      // メインカテゴリー判定
       const matchMain = activeTab === 'all' || catName.trim().toLowerCase() === activeTab.trim().toLowerCase();
-
-      // サブカテゴリー判定
       const matchSub = activeSubTab === 'all' || subCatList.some(s => s.trim().toLowerCase() === activeSubTab.trim().toLowerCase());
 
       return matchMain && matchSub;
@@ -143,11 +140,11 @@ export default function JournalPage({
     }
   };
 
-  // 記事詳細表示時
+  // 🌟【記事詳細表示時】全サブカテゴリーをフルで表示！
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
-    const subCategories = getSubCategories(selectedArticle);
+    const subCategories = getSubCategories(selectedArticle); // 記事内の全サブカテゴリ
     const authorName = getAuthorName(selectedArticle.author);
 
     const rawMultipleImages = selectedArticle.images || selectedArticle.gallery || selectedArticle.multiple_images || selectedArticle.multipleImages || [];
@@ -180,7 +177,7 @@ export default function JournalPage({
               {categoryName}
             </span>
 
-            {/* 複数のサブカテゴリーバッジを表示 */}
+            {/* 記事詳細では付与された全サブカテゴリーバッジを表示！ */}
             {subCategories.map((subName, idx) => (
               <span key={idx} className="border border-[#d4b07b]/60 text-[#d4b07b] bg-[#d4b07b]/10 px-3 py-1 font-semibold tracking-wider break-all">
                 {subName}
@@ -376,7 +373,7 @@ export default function JournalPage({
         </div>
       </div>
       
-      {/* 🌟 1段目：メインカテゴリーの切り替えタブ */}
+      {/* 1段目：メインカテゴリーの切り替えタブ */}
       <div className="space-y-4">
         <div className="flex flex-wrap gap-3 text-xs font-mono">
           {categories.map(cat => (
@@ -394,146 +391,8 @@ export default function JournalPage({
           ))}
         </div>
 
-        {/* 🌟 2段目：個別メインカテゴリー選択時のみ表示されるサブタグバー！ */}
+        {/* 2段目：個別メインカテゴリー選択時のみ表示されるサブタグバー */}
         {currentSubCategories.length > 0 && (
           <div className="bg-[#060609] border border-white/10 p-4 flex flex-wrap items-center gap-2 text-xs font-mono animate-fadeIn">
             <div className="flex items-center gap-1.5 text-[#d4b07b] mr-3 font-bold border-r border-white/10 pr-4">
-              <Layers className="w-3.5 h-3.5 text-[#8f121d]" />
-              <span>SUB-CATEGORY:</span>
-            </div>
-
-            <button
-              onClick={() => handleSubTabChange('all')}
-              className={`px-3 py-1 rounded-none border transition-all cursor-pointer ${
-                activeSubTab === 'all'
-                  ? 'border-[#d4b07b] bg-[#d4b07b]/20 text-white font-bold'
-                  : 'border-white/10 text-[#71717a] hover:text-white'
-              }`}
-            >
-              ALL SUB
-            </button>
-
-            {currentSubCategories.map(subCat => (
-              <button
-                key={subCat}
-                onClick={() => handleSubTabChange(subCat)}
-                className={`px-3 py-1 rounded-none border transition-all cursor-pointer ${
-                  activeSubTab.toLowerCase() === subCat.toLowerCase()
-                    ? 'border-[#d4b07b] bg-[#d4b07b]/20 text-white font-bold'
-                    : 'border-white/10 text-[#71717a] hover:text-white'
-                }`}
-              >
-                #{subCat}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 記事一覧グリッド表示 */}
-      {filteredArticles.length === 0 ? (
-        <div className="py-20 text-center space-y-4 border border-white/5 bg-[#060609]">
-          <p className="font-serif text-lg text-[#71717a]">
-            {searchQuery ? `「${searchQuery}」に一致する記事が見つかりませんでした。` : '該当するカテゴリーの記事が見つかりませんでした。'}
-          </p>
-          <p className="font-mono text-xs text-[#52525b]">NO ARTICLES FOUND IN THIS CATEGORY.</p>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {paginatedArticles.map(article => {
-              const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
-              const categoryName = getCategoryName(article?.category);
-              const subCategories = getSubCategories(article);
-              const eyecatchUrl = article?.eyecatch?.url;
-              const authorName = getAuthorName(article?.author);
-
-              return (
-                <article 
-                  key={article.id} 
-                  onClick={() => handleArticleClick(article.id)} 
-                  className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-lg"
-                >
-                  {eyecatchUrl && (
-                    <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
-                      <img 
-                        src={optimizeImage(eyecatchUrl)} 
-                        alt={article.title || ''} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                    </div>
-                  )}
-
-                  <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-4">
-                      {/* メイン ＆ 複数サブカテゴリーバッジ表示 */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[10px]">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
-                          {subCategories.map((subName, sIdx) => (
-                            <span key={sIdx} className="text-[#d4b07b] border border-[#d4b07b]/30 px-1.5 py-0.2 bg-[#d4b07b]/5 break-all">
-                              #{subName}
-                            </span>
-                          ))}
-                        </div>
-                        <span className="text-[#71717a]">{articleDate}</span>
-                      </div>
-
-                      <h3 className="font-serif text-xl text-white group-hover:text-[#d4b07b] transition-colors line-clamp-2 break-all">
-                        {article.title || 'Untitled'}
-                      </h3>
-                      <p className="text-xs text-[#a1a1aa] line-clamp-3 font-light leading-relaxed break-all">
-                        {article.lead || ''}
-                      </p>
-                    </div>
-                    
-                    <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
-                      <span>BY {authorName}</span>
-                      <span className="text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                        READ <ArrowRight className="w-3.5 h-3.5 text-[#8f121d]"/>
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="pt-16 border-t border-white/10 flex justify-center items-center gap-3 font-mono text-xs">
-              <button 
-                onClick={() => handlePageChange(page - 1)} 
-                disabled={page === 1}
-                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pNum => (
-                <button
-                  key={pNum}
-                  onClick={() => handlePageChange(pNum)}
-                  className={`w-10 h-10 border transition-all cursor-pointer ${
-                    page === pNum 
-                      ? 'border-[#8f121d] bg-[#8f121d] text-white font-bold shadow-[0_0_15px_rgba(143,18,29,0.5)]' 
-                      : 'border-white/10 text-[#a1a1aa] hover:border-white/30 hover:text-white'
-                  }`}
-                >
-                  {pNum}
-                </button>
-              ))}
-
-              <button 
-                onClick={() => handlePageChange(page + 1)} 
-                disabled={page === totalPages}
-                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
+              <Layers className="w-3.5 h-3.5 text-
