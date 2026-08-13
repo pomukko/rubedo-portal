@@ -30,33 +30,31 @@
 }
 
 /* ==================================================
-   ARTICLE BODY - CLEAN & STANDARD TYPOGRAPHY
+   🌟 ARTICLE BODY - NOTE-LIKE TYPOGRAPHY & SPACING
    ================================================== */
 
 .article-body {
   color: #e2e2e8;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 1rem;
-  line-height: 2;
-  letter-spacing: 0.02em;
+  font-size: 1.05rem;
+  line-height: 2.1;
+  letter-spacing: 0.03em;
   word-break: break-word;
   overflow-wrap: anywhere;
 }
 
-/* --- 段落・改行・空行の自然なスペーシング --- */
+/* --- Note風のゆったりした改行・段落スペーシング --- */
 .article-body p {
   margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem;
   color: #e2e2e8;
   font-weight: 400;
+  min-height: 1.8em; /* 空段落でも1行分の高さを絶対保証 */
 }
 
-/* microCMSの空段落 <p><br></p> や <p></p> の改行スペース確保 */
-.article-body p:empty,
-.article-body p > br:only-child {
-  content: "";
-  display: block;
-  margin-bottom: 1.5rem;
+/* 空段落がブラウザに潰されるのを100%防止する魔法の擬似要素 */
+.article-body p:empty::before {
+  content: "\00a0";
 }
 
 .article-body strong,
@@ -83,24 +81,33 @@
 }
 
 /* --- シンプル＆標準的な見出し（H1〜H5） --- */
-
-/* H1: 一番大きな見出し */
 .article-body h1 {
   font-size: 1.85rem;
   font-weight: 700;
   color: #ffffff;
-  margin-top: 3rem;
-  margin-bottom: 1.25rem;
-  line-height: 1.35;
+  margin-top: 3.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
   padding: 0;
   border: none;
   background: none;
 }
 
-/* H2: 2番目に大きな見出し */
 .article-body h2 {
   font-size: 1.5rem;
   font-weight: 700;
+  color: #ffffff;
+  margin-top: 3rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.4;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.article-body h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
   color: #ffffff;
   margin-top: 2.5rem;
   margin-bottom: 1rem;
@@ -110,11 +117,10 @@
   background: none;
 }
 
-/* H3: 中見出し */
-.article-body h3 {
-  font-size: 1.25rem;
+.article-body h4 {
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #e2e2e8;
   margin-top: 2rem;
   margin-bottom: 0.875rem;
   line-height: 1.4;
@@ -123,30 +129,12 @@
   background: none;
 }
 
-/* H4: 小見出し */
-.article-body h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #e2e2e8;
-  margin-top: 1.75rem;
-  margin-bottom: 0.75rem;
-  line-height: 1.4;
-  padding: 0;
-  border: none;
-  background: none;
-}
-
-.article-body h4::before {
-  content: none;
-}
-
-/* H5: 補足見出し */
 .article-body h5 {
   font-size: 1rem;
   font-weight: 600;
   color: #a1a1aa;
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
   line-height: 1.4;
   padding: 0;
   border: none;
@@ -167,9 +155,9 @@
 
 /* --- 引用 (Blockquote) --- */
 .article-body blockquote {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  padding: 1rem 1.25rem;
+  margin-top: 2.25rem;
+  margin-bottom: 2.25rem;
+  padding: 1.25rem 1.5rem;
   background-color: #060609;
   border-left: 3px solid #71717a;
   color: #a1a1aa;
@@ -180,22 +168,23 @@
 .article-body blockquote p {
   margin-bottom: 0;
   color: #a1a1aa;
+  min-height: auto;
 }
 
 /* --- リスト (UL / OL) --- */
 .article-body ul {
   list-style-type: disc;
   padding-left: 1.5rem;
-  margin-top: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.8rem;
   color: #e2e2e8;
 }
 
 .article-body ol {
   list-style-type: decimal;
   padding-left: 1.5rem;
-  margin-top: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.8rem;
   color: #e2e2e8;
 }
 
@@ -209,8 +198,8 @@
   background-color: #030305;
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.25rem;
-  margin-top: 1.75rem;
-  margin-bottom: 1.75rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
   font-family: monospace;
   font-size: 0.875rem;
   color: #e2e2e8;
