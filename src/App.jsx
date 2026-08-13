@@ -6,7 +6,7 @@ import VermiliaPage from './pages/VermiliaPage';
 import JournalPage from './pages/JournalPage';
 import FoundersPage from './pages/FoundersPage';
 import ArchivesPage from './pages/ArchivesPage';
-import VoothPage from './pages/VoothPage'; // 🌟 VOOTHページ追加！
+import VoothPage from './pages/VoothPage';
 import { CONFIG } from './config/siteConfig';
 
 export default function App() {
@@ -21,6 +21,8 @@ export default function App() {
   const [pageTransitioning, setPageTransitioning] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [selectedArticleId, setSelectedArticleId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(''); // 全文検索キーワード
+  const [isDraftPreview, setIsDraftPreview] = useState(false); // 下書きプレビューフラグ
 
   const parseLocation = (articlesList = journalArticles) => {
     const path = window.location.pathname;
@@ -39,7 +41,7 @@ export default function App() {
     } else if (path === '/journal') {
       setCurrentPage('journal');
       setSelectedArticleId(null);
-    } else if (path === '/vooth') { // 🌟 /vooth のルーティング対応！
+    } else if (path === '/vooth') {
       setCurrentPage('vooth');
       setSelectedArticleId(null);
     } else if (path === '/founders') {
@@ -54,28 +56,53 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await fetch(`https://${CONFIG.SERVICE_DOMAIN}.microcms.io/api/v1/articles`, {
-          headers: { 'X-MICROCMS-API-KEY': CONFIG.API_KEY }
-        });
-        const data = await response.json();
+  // 🌟 microCMSデータ取得（下書きプレビュー draftKey ＆ 全文検索 q 対応！）
+  const fetchArticles = async (query = '') => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const draftKey = params.get('draftKey');
+
+      let apiUrl = `https://${CONFIG.SERVICE_DOMAIN}.microcms.io/api/v1/articles?limit=100`;
+      
+      // 検索キーワードがあればAPIのqパラメータを付与
+      if (query) {
+        apiUrl += `&q=${encodeURIComponent(query)}`;
+      }
+
+      // 下書きプレビューの場合はdraftKeyを付与
+      if (draftKey) {
+        apiUrl += `&draftKey=${draftKey}`;
+        setIsDraftPreview(true);
+      }
+
+      const response = await fetch(apiUrl, {
+        headers: { 'X-MICROCMS-API-KEY': CONFIG.API_KEY }
+      });
+
+      const data = await response.json();
+
+      // 個別プレビューのレスポンス（単体オブジェクト）の場合とリストの場合の両対応
+      if (data && !Array.isArray(data) && data.id) {
+        setJournalArticles([data]);
+        setSelectedArticleId(data.id);
+        setCurrentPage('journal');
+      } else {
         const fetchedContents = Array.isArray(data.contents) ? data.contents : [];
-        
         setJournalArticles(fetchedContents);
         parseLocation(fetchedContents);
-
-        setTimeout(() => setLoading(false), 800);
-      } catch (error) {
-        console.error('記事データの取得に失敗しました:', error);
-        setJournalArticles([]);
-        setLoading(false);
       }
-    };
 
-    fetchArticles();
-  }, []);
+      setTimeout(() => setLoading(false), 800);
+    } catch (error) {
+      console.error('記事データの取得に失敗しました:', error);
+      setJournalArticles([]);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchArticles(searchQuery);
+  }, [searchQuery]);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -114,7 +141,7 @@ export default function App() {
         targetPath = '/journal';
       } else if (page === 'vermilia') {
         targetPath = '/vermilia';
-      } else if (page === 'vooth') { // 🌟 vooth への遷移パス
+      } else if (page === 'vooth') {
         targetPath = '/vooth';
       } else if (page === 'founders') {
         targetPath = '/founders';
@@ -141,6 +168,14 @@ export default function App() {
     <div className="min-h-screen bg-[#040406] text-[#e2e2e8] font-sans selection:bg-[#8f121d] selection:text-white relative overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none z-30 shadow-[inset_0_0_160px_rgba(0,0,0,0.9)]"></div>
 
+      {/* 🌟 下書きプレビューインジケーター（draftKeyで開いている時だけ最上部に点灯！） */}
+      {isDraftPreview && (
+        <div className="bg-[#8f121d] text-white text-[10px] font-mono tracking-[0.3em] py-1.5 text-center fixed top-0 left-0 right-0 z-[110] flex items-center justify-center gap-2 shadow-lg">
+          <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
+          <span>MICROCMS DRAFT PREVIEW MODE</span>
+        </div>
+      )}
+
       {showLoading && (
         <div className="fixed inset-0 bg-[#040406] z-[100] flex flex-col items-center justify-center space-y-8 opacity-100">
           <div className="relative">
@@ -154,7 +189,6 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER (VOOTHページ表示時はVOOTH専用ヘッダーがあるため隠す・または共通使用) */}
       {currentPage !== 'vooth' && (
         <Header 
           currentPage={currentPage}
@@ -168,8 +202,7 @@ export default function App() {
         />
       )}
 
-      {/* PAGE ROUTING */}
-      <main>
+      <main className={isDraftPreview ? 'pt-6' : ''}>
         {currentPage === 'home' && (
           <HomePage 
             navigateTo={navigateTo} 
@@ -196,15 +229,15 @@ export default function App() {
             selectedArticle={selectedArticle} 
             setSelectedArticleId={setSelectedArticleId} 
             navigateTo={navigateTo}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
           />
         )}
-        {/* 🌟 VOOTH ページ描画 */}
         {currentPage === 'vooth' && <VoothPage navigateTo={navigateTo} CONFIG={CONFIG} />}
         {currentPage === 'founders' && <FoundersPage navigateTo={navigateTo} LINKS={CONFIG.LINKS} />}
         {currentPage === 'archives' && <ArchivesPage navigateTo={navigateTo} LINKS={CONFIG.LINKS} />}
       </main>
 
-      {/* FOOTER */}
       {currentPage !== 'vooth' && <Footer />}
     </div>
   );
