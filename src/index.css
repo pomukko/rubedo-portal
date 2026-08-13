@@ -211,3 +211,60 @@
   margin-top: 1.5rem;
   margin-bottom: 1.8rem;
   color: #e2e2e8;
+}
+
+.article-body ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.8rem;
+  color: #e2e2e8;
+}
+
+.article-body li {
+  margin-bottom: 0.5rem;
+  line-height: 1.8;
+}
+
+/* --- テーブル --- */
+.article-body table {
+  width: 100%;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-collapse: collapse;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.875rem;
+}
+
+.article-body th {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.article-body td {
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #060609;
+  color: #e2e2e8;
+}
+
+/* --- 区切り線 --- */
+.article-body hr {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+/* Scrollbar Hide */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
