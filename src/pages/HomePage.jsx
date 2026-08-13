@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ArrowUpRight, ChevronRight, ChevronLeft, Aperture, Box, MessageSquare, ExternalLink } from 'lucide-react';
 import { vermiliaAngles } from '../config/siteConfig';
-import { formatDate, getCategoryName } from '../utils/formatters';
+import { formatDate, getCategoryName, getAuthorName, optimizeImage } from '../utils/formatters';
 
 export default function HomePage({ navigateTo, articles = [], setSelectedArticleId, selectedAngle, setSelectedAngle, CONFIG }) {
   const currentAngleObj = vermiliaAngles.find(a => a.id === selectedAngle);
@@ -169,6 +169,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
               const categoryName = getCategoryName(article?.category);
               const eyecatchUrl = article?.eyecatch?.url;
+              const authorName = getAuthorName(article?.author);
 
               return (
                 <article 
@@ -179,7 +180,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                   {eyecatchUrl && (
                     <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
                       <img 
-                        src={eyecatchUrl} 
+                        src={optimizeImage(eyecatchUrl)} 
                         alt={article.title || ''} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                       />
@@ -201,7 +202,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                     </div>
 
                     <div className="pt-6 mt-6 border-t border-white/5 flex justify-between items-center font-mono text-[10px] text-[#71717a]">
-                      <span>BY {article.author || 'RUBEDO'}</span>
+                      <span>BY {authorName}</span>
                       <span className="text-white group-hover:translate-x-2 transition-transform flex items-center gap-1.5">
                         READ <ChevronRight className="w-3.5 h-3.5 text-[#8f121d]" />
                       </span>
@@ -214,7 +215,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
         </div>
       </section>
 
-      {/* 🌟 SECTION 03: DIRECTORY & EXHIBITION (Discord ＆ VOOTH 隣同士カード配置！) */}
+      {/* SECTION 03: DIRECTORY */}
       <section className="py-36 border-t border-white/10 bg-[#060609] relative z-10">
         <div className="max-w-7xl mx-auto px-8 sm:px-12">
           <div className="mb-20">
@@ -223,7 +224,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* 左側：1. DISCORD COMMUNITY */}
             <a 
               href={CONFIG.LINKS.discordServer} 
               target="_blank" 
@@ -247,7 +247,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               </div>
             </a>
 
-            {/* 🌟 右側：2. VOOTH 3D EXHIBITION HALL (Discordのすぐ隣に配置！) */}
             <div 
               onClick={() => navigateTo('vooth')}
               className="border border-[#8f121d]/50 bg-[#8f121d]/[0.03] hover:bg-[#8f121d]/[0.10] hover:border-[#8f121d] p-8 sm:p-12 flex flex-col justify-between gap-8 transition-all duration-500 group cursor-pointer shadow-[0_0_30px_rgba(143,18,29,0.15)]"
