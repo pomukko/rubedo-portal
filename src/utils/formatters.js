@@ -9,65 +9,136 @@ export const formatDate = (dateString) => {
   return `${yyyy}.${mm}.${dd}`;
 };
 
-// 🌟 メインカテゴリ名抽出
-export const getCategoryName = (category) => {
-  if (!category) return 'CREATIVE / 3DCG';
-  if (Array.isArray(category)) {
-    const firstCat = category[0];
-    if (typeof firstCat === 'object') return firstCat.name || firstCat.title || firstCat.value || firstCat.id || 'CREATIVE / 3DCG';
-    return String(firstCat);
-  }
-  if (typeof category === 'object') {
-    return category.name || category.title || category.value || category.id || 'CREATIVE / 3DCG';
-  }
-  return String(category);
+// 🌟 サブカテゴリーからメインカテゴリーへの逆引きマップ（救済用）
+const SUB_TO_MAIN_MAP = {
+  'vrchat': 'CREATIVE / 3DCG',
+  'blender & 3d': 'CREATIVE / 3DCG',
+  'blender': 'CREATIVE / 3DCG',
+  'shader & material': 'CREATIVE / 3DCG',
+  'gimmick & sdk': 'CREATIVE / 3DCG',
+  'unity & ue5': 'CREATIVE / 3DCG',
+  'unity': 'CREATIVE / 3DCG',
+
+  'update': 'NEWS / RELEASE',
+  'event & info': 'NEWS / RELEASE',
+  'dialogue & note': 'NEWS / RELEASE',
+
+  'mental & mind': 'LAB / RESEARCH',
+  'nutrition & cooking': 'LAB / RESEARCH',
+  'essay & philosophy': 'LAB / RESEARCH',
+  'physical & tuning': 'LAB / RESEARCH',
+  'self experiment': 'LAB / RESEARCH'
 };
 
-// 🌟 サブカテゴリ（複数選択・Multi-select対応！）配列で返す
+const VALID_MAIN_CATEGORIES = ['CREATIVE / 3DCG', 'NEWS / RELEASE', 'LAB / RESEARCH'];
+
+// 🌟 サブカテゴリ（複数選択・Multi-select対応）配列で返す
 export const getSubCategories = (article) => {
   if (!article) return [];
   const sub = article?.subCategory || article?.sub_category || article?.subcategory || article?.subCategories;
   if (!sub) return [];
 
-  // 配列で届いた場合
+  let list = [];
   if (Array.isArray(sub)) {
-    return sub.map(item => {
-      if (typeof item === 'object') {
-        return item.name || item.title || item.value || item.id || '';
+    list = sub.map(item => {
+      if (typeof item === 'object' && item !== null) {
+        return item.name || item.title || item.label || item.value || item.id || '';
       }
       return String(item);
     }).filter(Boolean);
+  } else if (typeof sub === 'object' && sub !== null) {
+    const name = sub.name || sub.title || sub.label || sub.value || sub.id || '';
+    if (name) list = [name];
+  } else if (sub) {
+    list = [String(sub)];
   }
 
-  // 単一オブジェクトの場合
-  if (typeof sub === 'object') {
-    const name = sub.name || sub.title || sub.value || sub.id || '';
-    return name ? [name] : [];
-  }
-
-  // 単一文字列の場合
-  return [String(sub)];
+  return list;
 };
 
-// 単一文字列で取得したい時用（後方互換）
 export const getSubCategoryName = (article) => {
   const list = getSubCategories(article);
   return list.length > 0 ? list[0] : '';
 };
 
-// 🌟 著者名抽出 (Numen / MUMEN / RUBEDO)
+// 🌟 メインカテゴリ名抽出（記事全体を渡して全自動探索 ＋ 逆引き救済付き！）
+export const getCategoryName = (categoryOrArticle) => {
+  if (!categoryOrArticle) return 'CREATIVE / 3DCG';
+
+  let rawCat = categoryOrArticle;
+  let articleObj = null;
+
+  if (typeof categoryOrArticle === 'object' && categoryOrArticle !== null) {
+    articleObj = categoryOrArticle;
+    rawCat = categoryOrArticle.category || 
+             categoryOrArticle.mainCategory || 
+             categoryOrArticle.main_category || 
+             categoryOrArticle.categories || 
+             categoryOrArticle.category_name;
+  }
+
+  const extractString = (val) => {
+    if (!val) return '';
+    if (Array.isArray(val)) {
+      if (val.length === 0) return '';
+      const first = val[0];
+      if (typeof first === 'object' && first !== null) {
+        return first.name || first.title || first.label || first.value || first.id || '';
+      }
+      return String(first);
+    }
+    if (typeof val === 'object' && val !== null) {
+      return val.name || val.title || val.label || val.value || val.id || '';
+    }
+    return String(val);
+  };
+
+  let catStr = extractString(rawCat).trim();
+
+  // マッチング判定
+  if (catStr) {
+    const lower = catStr.toLowerCase();
+    for (const validCat of VALID_MAIN_CATEGORIES) {
+      if (validCat.toLowerCase() === lower || lower.includes(validCat.toLowerCase())) {
+        return validCat;
+      }
+    }
+    if (lower.includes('creative') || lower.includes('3dcg')) return 'CREATIVE / 3DCG';
+    if (lower.includes('news') || lower.includes('release')) return 'NEWS / RELEASE';
+    if (lower.includes('lab') || lower.includes('research')) return 'LAB / RESEARCH';
+  }
+
+  // 🌟【自動救済】サブカテゴリーのタグからメインカテゴリーを逆引き特定！
+  if (articleObj) {
+    const subList = getSubCategories(articleObj);
+    for (const subName of subList) {
+      const matchedMain = SUB_TO_MAIN_MAP[subName.toLowerCase().trim()];
+      if (matchedMain) {
+        return matchedMain;
+      }
+    }
+  }
+
+  return 'CREATIVE / 3DCG';
+};
+
+// 🌟 著者名抽出
 export const getAuthorName = (author) => {
   if (!author) return 'RUBEDO';
   if (Array.isArray(author)) {
-    return author[0] || 'RUBEDO';
+    const first = author[0];
+    if (typeof first === 'object' && first !== null) {
+      return first.name || first.title || first.value || 'RUBEDO';
+    }
+    return String(first) || 'RUBEDO';
   }
-  if (typeof author === 'object') {
+  if (typeof author === 'object' && author !== null) {
     return author.name || author.title || author.value || 'RUBEDO';
   }
-  return String(author);
+  return String(author) || 'RUBEDO';
 };
 
-// 🌟 Imgix 画像自動軽量化（WebP自動変換 ＆ 圧縮）
+// 🌟 Imgix 画像自動軽量化
 export const optimizeImage = (url) => {
   if (!url || typeof url !== 'string') return '';
   if (url.includes('images.microcms-assets.io')) {
