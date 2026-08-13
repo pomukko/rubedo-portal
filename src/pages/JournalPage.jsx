@@ -25,7 +25,7 @@ const SUB_CATEGORIES_MAP = {
   ]
 };
 
-// 🌟【完全修正版】画面中央固定 ＆ 黒スモーク ＆ 完璧スクロールロック対応ライトボックス
+// 画面中央固定 ＆ スクロール非連動ライトボックス
 function ImageLightboxModal({ src, onClose }) {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -33,7 +33,6 @@ function ImageLightboxModal({ src, onClose }) {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
 
-  // 背景スクロールを完全ロック ＆ ホイールイベントによる画面移動を禁止
   useEffect(() => {
     const originalStyle = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -53,7 +52,6 @@ function ImageLightboxModal({ src, onClose }) {
       });
     };
 
-    // passive: false で画面スクロールを物理的に絶対防止
     container.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
@@ -62,7 +60,6 @@ function ImageLightboxModal({ src, onClose }) {
     };
   }, []);
 
-  // ESCキーで閉じる
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
@@ -93,7 +90,6 @@ function ImageLightboxModal({ src, onClose }) {
     setPosition({ x: 0, y: 0 });
   };
 
-  // createPortalで document.body 直下にレンダリングし、画面の中心に100%固定！
   return createPortal(
     <div 
       ref={containerRef}
@@ -103,7 +99,6 @@ function ImageLightboxModal({ src, onClose }) {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* 閉じる ＆ リセットボタン */}
       <div className="absolute top-6 right-6 z-[10000] flex items-center gap-3">
         {scale > 1 && (
           <button 
@@ -122,12 +117,10 @@ function ImageLightboxModal({ src, onClose }) {
         </button>
       </div>
 
-      {/* 操作ガイド */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[10000] bg-black/80 border border-white/20 px-5 py-2 text-[11px] font-mono text-[#d1d1d6] pointer-events-none rounded-full shadow-xl">
         ホイールで拡大縮小 / ドラッグで移動 / 背景クリックで閉じる
       </div>
 
-      {/* 画像本体 */}
       <div 
         className={`w-full h-full flex items-center justify-center p-4 ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-out'}`}
         onMouseDown={handleMouseDown}
@@ -254,7 +247,7 @@ export default function JournalPage({
     };
   }, [selectedArticle, sortedArticles]);
 
-  // 自動目次抽出 (H1, H2, H3)
+  // 🌟【改善版】自動目次抽出 (H1, H2, H3) ※太字（strong / b）が入っている見出しは除外！
   const tocList = useMemo(() => {
     if (!selectedArticle?.body) return [];
     const html = selectedArticle.body;
@@ -265,7 +258,14 @@ export default function JournalPage({
 
     while ((match = regex.exec(html)) !== null) {
       const level = parseInt(match[1], 10);
-      const rawText = match[2].replace(/<[^>]+>/g, '');
+      const innerHtml = match[2];
+
+      // 🌟【新条件】見出しの中に <strong> や <b> (太字タグ) が含まれていたら目次から除外！
+      if (/<strong\b/i.test(innerHtml) || /<b\b/i.test(innerHtml)) {
+        continue;
+      }
+
+      const rawText = innerHtml.replace(/<[^>]+>/g, '');
       if (rawText.trim()) {
         items.push({
           id: `heading-${index++}`,
@@ -277,12 +277,12 @@ export default function JournalPage({
     return items;
   }, [selectedArticle]);
 
-  // ヘッダー高さを考慮した目次ジャンプ
+  // 🎯【改善版】画面上部から220px（余裕のある位置）へスムーズジャンプ
   const scrollToHeading = (text) => {
     const headings = document.querySelectorAll('.article-body h1, .article-body h2, .article-body h3');
     for (let h of headings) {
       if (h.textContent.trim() === text) {
-        const HEADER_OFFSET = 150;
+        const HEADER_OFFSET = 220; // ゆとりのあるジャンプ位置
         const elementPosition = h.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - HEADER_OFFSET;
 
@@ -428,10 +428,11 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 上下余白 ＆ 高級グラデーション区切り線付き目次 */}
+        {/* ✂️【高級感ソリッド線 ＆ 2倍余白】目次エリア */}
         {tocList.length > 0 && (
-          <div className="my-14 space-y-8">
-            <hr className="border-0 h-[1px] bg-gradient-to-r from-[#8f121d]/80 via-white/15 to-transparent my-0" />
+          <div className="my-24 space-y-16">
+            {/* 上部区切り線：ぼかし抜きのシンプルな高級感深紅ライン */}
+            <div className="w-full h-[1px] bg-[#8f121d]/60" />
 
             <div className="bg-[#060609] border border-[#8f121d]/40 p-6 sm:p-8 space-y-4 my-0 relative overflow-hidden shadow-[0_0_30px_rgba(143,18,29,0.1)]">
               <div className="flex items-center gap-2.5 text-xs font-mono tracking-[0.3em] text-[#d4b07b] border-b border-white/10 pb-3">
@@ -454,7 +455,8 @@ export default function JournalPage({
               </ul>
             </div>
 
-            <hr className="border-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-[#8f121d]/80 my-0" />
+            {/* 下部区切り線：ぼかし抜きのシンプルな高級感深紅ライン */}
+            <div className="w-full h-[1px] bg-[#8f121d]/60" />
           </div>
         )}
 
@@ -585,7 +587,7 @@ export default function JournalPage({
           </button>
         </div>
 
-        {/* 🔍【完全解決版】画面中央固定 ＆ スクロール非連動ライトボックス */}
+        {/* 画面中央固定 ＆ スクロール非連動ライトボックス */}
         {lightboxImg && (
           <ImageLightboxModal 
             src={lightboxImg} 
@@ -705,7 +707,7 @@ export default function JournalPage({
                 <article 
                   key={article.id} 
                   onClick={() => handleArticleClick(article.id)} 
-                  className="bg-[#060609] border border-[#white/10] overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-lg"
+                  className="bg-[#060609] border border-white/10 overflow-hidden flex flex-col justify-between hover:border-[#8f121d]/70 transition-all cursor-pointer group shadow-lg"
                 >
                   {eyecatchUrl && (
                     <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
