@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Image as ImageIcon, Link as LinkIcon, Tag } from 'lucide-react';
-import { formatDate, getCategoryName } from '../utils/formatters';
+import React, { useState, useMemo } from 'react';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User } from 'lucide-react';
+import { formatDate, getCategoryName, optimizeImage } from '../utils/formatters';
 
 export default function JournalPage({ 
   journalArticles = [], 
@@ -8,33 +8,37 @@ export default function JournalPage({
   setActiveTab, 
   selectedArticle, 
   setSelectedArticleId,
-  navigateTo
+  navigateTo,
+  searchQuery,
+  setSearchQuery
 }) {
   const categories = ['all', 'Modeling', 'VRChat', 'Shader', 'Dialogue'];
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 12; // 🌟 3列 × 4行 = 12個制限
+  const ITEMS_PER_PAGE = 12;
 
-  // カテゴリ変更時は1ページ目に戻す
   const handleTabChange = (cat) => {
     setActiveTab(cat);
     setPage(1);
   };
 
-  // 🌟 最新順ソート ＆ カテゴリフィルター
-  const sortedArticles = [...journalArticles].sort((a, b) => {
-    const dateA = new Date(a?.publishedAt || a?.createdAt || a?.updatedAt || 0);
-    const dateB = new Date(b?.publishedAt || b?.createdAt || b?.updatedAt || 0);
-    return dateB - dateA;
-  });
+  // 🌟 最新順ソート
+  const sortedArticles = useMemo(() => {
+    return [...journalArticles].sort((a, b) => {
+      const dateA = new Date(a?.publishedAt || a?.createdAt || a?.updatedAt || 0);
+      const dateB = new Date(b?.publishedAt || b?.createdAt || b?.updatedAt || 0);
+      return dateB - dateA;
+    });
+  }, [journalArticles]);
 
-  const filteredArticles = activeTab === 'all' 
-    ? sortedArticles 
-    : sortedArticles.filter(a => {
-        const catName = getCategoryName(a?.category);
-        return catName.toLowerCase() === activeTab.toLowerCase();
-      });
+  // カテゴリフィルター
+  const filteredArticles = useMemo(() => {
+    if (activeTab === 'all') return sortedArticles;
+    return sortedArticles.filter(a => {
+      const catName = getCategoryName(a?.category);
+      return catName.toLowerCase() === activeTab.toLowerCase();
+    });
+  }, [sortedArticles, activeTab]);
 
-  // 🌟 ページネーション計算
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE) || 1;
   const paginatedArticles = filteredArticles.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
@@ -59,24 +63,67 @@ export default function JournalPage({
     }
   };
 
+  // 🌟 本文（HTML）から H2 / H3 見出しを解析して「自動目次（TOC）」を抽出する関数
+  const tocList = useMemo(() => {
+    if (!selectedArticle?.body) return [];
+    const html = selectedArticle.body;
+    const regex = /<h([23])\b[^>]*>(.*?)<\/h[23]>/gi;
+    const items = [];
+    let match;
+    let index = 0;
+
+    while ((match = regex.exec(html)) !== null) {
+      const level = parseInt(match[1], 10);
+      const rawText = match[2].replace(/<[^>]+>/g, ''); // タグ除去
+      if (rawText.trim()) {
+        items.push({
+          id: `heading-${index++}`,
+          level,
+          text: rawText.trim()
+        });
+      }
+    }
+    return items;
+  }, [selectedArticle]);
+
+  // 🌟 目次クリック時のスムーススクロールハンドラー
+  const scrollToHeading = (text) => {
+    const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+    for (let h of headings) {
+      if (h.textContent.trim() === text) {
+        h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        break;
+      }
+    }
+  };
+
   // 記事詳細表示時
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle.category);
 
+    // 著者情報の安全抽出（文字列・オブジェクト両対応）
+    const authorObj = typeof selectedArticle.author === 'object' ? selectedArticle.author : null;
+    const authorName = authorObj ? (authorObj.name || authorObj.title) : (selectedArticle.author || 'RUBEDO');
+    const authorAvatar = authorObj?.avatar?.url || authorObj?.icon?.url;
+
+    // 複数画像フィールドの抽出
     const rawMultipleImages = selectedArticle.images || selectedArticle.gallery || selectedArticle.multiple_images || selectedArticle.multipleImages || [];
     const multipleImages = Array.isArray(rawMultipleImages) ? rawMultipleImages : [];
 
+    // タグフィールドの抽出（複数コンテンツ参照対応）
     const rawTags = selectedArticle.tags || selectedArticle.tag_list || [];
     const tags = Array.isArray(rawTags) 
       ? rawTags.map(t => (typeof t === 'object' ? t.name || t.title || t.id : String(t)))
       : (typeof rawTags === 'string' ? rawTags.split(',') : []);
 
+    // 関連記事の抽出
     const rawRelated = selectedArticle.related || selectedArticle.related_articles || selectedArticle.relatedArticles || [];
     const relatedArticles = Array.isArray(rawRelated) ? rawRelated : (typeof rawRelated === 'object' ? [rawRelated] : []);
 
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-36 sm:pt-44 pb-32 space-y-12 animate-fadeIn w-full overflow-hidden">
+        {/* 一覧に戻るボタン */}
         <button 
           onClick={handleBackToList} 
           className="inline-flex items-center gap-2 font-mono text-xs text-[#a1a1aa] hover:text-white transition-colors tracking-widest cursor-pointer group border border-white/10 px-4 py-2 bg-white/[0.02] hover:border-[#8f121d]"
@@ -85,19 +132,30 @@ export default function JournalPage({
           <span>RETURN TO JOURNAL LIST</span>
         </button>
 
+        {/* 記事ヘッダー情報 */}
         <div className="space-y-6 border-b border-white/10 pb-8 w-full overflow-hidden">
           <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-[#a1a1aa]">
             <span className="bg-[#8f121d] text-white px-3 py-1 font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(143,18,29,0.5)] break-all">
               {categoryName}
             </span>
             {articleDate && <span className="tracking-widest">{articleDate}</span>}
-            {selectedArticle.author && <span className="text-[#d4b07b] border-l border-white/10 pl-4">BY {selectedArticle.author}</span>}
+            
+            {/* 著者表示（アバター画像があればアイコン付き！） */}
+            <div className="flex items-center gap-2 border-l border-white/10 pl-4 text-[#d4b07b]">
+              {authorAvatar ? (
+                <img src={optimizeImage(authorAvatar)} alt={authorName} className="w-5 h-5 rounded-full object-cover border border-white/20" />
+              ) : (
+                <User className="w-3.5 h-3.5 text-[#8f121d]" />
+              )}
+              <span>BY {authorName}</span>
+            </div>
           </div>
 
           <h1 className="font-serif text-3xl sm:text-5xl text-white font-normal leading-[1.3] tracking-wide break-all [overflow-wrap:anywhere]">
             {selectedArticle.title || 'Untitled'}
           </h1>
 
+          {/* タグ一覧 */}
           {tags.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 pt-2">
               <Tag className="w-3.5 h-3.5 text-[#d4b07b]" />
@@ -109,6 +167,7 @@ export default function JournalPage({
             </div>
           )}
 
+          {/* リード文 */}
           {selectedArticle.lead && (
             <p className="text-lg sm:text-xl text-[#d4b07b]/90 border-l-2 border-[#8f121d] pl-5 py-1.5 font-light leading-relaxed italic bg-[#8f121d]/[0.03] break-all [overflow-wrap:anywhere]">
               {selectedArticle.lead}
@@ -116,16 +175,42 @@ export default function JournalPage({
           )}
         </div>
 
+        {/* アイキャッチ画像（Imgix自動最適化！） */}
         {selectedArticle.eyecatch?.url && (
           <div className="w-full my-6">
             <img 
-              src={selectedArticle.eyecatch.url} 
+              src={optimizeImage(selectedArticle.eyecatch.url)} 
               alt={selectedArticle.title || ''} 
               className="webtoon-image border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]" 
             />
           </div>
         )}
 
+        {/* 🌟🌟🌟 自動生成される「目次（INDEX BOX）」 🌟🌟🌟 */}
+        {tocList.length > 0 && (
+          <div className="bg-[#060609] border border-[#8f121d]/40 p-6 sm:p-8 space-y-4 my-8 relative overflow-hidden shadow-[0_0_30px_rgba(143,18,29,0.1)]">
+            <div className="flex items-center gap-2.5 text-xs font-mono tracking-[0.3em] text-[#d4b07b] border-b border-white/10 pb-3">
+              <List className="w-4 h-4 text-[#8f121d]" />
+              <span>INDEX / 目次</span>
+            </div>
+            <ul className="space-y-2.5 font-mono text-xs text-[#a1a1aa]">
+              {tocList.map((item, idx) => (
+                <li 
+                  key={idx} 
+                  onClick={() => scrollToHeading(item.text)}
+                  className={`cursor-pointer hover:text-white transition-colors flex items-center gap-2 ${
+                    item.level === 3 ? 'pl-4 text-[11px] text-[#71717a]' : 'font-medium text-[#e2e2e8]'
+                  }`}
+                >
+                  <span className="text-[#8f121d] text-[9px]">►</span>
+                  <span className="hover:underline underline-offset-4 decoration-[#8f121d]">{item.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* リッチテキスト本文 */}
         <div 
           className="article-body prose prose-invert max-w-none space-y-8 text-base sm:text-lg leading-[2.1] font-light text-[#e2e2e8] w-full overflow-hidden break-all [overflow-wrap:anywhere]
             [&_p]:mb-6 [&_p]:tracking-wide [&_p]:text-[#e2e2e8]
@@ -150,6 +235,7 @@ export default function JournalPage({
           dangerouslySetInnerHTML={{ __html: selectedArticle.body || '<p class="text-[#71717a]">本文がありません。</p>' }}
         />
 
+        {/* 複数画像ギャラリー */}
         {multipleImages.length > 0 && (
           <div className="space-y-6 pt-10 border-t border-white/10">
             <div className="flex items-center gap-2 text-xs font-mono text-[#d4b07b] tracking-widest uppercase">
@@ -162,7 +248,11 @@ export default function JournalPage({
                 if (!imgUrl) return null;
                 return (
                   <div key={idx} className="aspect-square bg-[#060609] border border-white/10 overflow-hidden group relative">
-                    <img src={imgUrl} alt={`Gallery Image ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img 
+                      src={optimizeImage(imgUrl)} 
+                      alt={`Gallery Image ${idx + 1}`} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
                   </div>
                 );
               })}
@@ -170,6 +260,7 @@ export default function JournalPage({
           </div>
         )}
 
+        {/* 関連記事 */}
         {relatedArticles.length > 0 && (
           <div className="space-y-6 pt-10 border-t border-white/10">
             <div className="flex items-center gap-2 text-xs font-mono text-[#d4b07b] tracking-widest uppercase">
@@ -197,6 +288,7 @@ export default function JournalPage({
           </div>
         )}
 
+        {/* フッターナビ */}
         <div className="pt-12 border-t border-white/10 flex justify-between items-center">
           <button 
             onClick={handleBackToList} 
@@ -210,11 +302,33 @@ export default function JournalPage({
     );
   }
 
-  // 🌟 記事一覧表示時（12件表示制限 ＆ ページネーション付き）
+  // 🌟 記事一覧表示時（リアルタイム全文検索バー付き！）
   return (
-    <div className="pt-36 pb-32 max-w-7xl mx-auto px-8 sm:px-12 space-y-16 animate-fadeIn">
-      <div className="space-y-4 border-b border-white/10 pb-8">
-        <h1 className="font-serif text-5xl sm:text-7xl text-white">JOURNAL & HOW-TO</h1>
+    <div className="pt-36 pb-32 max-w-7xl mx-auto px-8 sm:px-12 space-y-12 animate-fadeIn">
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/10 pb-8 gap-6">
+        <div className="space-y-4">
+          <h1 className="font-serif text-5xl sm:text-7xl text-white">JOURNAL & HOW-TO</h1>
+        </div>
+
+        {/* 🌟 全文検索インプットバー */}
+        <div className="relative w-full md:w-80">
+          <input 
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="記事をキーワード検索..."
+            className="w-full bg-[#060609] border border-white/10 px-4 py-2.5 text-xs text-white placeholder-[#71717a] font-mono focus:outline-none focus:border-[#8f121d] transition-colors pl-10"
+          />
+          <Search className="w-4 h-4 text-[#71717a] absolute left-3 top-1/2 -translate-y-1/2" />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#71717a] hover:text-white font-mono"
+            >
+              CLEAR
+            </button>
+          )}
+        </div>
       </div>
       
       {/* カテゴリフィルター */}
@@ -223,7 +337,7 @@ export default function JournalPage({
           <button 
             key={cat} 
             onClick={() => handleTabChange(cat)} 
-            className={`px-4 py-2 border uppercase transition-all ${
+            className={`px-4 py-2 border uppercase transition-all cursor-pointer ${
               activeTab.toLowerCase() === cat.toLowerCase() 
                 ? 'border-[#8f121d] bg-[#8f121d]/20 text-white font-bold' 
                 : 'border-white/10 text-[#71717a] hover:text-white'
@@ -236,17 +350,22 @@ export default function JournalPage({
 
       {filteredArticles.length === 0 ? (
         <div className="py-20 text-center space-y-4 border border-white/5 bg-[#060609]">
-          <p className="font-serif text-lg text-[#71717a]">該当する記事が見つかりませんでした。</p>
-          <p className="font-mono text-xs text-[#52525b]">NO ARTICLES FOUND IN THIS CATEGORY.</p>
+          <p className="font-serif text-lg text-[#71717a]">
+            {searchQuery ? `「${searchQuery}」に一致する記事が見つかりませんでした。` : '該当する記事が見つかりませんでした。'}
+          </p>
+          <p className="font-mono text-xs text-[#52525b]">NO ARTICLES FOUND.</p>
         </div>
       ) : (
         <>
-          {/* 🌟 1ページ最大12件（3列×4行）グリッド */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {paginatedArticles.map(article => {
               const articleDate = formatDate(article?.publishedAt || article?.createdAt || article?.updatedAt);
               const categoryName = getCategoryName(article?.category);
               const eyecatchUrl = article?.eyecatch?.url;
+
+              // 著者名
+              const authorObj = typeof article?.author === 'object' ? article.author : null;
+              const authorName = authorObj ? (authorObj.name || authorObj.title) : (article?.author || 'RUBEDO');
 
               return (
                 <article 
@@ -257,7 +376,7 @@ export default function JournalPage({
                   {eyecatchUrl && (
                     <div className="aspect-video w-full overflow-hidden bg-[#030305] border-b border-white/10 relative">
                       <img 
-                        src={eyecatchUrl} 
+                        src={optimizeImage(eyecatchUrl)} 
                         alt={article.title || ''} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                       />
@@ -279,7 +398,7 @@ export default function JournalPage({
                     </div>
                     
                     <div className="pt-6 mt-6 border-t border-white/5 flex justify-between font-mono text-[10px] text-[#71717a]">
-                      <span>BY {article.author || 'RUBEDO'}</span>
+                      <span>BY {authorName}</span>
                       <span className="text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                         READ <ArrowRight className="w-3.5 h-3.5 text-[#8f121d]"/>
                       </span>
@@ -290,13 +409,12 @@ export default function JournalPage({
             })}
           </div>
 
-          {/* 🌟 ページネーションコントロール（12件超えた場合のみ表示） */}
           {totalPages > 1 && (
             <div className="pt-16 border-t border-white/10 flex justify-center items-center gap-3 font-mono text-xs">
               <button 
                 onClick={() => handlePageChange(page - 1)} 
                 disabled={page === 1}
-                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10"
+                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -305,7 +423,7 @@ export default function JournalPage({
                 <button
                   key={pNum}
                   onClick={() => handlePageChange(pNum)}
-                  className={`w-10 h-10 border transition-all ${
+                  className={`w-10 h-10 border transition-all cursor-pointer ${
                     page === pNum 
                       ? 'border-[#8f121d] bg-[#8f121d] text-white font-bold shadow-[0_0_15px_rgba(143,18,29,0.5)]' 
                       : 'border-white/10 text-[#a1a1aa] hover:border-white/30 hover:text-white'
@@ -318,7 +436,7 @@ export default function JournalPage({
               <button 
                 onClick={() => handlePageChange(page + 1)} 
                 disabled={page === totalPages}
-                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10"
+                className="p-3 border border-white/10 text-white disabled:opacity-30 hover:border-[#8f121d] transition-all disabled:hover:border-white/10 cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
