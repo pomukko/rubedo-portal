@@ -277,12 +277,12 @@ export default function JournalPage({
     return items;
   }, [selectedArticle]);
 
-  // 画面上部から220px（余裕のある位置）へスムーズジャンプ
+  // 🎯【更新】画面上部から285px（ゆったり見やすい位置）へスムーズジャンプ
   const scrollToHeading = (text) => {
     const headings = document.querySelectorAll('.article-body h1, .article-body h2, .article-body h3');
     for (let h of headings) {
       if (h.textContent.trim() === text) {
-        const HEADER_OFFSET = 220;
+        const HEADER_OFFSET = 285; // 上部から約285px下へゆったり位置調整
         const elementPosition = h.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - HEADER_OFFSET;
 
@@ -428,7 +428,7 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* ✂️【ビルド確定・ゆったり余白】高級感ソリッド線 目次エリア */}
+        {/* 目次エリア */}
         {tocList.length > 0 && (
           <div className="my-20">
             {/* 上部区切り線 */}
