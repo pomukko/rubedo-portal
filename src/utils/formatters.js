@@ -1,23 +1,30 @@
-// 🌟 安全な日付フォーマット変換用ヘルパー関数
-export const formatDate = (dateStr) => {
-  if (!dateStr) return '';
-  try {
-    return String(dateStr).split('T')[0];
-  } catch (e) {
-    return String(dateStr);
-  }
+// 🌟 日付フォーマット
+export const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}.${mm}.${dd}`;
 };
 
-// 🌟 安全なカテゴリ名取得用ヘルパー関数（配列・オブジェクト・文字列すべてに対応）
+// 🌟 カテゴリ名抽出（文字列・オブジェクト両対応）
 export const getCategoryName = (category) => {
-  if (!category) return 'JOURNAL';
-  if (Array.isArray(category)) {
-    if (category.length === 0) return 'JOURNAL';
-    return getCategoryName(category[0]);
-  }
+  if (!category) return 'GENERAL';
   if (typeof category === 'string') return category;
   if (typeof category === 'object') {
-    return category.name || category.title || category.label || category.id || category.value || 'JOURNAL';
+    return category.name || category.title || category.id || 'GENERAL';
   }
-  return String(category);
+  return 'GENERAL';
+};
+
+// 🌟 Imgix 画像自動軽量化（WebP自動変換 ＆ 圧縮）
+export const optimizeImage = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  if (url.includes('images.microcms-assets.io')) {
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}auto=format,compress`;
+  }
+  return url;
 };
