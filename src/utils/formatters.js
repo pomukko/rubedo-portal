@@ -9,17 +9,21 @@ export const formatDate = (dateString) => {
   return `${yyyy}.${mm}.${dd}`;
 };
 
-// 🌟 カテゴリ名抽出
+// 🌟 カテゴリ名抽出（セレクトフィールド・オブジェクト・文字列完全対応）
 export const getCategoryName = (category) => {
-  if (!category) return 'GENERAL';
-  if (typeof category === 'string') return category;
-  if (typeof category === 'object') {
-    return category.name || category.title || category.id || 'GENERAL';
+  if (!category) return 'CREATIVE / 3DCG';
+  if (Array.isArray(category)) {
+    const firstCat = category[0];
+    if (typeof firstCat === 'object') return firstCat.name || firstCat.title || firstCat.value || firstCat.id || 'CREATIVE / 3DCG';
+    return String(firstCat);
   }
-  return 'GENERAL';
+  if (typeof category === 'object') {
+    return category.name || category.title || category.value || category.id || 'CREATIVE / 3DCG';
+  }
+  return String(category);
 };
 
-// 🌟 著者名抽出（セレクトフィールド: Numen / MUMEN / RUBEDO 完全対応！）
+// 🌟 著者名抽出 (Numen / MUMEN / RUBEDO)
 export const getAuthorName = (author) => {
   if (!author) return 'RUBEDO';
   if (Array.isArray(author)) {
