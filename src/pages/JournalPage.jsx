@@ -1,7 +1,15 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, Image as ImageIcon, Link as LinkIcon, Tag, User, Layers, Clock, Copy, Check, Share2, X, RefreshCw } from 'lucide-react';
-import { formatDate, getCategoryName, getSubCategories, getAuthorName, optimizeImage, getSingleImageUrl, getMultipleImageUrls } from '../utils/formatters';
+import { 
+  ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search, List, 
+  Image as ImageIcon, Link as LinkIcon, Tag, User, Layers, Clock, 
+  Copy, Check, Share2, X, RefreshCw 
+} from 'lucide-react';
+import { 
+  formatDate, getCategoryName, getSubCategories, getAuthorName, 
+  optimizeImage, getSingleImageUrl, getMultipleImageUrls 
+} from '../utils/formatters';
+import SEO from '../components/SEO';
 
 const SUB_CATEGORIES_MAP = {
   'CREATIVE / 3DCG': [
@@ -342,7 +350,9 @@ export default function JournalPage({
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
-  // 記事詳細表示時
+  /* ==========================================
+     👑 記事詳細表示ビュー
+  ========================================== */
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
     const categoryName = getCategoryName(selectedArticle);
@@ -366,6 +376,15 @@ export default function JournalPage({
 
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-36 sm:pt-44 pb-32 space-y-12 animate-fadeIn w-full overflow-hidden">
+        
+        {/* 👑 動的SEO & OGP */}
+        <SEO 
+          title={selectedArticle.title}
+          description={selectedArticle.lead || "RUBEDO JOURNAL"}
+          image={selectedArticle.eyecatch?.url || singleImageUrl || "/favicon.svg"}
+          type="article"
+        />
+
         {/* 一覧に戻るボタン */}
         <button 
           onClick={handleBackToList} 
@@ -437,7 +456,7 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 2. 単一画像フィールド（ただの画像） */}
+        {/* 2. 単一画像フィールド */}
         {singleImageUrl && (
           <div className="w-full my-6">
             <img 
@@ -479,7 +498,7 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 🌟 3. リッチテキスト本文（「本文がありません。」を完全撤去！） */}
+        {/* 🌟 3. リッチテキスト本文 */}
         <div 
           ref={articleBodyRef}
           className="article-body max-w-none w-full overflow-hidden"
@@ -616,9 +635,19 @@ export default function JournalPage({
     );
   }
 
-  // 記事一覧表示時
+  /* ==========================================
+     📰 記事一覧表示ビュー
+  ========================================== */
   return (
     <div className="pt-36 pb-32 max-w-7xl mx-auto px-8 sm:px-12 space-y-10 animate-fadeIn">
+      
+      {/* 👑 ページ全体のSEO（一覧時） */}
+      <SEO 
+        title="JOURNAL & HOW-TO"
+        description="RUBEDOの最新ニュース、技術ドキュメント、制作アーカイブ"
+        type="website"
+      />
+
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/10 pb-8 gap-6">
         <div className="space-y-4">
           <h1 className="font-serif text-5xl sm:text-7xl text-white">JOURNAL & HOW-TO</h1>
