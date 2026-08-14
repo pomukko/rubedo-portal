@@ -4,10 +4,9 @@
 
 /* ==================================================
    1. GLOBAL RESET & BROWSER NORMALIZATION (125% IMMERSION)
-   1.25倍（font-size: 20px）による圧倒的没入感 ＆ 全ブラウザ均一シールド
    ================================================== */
 html {
-  font-size: 20px !important; /* 16px × 1.25 = 20px（全体を125%にスケールアップ！） */
+  font-size: 20px !important;
   -webkit-text-size-adjust: 100% !important;
   -moz-text-size-adjust: 100% !important;
   text-size-adjust: 100% !important;
@@ -33,6 +32,13 @@ body {
   overflow-x: hidden;
 }
 
+/* メニュー・モーダル内のスクロールすり抜け防止 */
+.menu-container,
+.modal-container {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ==================================================
    2. ANIMATIONS
    ================================================== */
@@ -52,12 +58,12 @@ body {
 }
 
 /* ==================================================
-   3. WEBTOON & IMAGE STYLES (1.25倍 拡張)
+   3. WEBTOON & IMAGE STYLES
    ================================================== */
 .article-body img,
 .webtoon-image {
   width: 100% !important;
-  max-width: 650px !important; /* 520px × 1.25 = 650px（大迫力のマンガサイズ） */
+  max-width: 650px !important;
   height: auto !important;
   max-height: none !important;
   object-fit: contain !important;
@@ -80,7 +86,7 @@ body {
 .article-body {
   color: #e2e2e8;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 1.05rem; /* 21px 相当 */
+  font-size: 1.05rem;
   line-height: 2.1;
   letter-spacing: 0.03em;
   word-break: break-word;
