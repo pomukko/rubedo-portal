@@ -28,7 +28,7 @@ export default function Header({
       }`}>
         <div className="max-w-7xl mx-auto px-8 sm:px-12 flex justify-between items-center relative z-50">
           
-          {/* RUBEDO LOGO (ロゴのみのシンプル美) */}
+          {/* RUBEDO LOGO */}
           <button onClick={() => navigateTo('home')} className="flex items-center gap-4 group text-left cursor-pointer">
             <div className="w-2.5 h-2.5 bg-[#8f121d] transition-transform duration-500 group-hover:scale-125 group-hover:bg-[#a81625] shadow-[0_0_14px_rgba(143,18,29,0.9)]"></div>
             <span className="font-serif tracking-[0.4em] text-xl font-medium text-white group-hover:text-[#d4b07b] transition-colors">RUBEDO</span>
@@ -42,7 +42,7 @@ export default function Header({
               <span className="uppercase">{isMuted ? 'SOUND OFF' : 'SOUND ON'}</span>
             </button>
 
-            {/* BOOTH STORE LINK (安全ガード付き) */}
+            {/* BOOTH STORE LINK */}
             <a href={CONFIG?.LINKS?.boothStore || '#'} target="_blank" rel="noreferrer" className="text-[10px] tracking-[0.3em] font-mono text-[#d4b07b] border border-[#d4b07b]/30 bg-[#d4b07b]/[0.02] px-5 py-2.5 hover:bg-[#d4b07b]/15 transition-all flex items-center gap-2">
               BOOTH <ArrowUpRight className="w-3 h-3" />
             </a>
@@ -61,33 +61,33 @@ export default function Header({
         </div>
       </header>
 
-      {/* OVERLAY MENU */}
+      {/* 🌟 OVERLAY MENU（縦スクロール最優先 ＆ すり抜け防止適用） */}
       {isMenuOpen && (
-        <div className="fixed inset-0 bg-[#040406]/98 z-40 backdrop-blur-3xl flex flex-col justify-between p-8 sm:p-20 animate-fadeIn">
-          <div className="pt-24 max-w-4xl mx-auto w-full space-y-8">
+        <div className="fixed inset-0 bg-[#040406]/98 z-40 backdrop-blur-3xl flex flex-col justify-between p-6 sm:p-16 animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="pt-24 pb-8 max-w-4xl mx-auto w-full space-y-8 flex-1 flex flex-col justify-center">
             <span className="text-[10px] font-mono tracking-[0.4em] text-[#8f121d] uppercase block">NAVIGATION INDEX</span>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => navigateTo(item.id)}
-                  className="w-full text-left py-4 border-b border-white/5 group flex items-center justify-between hover:border-[#8f121d] transition-all cursor-pointer"
+                  className="w-full text-left py-3 sm:py-4 border-b border-white/5 group flex items-center justify-between hover:border-[#8f121d] transition-all cursor-pointer"
                 >
                   <div className="space-y-1">
-                    <div className={`font-serif text-2xl sm:text-4xl transition-colors ${
+                    <div className={`font-serif text-xl sm:text-3xl lg:text-4xl transition-colors ${
                       currentPage === item.id ? 'text-[#d4b07b]' : 'text-white group-hover:text-[#d4b07b]'
                     }`}>
                       {item.label}
                     </div>
-                    <div className="font-mono text-xs text-[#71717a]">{item.desc}</div>
+                    <div className="font-mono text-[11px] sm:text-xs text-[#71717a]">{item.desc}</div>
                   </div>
-                  <ChevronRight className="w-6 h-6 text-[#71717a] group-hover:text-[#8f121d] group-hover:translate-x-2 transition-all" />
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-[#71717a] group-hover:text-[#8f121d] group-hover:translate-x-2 transition-all flex-shrink-0" />
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="max-w-4xl mx-auto w-full pt-8 border-t border-white/10 flex justify-between items-center font-mono text-[10px] text-[#71717a]">
+          <div className="max-w-4xl mx-auto w-full pt-6 pb-2 border-t border-white/10 flex justify-between items-center font-mono text-[10px] text-[#71717a] flex-shrink-0">
             <span>RUBEDO CREATIVE PORTAL</span>
             <span>© 2026 RUBEDO</span>
           </div>
