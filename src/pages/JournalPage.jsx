@@ -9,7 +9,6 @@ import {
   formatDate, getCategoryName, getSubCategories, getAuthorName, 
   optimizeImage, getSingleImageUrl, getMultipleImageUrls 
 } from '../utils/formatters';
-import SEO from '../components/SEO';
 
 const SUB_CATEGORIES_MAP = {
   'CREATIVE / 3DCG': [
@@ -177,6 +176,18 @@ export default function JournalPage({
   const articleBodyRef = useRef(null);
   const ITEMS_PER_PAGE = 12;
 
+  // 👑 【100%確実にタブ名を変える神処理】
+  useEffect(() => {
+    if (selectedArticle?.title) {
+      document.title = `${selectedArticle.title} | RUBEDO PORTAL`;
+    } else {
+      document.title = 'JOURNAL & HOW-TO | RUBEDO PORTAL';
+    }
+    return () => {
+      document.title = 'RUBEDO PORTAL';
+    };
+  }, [selectedArticle]);
+
   const handleMainTabChange = (cat) => {
     setActiveTab(cat);
     setActiveSubTab('all');
@@ -259,7 +270,7 @@ export default function JournalPage({
     };
   }, [selectedArticle, sortedArticles]);
 
-  // 自動目次抽出 (H1, H2, H3) ※太字（strong / b）が入っている見出しは除外！
+  // 自動目次抽出 (H1, H2, H3)
   const tocList = useMemo(() => {
     if (!selectedArticle?.body) return [];
     const html = selectedArticle.body;
@@ -288,7 +299,6 @@ export default function JournalPage({
     return items;
   }, [selectedArticle]);
 
-  // 画面上部から285pxへスムーズジャンプ
   const scrollToHeading = (text) => {
     const headings = document.querySelectorAll('.article-body h1, .article-body h2, .article-body h3');
     for (let h of headings) {
@@ -351,7 +361,7 @@ export default function JournalPage({
   };
 
   /* ==========================================
-     👑 記事詳細表示ビュー
+     記事詳細表示ビュー
   ========================================== */
   if (selectedArticle) {
     const articleDate = formatDate(selectedArticle.publishedAt || selectedArticle.createdAt || selectedArticle.updatedAt);
@@ -376,15 +386,6 @@ export default function JournalPage({
 
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-36 sm:pt-44 pb-32 space-y-12 animate-fadeIn w-full overflow-hidden">
-        
-        {/* 👑 動的SEO & OGP */}
-        <SEO 
-          title={selectedArticle.title}
-          description={selectedArticle.lead || "RUBEDO JOURNAL"}
-          image={selectedArticle.eyecatch?.url || singleImageUrl || "/favicon.svg"}
-          type="article"
-        />
-
         {/* 一覧に戻るボタン */}
         <button 
           onClick={handleBackToList} 
@@ -498,7 +499,7 @@ export default function JournalPage({
           </div>
         )}
 
-        {/* 🌟 3. リッチテキスト本文 */}
+        {/* 3. リッチテキスト本文 */}
         <div 
           ref={articleBodyRef}
           className="article-body max-w-none w-full overflow-hidden"
@@ -636,18 +637,10 @@ export default function JournalPage({
   }
 
   /* ==========================================
-     📰 記事一覧表示ビュー
+     記事一覧表示ビュー
   ========================================== */
   return (
     <div className="pt-36 pb-32 max-w-7xl mx-auto px-8 sm:px-12 space-y-10 animate-fadeIn">
-      
-      {/* 👑 ページ全体のSEO（一覧時） */}
-      <SEO 
-        title="JOURNAL & HOW-TO"
-        description="RUBEDOの最新ニュース、技術ドキュメント、制作アーカイブ"
-        type="website"
-      />
-
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/10 pb-8 gap-6">
         <div className="space-y-4">
           <h1 className="font-serif text-5xl sm:text-7xl text-white">JOURNAL & HOW-TO</h1>
@@ -768,7 +761,6 @@ export default function JournalPage({
 
                   <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
                     <div className="space-y-4">
-                      {/* メイン ＆ 選択時のみのサブカテゴリーバッジ表示 */}
                       <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[10px]">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <span className="text-[#8f121d] font-bold break-all">{categoryName}</span>
