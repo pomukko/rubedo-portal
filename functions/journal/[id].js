@@ -1,14 +1,18 @@
 // functions/journal/[id].js
 export async function onRequest(context) {
-  const { params } = context;
+  const { params, request, env } = context;
   const id = params.id;
-  const response = await context.next();
+
+  // 👑 大元の index.html を確実に取得
+  const url = new URL(request.url);
+  const indexUrl = new URL('/', url.origin);
+  const response = await env.ASSETS.fetch(indexUrl);
 
   const serviceDomain = "rubedo";
   const apiKey = "k9QtCRl15P3IEH9GOSfrQ2ULEspVtCnwv3Bi";
 
   try {
-    // microCMSから該当記事のデータを直接取得
+    // microCMSから記事データを直接取得
     const res = await fetch(`https://${serviceDomain}.microcms.io/api/v1/articles/${id}`, {
       headers: { 'X-MICROCMS-API-KEY': apiKey }
     });
@@ -16,11 +20,11 @@ export async function onRequest(context) {
     if (res.ok) {
       const article = await res.json();
       const title = article.title ? `${article.title} | RUBEDO PORTAL` : 'RUBEDO PORTAL';
-      const desc = article.lead || 'RUBEDO JOURNAL';
-      // アイキャッチまたは記事内画像
-      const image = article.eyecatch?.url || article.image?.url || '';
+      const desc = article.lead || article.summary || 'RUBEDO JOURNAL';
+      // アイキャッチ、単一画像、または記事内画像を取得
+      const image = article.eyecatch?.url || article.image?.url || article.photo?.url || article.singleImage?.url || '';
 
-      // DiscordやTwitterのロボット向けにHTMLを記事情報へ書き換え
+      // DiscordやTwitter向けにタイトルと画像を記事専用のものに書き換え
       return new HTMLRewriter()
         .on('title', { element(e) { e.setInnerContent(title); } })
         .on('meta[name="description"]', { element(e) { e.setAttribute('content', desc); } })
@@ -33,7 +37,7 @@ export async function onRequest(context) {
         .transform(response);
     }
   } catch (err) {
-    // エラー時は通常のレスポンスを返す
+    // エラー時は通常のindex.htmlを返す
   }
 
   return response;
