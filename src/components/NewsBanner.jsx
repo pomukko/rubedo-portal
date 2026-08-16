@@ -7,8 +7,8 @@ const TOP_NEWS_ITEMS = [
     category: 'RELEASE',
     tag: 'NEW ASSET',
     date: '2026.08.14',
-    title: '最新フラグシップアセット「Vermilia」大型アップデート公開',
-    description: 'テクスチャの解像度向上および最新SDKへの完全互換対応。表情ギミックと衣装シェーダーを最適化。',
+    title: 'すーぱーねこちゃんぱんちの最新作情報が公開',
+    description: 'どうでもいいと思っていた世界が恋しくなる確率バリ硬ランキング堂々の18位！',
     image: 'https://images.microcms-assets.io/assets/e09e3381a1794b79b2944b2fa68c67c5/8165350_thumb.jpg',
     targetType: 'internal',
     targetPage: 'journal',
@@ -40,6 +40,32 @@ const TOP_NEWS_ITEMS = [
     targetPage: '',
     articleId: '',
     externalUrl: 'https://booth.pm/'
+  },
+  {
+    id: 'news-4',
+    category: 'OFFICIAL',
+    tag: 'NEW BOOK READY',
+    date: '2026.08.01',
+    title: 'ぱーふぇくとにんげんさんの労働基準監督署3巻',
+    description: '露骨に下ネタを避けてきたぱーふぇくとにんげんさんの労働基準監督署3巻がついに発売！',
+    image: '/favicon.svg',
+    targetType: 'external',
+    targetPage: '',
+    articleId: '',
+    externalUrl: 'https://booth.pm/'
+  },
+  {
+    id: 'news-5',
+    category: 'COMMUNITY',
+    tag: 'DISCORD',
+    date: '2026.07.25',
+    title: 'RUBEDO 公式Discordサーバーにて制作進捗＆サポート展開中',
+    description: 'アセットの最新アップデート情報、制作裏話、技術的な質問受付などの公式コミュニティ。',
+    image: '/favicon.svg',
+    targetType: 'external',
+    targetPage: '',
+    articleId: '',
+    externalUrl: 'https://discord.com/'
   }
 ];
 
@@ -137,7 +163,7 @@ export default function NewsBanner({ navigateTo }) {
               </p>
             </div>
 
-            {/* フッターリンク ＆ インジケーター */}
+            {/* フッターリンク ＆ インジケーター（自動で5つ並びます） */}
             <div className="pt-2 border-t border-white/5 flex items-center justify-between font-mono text-[10px] text-[#8f121d]">
               <span className="inline-flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
                 {activeNews.targetType === 'external' ? 'VISIT EXTERNAL LINK' : 'READ DISPATCH'}
