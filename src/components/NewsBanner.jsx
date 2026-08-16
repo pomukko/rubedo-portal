@@ -33,13 +33,13 @@ const TOP_NEWS_ITEMS = [
     category: 'OFFICIAL',
     tag: 'BOOTH STORE',
     date: '2026.08.01',
-    title: 'RUBEDO Official BOOTH Store にて新作アイテム展開中',
-    description: 'VRChat向けオリジナルシェーダー、アバター連動アクセサリー等の最新ラインナップ。',
+    title: 'Vermilia アップデートのお知らせ',
+    description: '１ヶ月半後のヴェルミリアちゃんのアップデートのお知らせと、ちょっと特別な「内緒の先行公開」です！',
     image: '/favicon.svg',
     targetType: 'external',
     targetPage: '',
     articleId: '',
-    externalUrl: 'https://booth.pm/'
+    externalUrl: 'https://verguide.pages.dev/rubedo_sns_strategy_gallery'
   },
   {
     id: 'news-4',
