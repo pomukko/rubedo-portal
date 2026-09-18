@@ -65,7 +65,7 @@ const TOP_NEWS_ITEMS = [
     targetType: 'external',
     targetPage: '',
     articleId: '',
-    externalUrl: 'https://discord.gg/bbDQGp9DpN'
+    externalUrl: 'https://discord.gg/5MhCNThuz7'
   }
 ];
 

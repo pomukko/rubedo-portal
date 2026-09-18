@@ -8,7 +8,7 @@ export const CONFIG = {
     twitter: 'https://x.com/RUBEDO_64',
     boothStore: 'https://rubedo0.booth.pm/',
     vermiliaItem: 'https://rubedo0.booth.pm/items/8165350',
-    discordServer: 'https://discord.gg/bbDQGp9DpN',
+    discordServer: 'https://discord.gg/5MhCNThuz7',
     ethicalRulebook: 'https://verguide.pages.dev/Joint_Ethical_Rulebook',
     loveAlpaca: 'https://verguide.pages.dev/lovealpaca',
     vermiliaGuideline: 'https://verguide.pages.dev/vermilia_guideline',
