@@ -33,18 +33,18 @@ const TOP_NEWS_ITEMS = [
     category: 'OFFICIAL',
     tag: 'BOOTH STORE',
     date: '2026.08.01',
-    title: 'Vermilia アップデートのお知らせ',
-    description: '１ヶ月半後のヴェルミリアちゃんのアップデートのお知らせと、ちょっと特別な「内緒の先行公開」です！',
+    title: 'RUBEDO Official BOOTH Store にて新作アイテム展開中',
+    description: 'VRChat向けオリジナルシェーダー、アバター連動アクセサリー等の最新ラインナップ。',
     image: '/favicon.svg',
     targetType: 'external',
     targetPage: '',
     articleId: '',
-    externalUrl: 'https://verguide.pages.dev/rubedo_sns_strategy_gallery'
+    externalUrl: 'https://booth.pm/'
   },
   {
     id: 'news-4',
     category: 'OFFICIAL',
-    tag: 'NEW BOOK READY',
+    tag: 'BOOTH STORE',
     date: '2026.08.01',
     title: 'ぱーふぇくとにんげんさんの労働基準監督署3巻',
     description: '露骨に下ネタを避けてきたぱーふぇくとにんげんさんの労働基準監督署3巻がついに発売！',
@@ -65,7 +65,7 @@ const TOP_NEWS_ITEMS = [
     targetType: 'external',
     targetPage: '',
     articleId: '',
-    externalUrl: 'https://discord.com/'
+    externalUrl: 'https://discord.gg/bbDQGp9DpN'
   }
 ];
 
@@ -163,7 +163,7 @@ export default function NewsBanner({ navigateTo }) {
               </p>
             </div>
 
-            {/* フッターリンク ＆ インジケーター（自動で5つ並びます） */}
+            {/* フッターリンク ＆ インジケーター */}
             <div className="pt-2 border-t border-white/5 flex items-center justify-between font-mono text-[10px] text-[#8f121d]">
               <span className="inline-flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
                 {activeNews.targetType === 'external' ? 'VISIT EXTERNAL LINK' : 'READ DISPATCH'}
