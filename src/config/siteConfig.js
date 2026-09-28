@@ -19,10 +19,34 @@ export const CONFIG = {
 
 // 🌟 ヴェルミリアの視点切替データ
 export const vermiliaAngles = [
-  { id: 'FRONT_01', title: 'I. THE SILHOUETTE', subtitle: '空間に刻まれる緊張感', desc: '過度な装飾を排し、立ち姿そのものが持つ美しい重心バランス。光を吸い込む深い陰影のライン。' },
-  { id: 'DETAIL_MAT', title: 'II. LUSTER & SHADOW', subtitle: '深紅と黒が魅せる質感', desc: '微細な光の乱反射。現実の金属や布地が抱く「冷たさ」と「重み」をデジタル空間へ昇華。' },
-  { id: 'GIMMICK_ACC', title: 'III. GEOMETRY ART', subtitle: '細部に宿る幾何学', desc: '主張しすぎず、しかし暗がりの中でも確かに自立した存在感を放つ繊細なアクセサリ造形。' },
-  { id: 'TOPOLOGY_MESH', title: 'IV. HARMONY OF FORM', subtitle: '流動する破綻なき構造', desc: '動的な美しいラインを損なわないよう、ミリ単位で吟味されたポリゴン流動とフォルムの美。' }
+  {
+    id: 'FRONT_01',
+    title: 'I. THE SILHOUETTE',
+    subtitle: '空間に刻まれる緊張感',
+    desc: '過度な装飾を排し、立ち姿そのものが持つ美しい重心バランス。光を吸い込む深い陰影のライン。',
+    image: '/images/vermilia/07-03__1920x1200.webp'
+  },
+  {
+    id: 'DETAIL_MAT',
+    title: 'II. LUSTER & SHADOW',
+    subtitle: '深紅と黒が魅せる質感',
+    desc: '微細な光の乱反射。現実の金属や布地が抱く「冷たさ」と「重み」をデジタル空間へ昇華。',
+    image: ''
+  },
+  {
+    id: 'GIMMICK_ACC',
+    title: 'III. GEOMETRY ART',
+    subtitle: '細部に宿る幾何学',
+    desc: '主張しすぎず、しかし暗がりの中でも確かに自立した存在感を放つ繊細なアクセサリ造形。',
+    image: ''
+  },
+  {
+    id: 'TOPOLOGY_MESH',
+    title: 'IV. HARMONY OF FORM',
+    subtitle: '流動する破綻なき構造',
+    desc: '動的な美しいラインを損なわないよう、ミリ単位で吟味されたポリゴン流動とフォルムの美。',
+    image: ''
+  }
 ];
 
 // 🌟 ドロワーメニュー項目
@@ -32,22 +56,4 @@ export const menuNavItems = [
   { id: 'journal', num: '03', title: 'JOURNAL & HOW-TO', subtitle: '技術ノウハウ・ブログ' },
   { id: 'founders', num: '04', title: 'FOUNDERS PHILOSOPHY', subtitle: '創作者プロフィール' },
   { id: 'archives', num: '05', title: 'THE ARCHIVES', subtitle: '公式ルール・ガイドライン集' }
-];
-// src/config/siteConfig.js 内の記述イメージ
-export const vermiliaAngles = [
-  {
-    id: "FRONT_01",
-    title: "I. THE SILHOUETTE",
-    subtitle: "空間に刻まれる緊張感",
-    desc: "過度な装飾を排し、立ち姿そのものが持つ美しい重心バランス。光を吸い込む深い陰影のライン。",
-    image: "/images/vermilia/07-03__1920x1200.webp", // 
-  },
-  {
-    id: "DETAIL_MAT",
-    title: "II. LUSTER & SHADOW",
-    subtitle: "質感と光彩の追究",
-    desc: "シェーダーの極致が生み出す、深紅と漆黒のマテリアルコントラスト。",
-    image: "/images/vermilia/angle-luster.webp",
-  },
-  // ...
 ];
