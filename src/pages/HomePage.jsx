@@ -87,21 +87,32 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                 <span className="text-[#d4b07b] font-serif">{currentAngleObj?.title}</span>
               </div>
 
-              {/* 👑 画像表示対応 CINEMATIC VIEW ディスプレイ 👑 */}
+              {/* 👑 シネマティック・アンビエント対応ディスプレイ 👑 */}
               <div className="aspect-[16/10] bg-[#07070a] border border-white/5 relative overflow-hidden flex items-center justify-center group">
                 {currentAngleObj?.image ? (
-                  <>
+                  <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-[#030305]">
+                    {/* 背景：拡大＋深いブラーで光と影の空間を形成 */}
+                    <img 
+                      src={optimizeImage(currentAngleObj.image)} 
+                      alt="" 
+                      className="absolute inset-0 w-full h-full object-cover scale-125 blur-2xl opacity-40 select-none pointer-events-none"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/60 pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(143,18,29,0.18)_0%,_transparent_75%)] pointer-events-none"></div>
+
+                    {/* 前面：立ち絵を中央にシャープに配置 */}
                     <img 
                       src={optimizeImage(currentAngleObj.image)} 
                       alt={currentAngleObj.title || 'Vermilia View'} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      className="relative z-10 max-h-full max-w-full object-contain py-3 drop-shadow-[0_15px_35px_rgba(0,0,0,0.9)] group-hover:scale-[1.03] transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none"></div>
-                    <div className="absolute bottom-6 left-6 right-6 z-10 space-y-1">
+
+                    {/* 下部テキストオーバーレイ */}
+                    <div className="absolute bottom-6 left-6 right-6 z-20 space-y-1 pointer-events-none">
                       <div className="text-[11px] font-mono tracking-[0.3em] text-[#d4b07b] uppercase">{currentAngleObj?.subtitle}</div>
                       <p className="text-xs text-[#d4d4d8] font-light line-clamp-2 leading-relaxed">{currentAngleObj?.desc}</p>
                     </div>
-                  </>
+                  </div>
                 ) : (
                   <>
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(143,18,29,0.14)_0%,_transparent_75%)] pointer-events-none"></div>
@@ -119,7 +130,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                 )}
               </div>
 
-              {/* アングル切り替えセレクター */}
+              {/* アングルセレクター */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 {vermiliaAngles.map((angle) => (
                   <button key={angle.id} onClick={() => setSelectedAngle(angle.id)} className={`p-4 text-left border transition-all cursor-pointer ${selectedAngle === angle.id ? 'border-[#8f121d] bg-[#8f121d]/10 text-white' : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20'}`}>
