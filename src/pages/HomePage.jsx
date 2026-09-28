@@ -87,7 +87,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                 <span className="text-[#d4b07b] font-serif">{currentAngleObj?.title}</span>
               </div>
 
-              {/* 👑 シネマティック・アンビエント対応ディスプレイ 👑 */}
+              {/* 👑 シネマティック・アンビエント最適化ディスプレイ 👑 */}
               <div className="aspect-[16/10] bg-[#07070a] border border-white/5 relative overflow-hidden flex items-center justify-center group">
                 {currentAngleObj?.image ? (
                   <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-[#030305]">
@@ -95,22 +95,39 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                     <img 
                       src={optimizeImage(currentAngleObj.image)} 
                       alt="" 
-                      className="absolute inset-0 w-full h-full object-cover scale-125 blur-2xl opacity-40 select-none pointer-events-none"
+                      className="absolute inset-0 w-full h-full object-cover scale-150 blur-3xl opacity-35 select-none pointer-events-none"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/60 pointer-events-none"></div>
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(143,18,29,0.18)_0%,_transparent_75%)] pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/65 pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(143,18,29,0.22)_0%,_transparent_75%)] pointer-events-none"></div>
 
-                    {/* 前面：立ち絵を中央にシャープに配置 */}
-                    <img 
-                      src={optimizeImage(currentAngleObj.image)} 
-                      alt={currentAngleObj.title || 'Vermilia View'} 
-                      className="relative z-10 max-h-full max-w-full object-contain py-3 drop-shadow-[0_15px_35px_rgba(0,0,0,0.9)] group-hover:scale-[1.03] transition-transform duration-700"
-                    />
+                    {/* 前面：立ち絵（縦いっぱい拡大 ＋ 左右ソフトフェードで境界を完全に闇へ溶かす） */}
+                    <div 
+                      className="relative z-10 h-full w-full flex items-center justify-center overflow-hidden"
+                      style={{
+                        maskImage: 'linear-gradient(to right, transparent, black 14%, black 86%, transparent)',
+                        WebkitMaskImage: 'linear-gradient(to right, transparent, black 14%, black 86%, transparent)'
+                      }}
+                    >
+                      <img 
+                        src={optimizeImage(currentAngleObj.image)} 
+                        alt={currentAngleObj.title || 'Vermilia View'} 
+                        className="h-full w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.95)] group-hover:scale-[1.03] transition-transform duration-700"
+                      />
+                    </div>
 
-                    {/* 下部テキストオーバーレイ */}
-                    <div className="absolute bottom-6 left-6 right-6 z-20 space-y-1 pointer-events-none">
-                      <div className="text-[11px] font-mono tracking-[0.3em] text-[#d4b07b] uppercase">{currentAngleObj?.subtitle}</div>
-                      <p className="text-xs text-[#d4d4d8] font-light line-clamp-2 leading-relaxed">{currentAngleObj?.desc}</p>
+                    {/* 下部HUD風テキストオーバーレイ（遮光グラデーション ＋ アクセントバー） */}
+                    <div className="absolute bottom-0 left-0 right-0 z-20 p-6 sm:p-7 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none">
+                      <div className="flex items-start gap-3.5 max-w-xl">
+                        <div className="w-0.5 h-8 bg-gradient-to-b from-[#8f121d] via-[#d4b07b] to-transparent shrink-0 mt-0.5"></div>
+                        <div className="space-y-1">
+                          <div className="text-[10px] font-mono tracking-[0.3em] text-[#d4b07b] uppercase font-medium">
+                            {currentAngleObj?.subtitle}
+                          </div>
+                          <p className="text-xs text-[#e4e4e7] font-light leading-relaxed line-clamp-2 drop-shadow-md">
+                            {currentAngleObj?.desc}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -130,14 +147,30 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                 )}
               </div>
 
-              {/* アングルセレクター */}
+              {/* アングルセレクター（選択中の発光 ＆ アクティブドットインジケーター） */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                {vermiliaAngles.map((angle) => (
-                  <button key={angle.id} onClick={() => setSelectedAngle(angle.id)} className={`p-4 text-left border transition-all cursor-pointer ${selectedAngle === angle.id ? 'border-[#8f121d] bg-[#8f121d]/10 text-white' : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20'}`}>
-                    <div className="text-[9px] font-mono text-[#52525b] mb-1.5">{angle.id}</div>
-                    <div className="text-[11px] font-serif truncate">{angle.title.split('. ')[1]}</div>
-                  </button>
-                ))}
+                {vermiliaAngles.map((angle) => {
+                  const isActive = selectedAngle === angle.id;
+                  return (
+                    <button 
+                      key={angle.id} 
+                      onClick={() => setSelectedAngle(angle.id)} 
+                      className={`p-4 text-left border transition-all cursor-pointer relative group ${
+                        isActive 
+                          ? 'border-[#8f121d] bg-[#8f121d]/15 text-white shadow-[0_0_20px_rgba(143,18,29,0.35)]' 
+                          : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20 hover:text-[#a1a1aa]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className={`text-[9px] font-mono ${isActive ? 'text-[#d4b07b]' : 'text-[#52525b]'}`}>{angle.id}</span>
+                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8f121d] animate-pulse"></span>}
+                      </div>
+                      <div className={`text-[11px] font-serif truncate ${isActive ? 'text-white font-medium' : ''}`}>
+                        {angle.title.split('. ')[1] || angle.title}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
