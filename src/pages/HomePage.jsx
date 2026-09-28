@@ -84,8 +84,9 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
 
       {/* SECTION 01: VERMILIA */}
       <section className="py-36 border-t border-white/10 bg-[#060609] relative z-10">
-        <div className="max-w-7xl mx-auto px-8 sm:px-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+        <div className="max-w-7xl mx-auto px-8 sm:px-12 space-y-12">
+          {/* セクションヘッダー */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/10 pb-8">
             <div className="space-y-3">
               <span className="text-[10px] tracking-[0.4em] text-[#8f121d] uppercase font-mono block font-semibold">01 / FLAGSHIP MODEL</span>
               <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-wide">VERMILIA</h2>
@@ -95,145 +96,131 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
             </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch">
-            <div className="lg:col-span-7 bg-[#030305] border border-white/10 p-6 sm:p-8 flex flex-col justify-between space-y-6">
-              <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-4">
-                <div className="flex items-center gap-2.5">
-                  <Aperture className="w-3.5 h-3.5 text-[#8f121d]" />
-                  <span className="text-white">CINEMATIC VIEW</span>
-                </div>
-                <span className="text-[#d4b07b] font-serif">{currentAngleObj?.title}</span>
+          {/* 👑 ワイド・ルックブック プレゼンテーション 👑 */}
+          <div className="bg-[#030305] border border-white/10 p-6 sm:p-10 space-y-8 shadow-2xl">
+            {/* 上部ステータスバー */}
+            <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2.5">
+                <Aperture className="w-3.5 h-3.5 text-[#8f121d]" />
+                <span className="text-white">CINEMATIC LOOKBOOK</span>
               </div>
-
-              {/* 👑 ルックブック・スプリット（Lookbook Split Display） 👑 */}
-              <div className="aspect-[16/11] sm:aspect-[16/10] bg-[#020204] border border-white/10 relative overflow-hidden flex flex-col md:flex-row">
-                {currentAngleObj?.image ? (
-                  <>
-                    {/* 左側：メイン写真枠（パキッとシャープに全身を表示・四隅L字クロップ付き） */}
-                    <div 
-                      onClick={() => setIsLightboxOpen(true)}
-                      className="md:w-7/12 h-64 md:h-full relative overflow-hidden flex items-center justify-center p-4 bg-[#010103] border-b md:border-b-0 md:border-r border-white/10 cursor-zoom-in group"
-                    >
-                      {/* コーナークロップマーク */}
-                      <div className="absolute top-3 left-3 w-2.5 h-2.5 border-t border-l border-white/20 pointer-events-none"></div>
-                      <div className="absolute top-3 right-3 w-2.5 h-2.5 border-t border-r border-white/20 pointer-events-none"></div>
-                      <div className="absolute bottom-3 left-3 w-2.5 h-2.5 border-b border-l border-white/20 pointer-events-none"></div>
-                      <div className="absolute bottom-3 right-3 w-2.5 h-2.5 border-b border-r border-white/20 pointer-events-none"></div>
-
-                      <img 
-                        src={optimizeImage(currentAngleObj.image)} 
-                        alt={currentAngleObj.title || 'Vermilia View'} 
-                        className="max-h-full max-w-full object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)] group-hover:scale-[1.02] transition-transform duration-500"
-                      />
-
-                      {/* 拡大案内バッジ */}
-                      <div className="absolute bottom-3.5 right-3.5 z-20 px-2.5 py-1 bg-black/80 backdrop-blur-md border border-white/15 text-[9px] font-mono text-[#d4b07b] flex items-center gap-1.5 opacity-80 group-hover:opacity-100 group-hover:border-[#8f121d] transition-all">
-                        <Maximize2 className="w-3 h-3 text-[#8f121d]" />
-                        <span>CLICK TO EXPAND</span>
-                      </div>
-                    </div>
-
-                    {/* 右側：ルックブック仕様解説 ＆ ミニマルHUDスペック */}
-                    <div className="md:w-5/12 p-6 sm:p-7 flex flex-col justify-between space-y-6 bg-[#040407]">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between text-[9px] font-mono text-[#71717a] border-b border-white/10 pb-2.5">
-                          <span className="tracking-widest uppercase">LOOKBOOK // {currentAngleObj?.id}</span>
-                          <span className="text-[#8f121d] font-bold">RUBEDO</span>
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <div className="text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase">
-                            {currentAngleObj?.subtitle}
-                          </div>
-                          <h4 className="font-serif text-lg text-white tracking-wide">
-                            {currentAngleObj?.title}
-                          </h4>
-                        </div>
-
-                        <p className="text-xs text-[#a1a1aa] font-light leading-[1.8] line-clamp-4">
-                          {currentAngleObj?.desc}
-                        </p>
-                      </div>
-
-                      {/* スペックグリッド ＆ モーダル展開ボタン */}
-                      <div className="space-y-3 pt-4 border-t border-white/10">
-                        <div className="grid grid-cols-2 gap-2 text-[9px] font-mono">
-                          <div className="p-2 border border-white/5 bg-white/[0.015]">
-                            <span className="text-[#71717a] block">RENDER</span>
-                            <span className="text-[#d4b07b]">CINEMATIC</span>
-                          </div>
-                          <div className="p-2 border border-white/5 bg-white/[0.015]">
-                            <span className="text-[#71717a] block">ASSET</span>
-                            <span className="text-white">VERMILIA</span>
-                          </div>
-                        </div>
-
-                        <button 
-                          onClick={() => setIsLightboxOpen(true)}
-                          className="w-full py-2.5 px-3 bg-white/[0.02] hover:bg-[#8f121d]/20 border border-white/10 hover:border-[#8f121d] text-[10px] font-mono tracking-[0.2em] text-white flex items-center justify-center gap-2 transition-all cursor-pointer"
-                        >
-                          <Maximize2 className="w-3.5 h-3.5 text-[#d4b07b]" />
-                          <span>FULLSCREEN VIEW</span>
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  /* 画像未設定時のフォールバック */
-                  <div className="w-full h-full flex items-center justify-center p-8 text-center">
-                    <div className="space-y-4 max-w-xs mx-auto">
-                      <div className="w-20 h-20 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center shadow-[0_0_40px_rgba(143,18,29,0.22)]">
-                        <Box className="w-10 h-10 text-[#d4b07b]" />
-                      </div>
-                      <div className="text-xs font-mono tracking-[0.3em] text-white uppercase">{currentAngleObj?.title}</div>
-                      <p className="text-xs text-[#a1a1aa] font-light leading-relaxed">{currentAngleObj?.desc}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* アングルセレクター */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                {vermiliaAngles.map((angle) => {
-                  const isActive = selectedAngle === angle.id;
-                  return (
-                    <button 
-                      key={angle.id} 
-                      onClick={() => setSelectedAngle(angle.id)} 
-                      className={`p-4 text-left border transition-all cursor-pointer relative group ${
-                        isActive 
-                          ? 'border-[#8f121d] bg-[#8f121d]/15 text-white shadow-[0_0_20px_rgba(143,18,29,0.35)]' 
-                          : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20 hover:text-[#a1a1aa]'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className={`text-[9px] font-mono ${isActive ? 'text-[#d4b07b]' : 'text-[#52525b]'}`}>{angle.id}</span>
-                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8f121d] animate-pulse"></span>}
-                      </div>
-                      <div className={`text-[11px] font-serif truncate ${isActive ? 'text-white font-medium' : ''}`}>
-                        {angle.title.split('. ')[1] || angle.title}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              <span className="text-[#d4b07b] font-serif tracking-wider">{currentAngleObj?.title}</span>
             </div>
 
-            <div className="lg:col-span-5 bg-[#030305] border border-white/10 p-10 sm:p-12 flex flex-col justify-between space-y-12">
-              <div className="space-y-8">
-                <div className="border-b border-white/10 pb-8 space-y-3">
-                  <span className="text-[10px] font-mono tracking-[0.3em] text-[#d4b07b] uppercase">THE PHILOSOPHY</span>
-                  <h3 className="font-serif text-3xl text-white">深遠なる造形と存在感</h3>
+            {/* ルックブック・スプリット表示枠 */}
+            <div className="bg-[#020204] border border-white/10 relative overflow-hidden flex flex-col lg:flex-row min-h-[480px]">
+              {currentAngleObj?.image ? (
+                <>
+                  {/* 左側：メイン写真枠（パキッとシャープに全身を表示・四隅L字クロップ付き） */}
+                  <div 
+                    onClick={() => setIsLightboxOpen(true)}
+                    className="lg:w-7/12 min-h-[380px] lg:min-h-[500px] relative overflow-hidden flex items-center justify-center p-6 bg-[#010103] border-b lg:border-b-0 lg:border-r border-white/10 cursor-zoom-in group"
+                  >
+                    {/* コーナークロップマーク */}
+                    <div className="absolute top-4 left-4 w-3 h-3 border-t border-l border-white/25 pointer-events-none"></div>
+                    <div className="absolute top-4 right-4 w-3 h-3 border-t border-r border-white/25 pointer-events-none"></div>
+                    <div className="absolute bottom-4 left-4 w-3 h-3 border-b border-l border-white/25 pointer-events-none"></div>
+                    <div className="absolute bottom-4 right-4 w-3 h-3 border-b border-r border-white/25 pointer-events-none"></div>
+
+                    <img 
+                      src={optimizeImage(currentAngleObj.image)} 
+                      alt={currentAngleObj.title || 'Vermilia View'} 
+                      className="max-h-[440px] lg:max-h-[480px] w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.95)] group-hover:scale-[1.02] transition-transform duration-500"
+                    />
+
+                    {/* 拡大案内バッジ */}
+                    <div className="absolute bottom-4 right-4 z-20 px-3 py-1.5 bg-black/80 backdrop-blur-md border border-white/15 text-[9px] font-mono text-[#d4b07b] flex items-center gap-1.5 opacity-80 group-hover:opacity-100 group-hover:border-[#8f121d] transition-all">
+                      <Maximize2 className="w-3 h-3 text-[#8f121d]" />
+                      <span>CLICK TO EXPAND</span>
+                    </div>
+                  </div>
+
+                  {/* 右側：仕様解説 ＆ BOOTH購入ボタン */}
+                  <div className="lg:w-5/12 p-8 sm:p-10 flex flex-col justify-between space-y-8 bg-[#040407]">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between text-[10px] font-mono text-[#71717a] border-b border-white/10 pb-3">
+                        <span className="tracking-widest uppercase">SPECIFICATION // {currentAngleObj?.id}</span>
+                        <span className="text-[#8f121d] font-bold">RUBEDO OFFICIAL</span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="text-[11px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase">
+                          {currentAngleObj?.subtitle}
+                        </div>
+                        <h4 className="font-serif text-2xl sm:text-3xl text-white tracking-wide">
+                          {currentAngleObj?.title}
+                        </h4>
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-[#a1a1aa] font-light leading-[1.9]">
+                        {currentAngleObj?.desc}
+                      </p>
+                    </div>
+
+                    {/* スペックグリッド ＆ BOOTH直通ボタン */}
+                    <div className="space-y-5 pt-6 border-t border-white/10">
+                      <div className="grid grid-cols-2 gap-3 text-[10px] font-mono">
+                        <div className="p-3 border border-white/5 bg-white/[0.015]">
+                          <span className="text-[#71717a] block text-[9px] mb-0.5">CATEGORY</span>
+                          <span className="text-[#d4b07b]">FLAGSHIP 3D</span>
+                        </div>
+                        <div className="p-3 border border-white/5 bg-white/[0.015]">
+                          <span className="text-[#71717a] block text-[9px] mb-0.5">PLATFORM</span>
+                          <span className="text-white">VRCHAT & UNITY</span>
+                        </div>
+                      </div>
+
+                      {/* 👑 BOOTH URL直通ボタン 👑 */}
+                      <a 
+                        href={CONFIG.LINKS.vermiliaItem} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="w-full py-4 px-6 bg-[#8f121d] hover:bg-[#a31625] text-white text-xs font-mono tracking-[0.25em] flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_0_25px_rgba(143,18,29,0.35)] cursor-pointer group"
+                      >
+                        <span>ACQUIRE ON BOOTH</span>
+                        <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                      </a>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* 画像未設定時のフォールバック */
+                <div className="w-full h-full min-h-[380px] flex items-center justify-center p-8 text-center">
+                  <div className="space-y-4 max-w-sm mx-auto">
+                    <div className="w-20 h-20 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center shadow-[0_0_40px_rgba(143,18,29,0.22)]">
+                      <Box className="w-10 h-10 text-[#d4b07b]" />
+                    </div>
+                    <div className="text-xs font-mono tracking-[0.3em] text-white uppercase">{currentAngleObj?.title}</div>
+                    <p className="text-xs text-[#a1a1aa] font-light leading-relaxed">{currentAngleObj?.desc}</p>
+                  </div>
                 </div>
-                <p className="text-xs sm:text-sm text-[#a1a1aa] leading-[2] font-light">
-                  ヴェルミリアは、RUBEDOが提示する「充足感」を物理的な造形へと昇華させたモデルです。過飾を削ぎ落としたシルエットと、光を美しく吸い込むマテリアルの設計。VR空間に身を置いた一瞬の静寂と、所有する歓びをあなたに届けます。
-                </p>
-              </div>
-              <div className="space-y-6 pt-8 border-t border-white/10">
-                <a href={CONFIG.LINKS.vermiliaItem} target="_blank" rel="noreferrer" className="w-full bg-[#8f121d] text-white text-xs font-mono tracking-[0.3em] py-5 text-center transition-all flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(143,18,29,0.35)] hover:bg-[#a31625]">
-                  ACQUIRE ON BOOTH <ArrowUpRight className="w-4 h-4" />
-                </a>
-              </div>
+              )}
+            </div>
+
+            {/* アングルセレクター */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              {vermiliaAngles.map((angle) => {
+                const isActive = selectedAngle === angle.id;
+                return (
+                  <button 
+                    key={angle.id} 
+                    onClick={() => setSelectedAngle(angle.id)} 
+                    className={`p-4 text-left border transition-all cursor-pointer relative group ${
+                      isActive 
+                        ? 'border-[#8f121d] bg-[#8f121d]/15 text-white shadow-[0_0_20px_rgba(143,18,29,0.35)]' 
+                        : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20 hover:text-[#a1a1aa]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={`text-[9px] font-mono ${isActive ? 'text-[#d4b07b]' : 'text-[#52525b]'}`}>{angle.id}</span>
+                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8f121d] animate-pulse"></span>}
+                    </div>
+                    <div className={`text-[11px] font-serif truncate ${isActive ? 'text-white font-medium' : ''}`}>
+                      {angle.title.split('. ')[1] || angle.title}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
