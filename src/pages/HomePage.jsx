@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { ArrowUpRight, ChevronRight, ChevronLeft, Aperture, Box, MessageSquare, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowUpRight, ChevronRight, ChevronLeft, Aperture, Box, MessageSquare, ExternalLink, Maximize2, X } from 'lucide-react';
 import { vermiliaAngles } from '../config/siteConfig';
 import { formatDate, getCategoryName, getAuthorName, optimizeImage } from '../utils/formatters';
 import NewsBanner from '../components/NewsBanner';
@@ -7,6 +7,24 @@ import NewsBanner from '../components/NewsBanner';
 export default function HomePage({ navigateTo, articles = [], setSelectedArticleId, selectedAngle, setSelectedAngle, CONFIG }) {
   const currentAngleObj = vermiliaAngles.find(a => a.id === selectedAngle);
   const scrollRef = useRef(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  // Escキーでライトボックスを閉じる ＆ モーダル表示中のスクロール制御
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setIsLightboxOpen(false);
+    };
+    if (isLightboxOpen) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isLightboxOpen]);
 
   const latestEightArticles = [...articles]
     .sort((a, b) => {
@@ -78,7 +96,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch">
-            <div className="lg:col-span-7 bg-[#030305] border border-white/10 p-8 sm:p-10 flex flex-col justify-between space-y-8">
+            <div className="lg:col-span-7 bg-[#030305] border border-white/10 p-6 sm:p-8 flex flex-col justify-between space-y-6">
               <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-4">
                 <div className="flex items-center gap-2.5">
                   <Aperture className="w-3.5 h-3.5 text-[#8f121d]" />
@@ -87,67 +105,94 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                 <span className="text-[#d4b07b] font-serif">{currentAngleObj?.title}</span>
               </div>
 
-              {/* 👑 シネマティック・アンビエント最適化ディスプレイ 👑 */}
-              <div className="aspect-[16/10] bg-[#07070a] border border-white/5 relative overflow-hidden flex items-center justify-center group">
+              {/* 👑 ルックブック・スプリット（Lookbook Split Display） 👑 */}
+              <div className="aspect-[16/11] sm:aspect-[16/10] bg-[#020204] border border-white/10 relative overflow-hidden flex flex-col md:flex-row">
                 {currentAngleObj?.image ? (
-                  <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-[#030305]">
-                    {/* 背景：拡大＋深いブラーで光と影の空間を形成 */}
-                    <img 
-                      src={optimizeImage(currentAngleObj.image)} 
-                      alt="" 
-                      className="absolute inset-0 w-full h-full object-cover scale-150 blur-3xl opacity-35 select-none pointer-events-none"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/65 pointer-events-none"></div>
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(143,18,29,0.22)_0%,_transparent_75%)] pointer-events-none"></div>
-
-                    {/* 前面：立ち絵（縦いっぱい拡大 ＋ 左右ソフトフェードで境界を完全に闇へ溶かす） */}
+                  <>
+                    {/* 左側：メイン写真枠（パキッとシャープに全身を表示・四隅L字クロップ付き） */}
                     <div 
-                      className="relative z-10 h-full w-full flex items-center justify-center overflow-hidden"
-                      style={{
-                        maskImage: 'linear-gradient(to right, transparent, black 14%, black 86%, transparent)',
-                        WebkitMaskImage: 'linear-gradient(to right, transparent, black 14%, black 86%, transparent)'
-                      }}
+                      onClick={() => setIsLightboxOpen(true)}
+                      className="md:w-7/12 h-64 md:h-full relative overflow-hidden flex items-center justify-center p-4 bg-[#010103] border-b md:border-b-0 md:border-r border-white/10 cursor-zoom-in group"
                     >
+                      {/* コーナークロップマーク */}
+                      <div className="absolute top-3 left-3 w-2.5 h-2.5 border-t border-l border-white/20 pointer-events-none"></div>
+                      <div className="absolute top-3 right-3 w-2.5 h-2.5 border-t border-r border-white/20 pointer-events-none"></div>
+                      <div className="absolute bottom-3 left-3 w-2.5 h-2.5 border-b border-l border-white/20 pointer-events-none"></div>
+                      <div className="absolute bottom-3 right-3 w-2.5 h-2.5 border-b border-r border-white/20 pointer-events-none"></div>
+
                       <img 
                         src={optimizeImage(currentAngleObj.image)} 
                         alt={currentAngleObj.title || 'Vermilia View'} 
-                        className="h-full w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.95)] group-hover:scale-[1.03] transition-transform duration-700"
+                        className="max-h-full max-w-full object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)] group-hover:scale-[1.02] transition-transform duration-500"
                       />
+
+                      {/* 拡大案内バッジ */}
+                      <div className="absolute bottom-3.5 right-3.5 z-20 px-2.5 py-1 bg-black/80 backdrop-blur-md border border-white/15 text-[9px] font-mono text-[#d4b07b] flex items-center gap-1.5 opacity-80 group-hover:opacity-100 group-hover:border-[#8f121d] transition-all">
+                        <Maximize2 className="w-3 h-3 text-[#8f121d]" />
+                        <span>CLICK TO EXPAND</span>
+                      </div>
                     </div>
 
-                    {/* 下部HUD風テキストオーバーレイ（遮光グラデーション ＋ アクセントバー） */}
-                    <div className="absolute bottom-0 left-0 right-0 z-20 p-6 sm:p-7 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none">
-                      <div className="flex items-start gap-3.5 max-w-xl">
-                        <div className="w-0.5 h-8 bg-gradient-to-b from-[#8f121d] via-[#d4b07b] to-transparent shrink-0 mt-0.5"></div>
-                        <div className="space-y-1">
-                          <div className="text-[10px] font-mono tracking-[0.3em] text-[#d4b07b] uppercase font-medium">
+                    {/* 右側：ルックブック仕様解説 ＆ ミニマルHUDスペック */}
+                    <div className="md:w-5/12 p-6 sm:p-7 flex flex-col justify-between space-y-6 bg-[#040407]">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between text-[9px] font-mono text-[#71717a] border-b border-white/10 pb-2.5">
+                          <span className="tracking-widest uppercase">LOOKBOOK // {currentAngleObj?.id}</span>
+                          <span className="text-[#8f121d] font-bold">RUBEDO</span>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <div className="text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase">
                             {currentAngleObj?.subtitle}
                           </div>
-                          <p className="text-xs text-[#e4e4e7] font-light leading-relaxed line-clamp-2 drop-shadow-md">
-                            {currentAngleObj?.desc}
-                          </p>
+                          <h4 className="font-serif text-lg text-white tracking-wide">
+                            {currentAngleObj?.title}
+                          </h4>
                         </div>
+
+                        <p className="text-xs text-[#a1a1aa] font-light leading-[1.8] line-clamp-4">
+                          {currentAngleObj?.desc}
+                        </p>
                       </div>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(143,18,29,0.14)_0%,_transparent_75%)] pointer-events-none"></div>
-                    <div className="text-center space-y-5 z-10 max-w-md mx-auto p-8">
-                      <div className="w-28 h-28 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center relative shadow-[0_0_60px_rgba(143,18,29,0.22)]">
-                        <Box className="w-14 h-14 text-[#d4b07b]" />
+
+                      {/* スペックグリッド ＆ モーダル展開ボタン */}
+                      <div className="space-y-3 pt-4 border-t border-white/10">
+                        <div className="grid grid-cols-2 gap-2 text-[9px] font-mono">
+                          <div className="p-2 border border-white/5 bg-white/[0.015]">
+                            <span className="text-[#71717a] block">RENDER</span>
+                            <span className="text-[#d4b07b]">CINEMATIC</span>
+                          </div>
+                          <div className="p-2 border border-white/5 bg-white/[0.015]">
+                            <span className="text-[#71717a] block">ASSET</span>
+                            <span className="text-white">VERMILIA</span>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={() => setIsLightboxOpen(true)}
+                          className="w-full py-2.5 px-3 bg-white/[0.02] hover:bg-[#8f121d]/20 border border-white/10 hover:border-[#8f121d] text-[10px] font-mono tracking-[0.2em] text-white flex items-center justify-center gap-2 transition-all cursor-pointer"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5 text-[#d4b07b]" />
+                          <span>FULLSCREEN VIEW</span>
+                        </button>
                       </div>
-                      <div className="space-y-2 pt-2">
-                        <div className="text-xs font-mono tracking-[0.35em] text-white uppercase font-medium">{currentAngleObj?.title}</div>
-                        <div className="text-xs font-serif text-[#d4b07b]">{currentAngleObj?.subtitle}</div>
-                      </div>
-                      <p className="text-xs text-[#a1a1aa] font-light leading-[1.8] pt-4 border-t border-white/10">{currentAngleObj?.desc}</p>
                     </div>
                   </>
+                ) : (
+                  /* 画像未設定時のフォールバック */
+                  <div className="w-full h-full flex items-center justify-center p-8 text-center">
+                    <div className="space-y-4 max-w-xs mx-auto">
+                      <div className="w-20 h-20 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center shadow-[0_0_40px_rgba(143,18,29,0.22)]">
+                        <Box className="w-10 h-10 text-[#d4b07b]" />
+                      </div>
+                      <div className="text-xs font-mono tracking-[0.3em] text-white uppercase">{currentAngleObj?.title}</div>
+                      <p className="text-xs text-[#a1a1aa] font-light leading-relaxed">{currentAngleObj?.desc}</p>
+                    </div>
+                  </div>
                 )}
               </div>
 
-              {/* アングルセレクター（選択中の発光 ＆ アクティブドットインジケーター） */}
+              {/* アングルセレクター */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 {vermiliaAngles.map((angle) => {
                   const isActive = selectedAngle === angle.id;
@@ -193,6 +238,53 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
           </div>
         </div>
       </section>
+
+      {/* 👑 FULLSCREEN LIGHTBOX MODAL 👑 */}
+      {isLightboxOpen && currentAngleObj?.image && (
+        <div 
+          onClick={() => setIsLightboxOpen(false)}
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-8 animate-fadeIn cursor-zoom-out"
+        >
+          {/* 右上ヘッダー / 閉じるボタン */}
+          <div className="absolute top-6 right-6 flex items-center gap-4 z-50" onClick={(e) => e.stopPropagation()}>
+            <span className="font-mono text-[10px] tracking-widest text-[#71717a] hidden sm:inline">
+              PRESS [ESC] OR CLICK ANYWHERE TO CLOSE
+            </span>
+            <button 
+              onClick={() => setIsLightboxOpen(false)}
+              className="p-2.5 border border-white/20 bg-white/5 hover:border-[#8f121d] hover:bg-[#8f121d]/20 text-white transition-all cursor-pointer group shadow-2xl"
+              aria-label="Close Lightbox"
+            >
+              <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+            </button>
+          </div>
+
+          {/* 中央フルスクリーン画像 */}
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            className="relative max-h-[85vh] max-w-[90vw] flex items-center justify-center cursor-default"
+          >
+            <img 
+              src={optimizeImage(currentAngleObj.image)} 
+              alt={currentAngleObj.title} 
+              className="max-h-[82vh] max-w-[88vw] object-contain border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.95)]"
+            />
+          </div>
+
+          {/* 下部キャプション */}
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="mt-4 text-center space-y-1 font-mono cursor-default pointer-events-none"
+          >
+            <div className="text-xs text-[#d4b07b] tracking-[0.3em] uppercase">
+              {currentAngleObj.title} — {currentAngleObj.subtitle}
+            </div>
+            <div className="text-[10px] text-[#71717a] tracking-widest uppercase">
+              RUBEDO HIGH-END ASSET ARCHIVE
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SECTION 02: 新着記事 */}
       <section className="py-36 border-t border-white/10 relative z-10 overflow-hidden">
