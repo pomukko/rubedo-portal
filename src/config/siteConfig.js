@@ -33,3 +33,21 @@ export const menuNavItems = [
   { id: 'founders', num: '04', title: 'FOUNDERS PHILOSOPHY', subtitle: '創作者プロフィール' },
   { id: 'archives', num: '05', title: 'THE ARCHIVES', subtitle: '公式ルール・ガイドライン集' }
 ];
+// src/config/siteConfig.js 内の記述イメージ
+export const vermiliaAngles = [
+  {
+    id: "FRONT_01",
+    title: "I. THE SILHOUETTE",
+    subtitle: "空間に刻まれる緊張感",
+    desc: "過度な装飾を排し、立ち姿そのものが持つ美しい重心バランス。光を吸い込む深い陰影のライン。",
+    image: "/images/vermilia/07-03__1920x1200.webp", // 
+  },
+  {
+    id: "DETAIL_MAT",
+    title: "II. LUSTER & SHADOW",
+    subtitle: "質感と光彩の追究",
+    desc: "シェーダーの極致が生み出す、深紅と漆黒のマテリアルコントラスト。",
+    image: "/images/vermilia/angle-luster.webp",
+  },
+  // ...
+];

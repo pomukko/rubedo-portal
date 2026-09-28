@@ -60,7 +60,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
           <div className="w-full h-[1px] bg-gradient-to-r from-[#8f121d]/40 via-white/10 to-transparent"></div>
         </div>
 
-        {/* ニュース欄（区切り線の下へ配置） */}
+        {/* ニュース欄 */}
         <NewsBanner navigateTo={navigateTo} />
       </section>
 
@@ -86,19 +86,40 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                 </div>
                 <span className="text-[#d4b07b] font-serif">{currentAngleObj?.title}</span>
               </div>
-              <div className="aspect-[16/10] bg-[#07070a] border border-white/5 relative overflow-hidden flex items-center justify-center p-10 group">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(143,18,29,0.14)_0%,_transparent_75%)] pointer-events-none"></div>
-                <div className="text-center space-y-5 z-10 max-w-md mx-auto">
-                  <div className="w-28 h-28 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center relative shadow-[0_0_60px_rgba(143,18,29,0.22)]">
-                    <Box className="w-14 h-14 text-[#d4b07b]" />
-                  </div>
-                  <div className="space-y-2 pt-2">
-                    <div className="text-xs font-mono tracking-[0.35em] text-white uppercase font-medium">{currentAngleObj?.title}</div>
-                    <div className="text-xs font-serif text-[#d4b07b]">{currentAngleObj?.subtitle}</div>
-                  </div>
-                  <p className="text-xs text-[#a1a1aa] font-light leading-[1.8] pt-4 border-t border-white/10">{currentAngleObj?.desc}</p>
-                </div>
+
+              {/* 👑 画像表示対応 CINEMATIC VIEW ディスプレイ 👑 */}
+              <div className="aspect-[16/10] bg-[#07070a] border border-white/5 relative overflow-hidden flex items-center justify-center group">
+                {currentAngleObj?.image ? (
+                  <>
+                    <img 
+                      src={optimizeImage(currentAngleObj.image)} 
+                      alt={currentAngleObj.title || 'Vermilia View'} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none"></div>
+                    <div className="absolute bottom-6 left-6 right-6 z-10 space-y-1">
+                      <div className="text-[11px] font-mono tracking-[0.3em] text-[#d4b07b] uppercase">{currentAngleObj?.subtitle}</div>
+                      <p className="text-xs text-[#d4d4d8] font-light line-clamp-2 leading-relaxed">{currentAngleObj?.desc}</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(143,18,29,0.14)_0%,_transparent_75%)] pointer-events-none"></div>
+                    <div className="text-center space-y-5 z-10 max-w-md mx-auto p-8">
+                      <div className="w-28 h-28 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center relative shadow-[0_0_60px_rgba(143,18,29,0.22)]">
+                        <Box className="w-14 h-14 text-[#d4b07b]" />
+                      </div>
+                      <div className="space-y-2 pt-2">
+                        <div className="text-xs font-mono tracking-[0.35em] text-white uppercase font-medium">{currentAngleObj?.title}</div>
+                        <div className="text-xs font-serif text-[#d4b07b]">{currentAngleObj?.subtitle}</div>
+                      </div>
+                      <p className="text-xs text-[#a1a1aa] font-light leading-[1.8] pt-4 border-t border-white/10">{currentAngleObj?.desc}</p>
+                    </div>
+                  </>
+                )}
               </div>
+
+              {/* アングル切り替えセレクター */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 {vermiliaAngles.map((angle) => (
                   <button key={angle.id} onClick={() => setSelectedAngle(angle.id)} className={`p-4 text-left border transition-all cursor-pointer ${selectedAngle === angle.id ? 'border-[#8f121d] bg-[#8f121d]/10 text-white' : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20'}`}>
