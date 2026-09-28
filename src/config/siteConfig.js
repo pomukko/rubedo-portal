@@ -31,21 +31,21 @@ export const vermiliaAngles = [
     title: 'II. LUSTER & SHADOW',
     subtitle: '深紅と黒が魅せる質感',
     desc: '微細な光の乱反射。現実の金属や布地が抱く「冷たさ」と「重み」をデジタル空間へ昇華。',
-    image: ''
+    image: '/images/vermilia/07-03_2_1920x1200.webp'
   },
   {
     id: 'GIMMICK_ACC',
     title: 'III. GEOMETRY ART',
     subtitle: '細部に宿る幾何学',
     desc: '主張しすぎず、しかし暗がりの中でも確かに自立した存在感を放つ繊細なアクセサリ造形。',
-    image: ''
+    image: '/images/vermilia/07-03_3_1920x1200.webp'
   },
   {
     id: 'TOPOLOGY_MESH',
     title: 'IV. HARMONY OF FORM',
     subtitle: '流動する破綻なき構造',
     desc: '動的な美しいラインを損なわないよう、ミリ単位で吟味されたポリゴン流動とフォルムの美。',
-    image: ''
+    image: '/images/vermilia/07-03_4_1920x1200.webp'
   }
 ];
 
