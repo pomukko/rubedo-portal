@@ -96,8 +96,8 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
             </button>
           </div>
 
-          {/* 👑 ワイド・ルックブック プレゼンテーション 👑 */}
-          <div className="bg-[#030305] border border-white/10 p-6 sm:p-10 space-y-8 shadow-2xl">
+          {/* 👑 画像メイン・ワイドプレゼンテーション 👑 */}
+          <div className="bg-[#030305] border border-white/10 p-6 sm:p-8 lg:p-10 space-y-10 shadow-2xl">
             {/* 上部ステータスバー */}
             <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-4">
               <div className="flex items-center gap-2.5">
@@ -107,25 +107,25 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               <span className="text-[#d4b07b] font-serif tracking-wider">{currentAngleObj?.title}</span>
             </div>
 
-            {/* ルックブック・スプリット表示枠 */}
-            <div className="bg-[#020204] border border-white/10 relative overflow-hidden flex flex-col lg:flex-row min-h-[480px]">
+            {/* ルックブック表示枠（画像72%：解説28%のハイエンド比率） */}
+            <div className="bg-[#020204] border border-white/10 relative overflow-hidden flex flex-col lg:flex-row min-h-[520px] lg:min-h-[580px]">
               {currentAngleObj?.image ? (
                 <>
-                  {/* 左側：メイン写真枠（パキッとシャープに全身を表示・四隅L字クロップ付き） */}
+                  {/* 🌟 左側：特大メイン写真枠（画面の主役として大きく配置） 🌟 */}
                   <div 
                     onClick={() => setIsLightboxOpen(true)}
-                    className="lg:w-7/12 min-h-[380px] lg:min-h-[500px] relative overflow-hidden flex items-center justify-center p-6 bg-[#010103] border-b lg:border-b-0 lg:border-r border-white/10 cursor-zoom-in group"
+                    className="lg:w-[72%] xl:w-[74%] min-h-[420px] sm:min-h-[480px] lg:min-h-[580px] relative overflow-hidden flex items-center justify-center p-4 sm:p-8 bg-[#010103] border-b lg:border-b-0 lg:border-r border-white/10 cursor-zoom-in group"
                   >
-                    {/* コーナークロップマーク */}
-                    <div className="absolute top-4 left-4 w-3 h-3 border-t border-l border-white/25 pointer-events-none"></div>
-                    <div className="absolute top-4 right-4 w-3 h-3 border-t border-r border-white/25 pointer-events-none"></div>
-                    <div className="absolute bottom-4 left-4 w-3 h-3 border-b border-l border-white/25 pointer-events-none"></div>
-                    <div className="absolute bottom-4 right-4 w-3 h-3 border-b border-r border-white/25 pointer-events-none"></div>
+                    {/* 四隅の極細L字クロップマーク */}
+                    <div className="absolute top-4 left-4 w-3.5 h-3.5 border-t border-l border-white/25 pointer-events-none"></div>
+                    <div className="absolute top-4 right-4 w-3.5 h-3.5 border-t border-r border-white/25 pointer-events-none"></div>
+                    <div className="absolute bottom-4 left-4 w-3.5 h-3.5 border-b border-l border-white/25 pointer-events-none"></div>
+                    <div className="absolute bottom-4 right-4 w-3.5 h-3.5 border-b border-r border-white/25 pointer-events-none"></div>
 
                     <img 
                       src={optimizeImage(currentAngleObj.image)} 
                       alt={currentAngleObj.title || 'Vermilia View'} 
-                      className="max-h-[440px] lg:max-h-[480px] w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.95)] group-hover:scale-[1.02] transition-transform duration-500"
+                      className="max-h-[480px] sm:max-h-[520px] lg:max-h-[550px] w-auto max-w-full object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.98)] group-hover:scale-[1.015] transition-transform duration-500"
                     />
 
                     {/* 拡大案内バッジ */}
@@ -135,57 +135,57 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                     </div>
                   </div>
 
-                  {/* 右側：仕様解説 ＆ BOOTH購入ボタン */}
-                  <div className="lg:w-5/12 p-8 sm:p-10 flex flex-col justify-between space-y-8 bg-[#040407]">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-[#71717a] border-b border-white/10 pb-3">
-                        <span className="tracking-widest uppercase">SPECIFICATION // {currentAngleObj?.id}</span>
-                        <span className="text-[#8f121d] font-bold">RUBEDO OFFICIAL</span>
+                  {/* 🌟 右側：コンパクト・サイドインスペクター（右端にスッキリ配置） 🌟 */}
+                  <div className="lg:w-[28%] xl:w-[26%] p-6 sm:p-7 lg:p-6 xl:p-8 flex flex-col justify-between space-y-6 bg-[#040407]">
+                    <div className="space-y-5">
+                      <div className="flex items-center justify-between text-[9px] font-mono text-[#71717a] border-b border-white/10 pb-2.5">
+                        <span className="tracking-widest uppercase">{currentAngleObj?.id}</span>
+                        <span className="text-[#8f121d] font-bold">SPEC // 01</span>
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="text-[11px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase">
+                      <div className="space-y-1.5">
+                        <div className="text-[10px] font-mono tracking-[0.2em] text-[#d4b07b] uppercase">
                           {currentAngleObj?.subtitle}
                         </div>
-                        <h4 className="font-serif text-2xl sm:text-3xl text-white tracking-wide">
+                        <h4 className="font-serif text-xl sm:text-2xl text-white tracking-wide leading-snug">
                           {currentAngleObj?.title}
                         </h4>
                       </div>
 
-                      <p className="text-xs sm:text-sm text-[#a1a1aa] font-light leading-[1.9]">
+                      <p className="text-xs text-[#a1a1aa] font-light leading-[1.85]">
                         {currentAngleObj?.desc}
                       </p>
                     </div>
 
-                    {/* スペックグリッド ＆ BOOTH直通ボタン */}
-                    <div className="space-y-5 pt-6 border-t border-white/10">
-                      <div className="grid grid-cols-2 gap-3 text-[10px] font-mono">
-                        <div className="p-3 border border-white/5 bg-white/[0.015]">
-                          <span className="text-[#71717a] block text-[9px] mb-0.5">CATEGORY</span>
+                    {/* 下部スペック ＆ BOOTHボタン */}
+                    <div className="space-y-4 pt-5 border-t border-white/10">
+                      <div className="grid grid-cols-2 gap-2 text-[9px] font-mono">
+                        <div className="p-2.5 border border-white/5 bg-white/[0.015]">
+                          <span className="text-[#71717a] block text-[8px] mb-0.5 uppercase">CATEGORY</span>
                           <span className="text-[#d4b07b]">FLAGSHIP 3D</span>
                         </div>
-                        <div className="p-3 border border-white/5 bg-white/[0.015]">
-                          <span className="text-[#71717a] block text-[9px] mb-0.5">PLATFORM</span>
-                          <span className="text-white">VRCHAT & UNITY</span>
+                        <div className="p-2.5 border border-white/5 bg-white/[0.015]">
+                          <span className="text-[#71717a] block text-[8px] mb-0.5 uppercase">PLATFORM</span>
+                          <span className="text-white">VRCHAT</span>
                         </div>
                       </div>
 
-                      {/* 👑 BOOTH URL直通ボタン 👑 */}
+                      {/* ACQUIRE ON BOOTH 直通ボタン */}
                       <a 
                         href={CONFIG.LINKS.vermiliaItem} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="w-full py-4 px-6 bg-[#8f121d] hover:bg-[#a31625] text-white text-xs font-mono tracking-[0.25em] flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_0_25px_rgba(143,18,29,0.35)] cursor-pointer group"
+                        className="w-full py-3.5 px-4 bg-[#8f121d] hover:bg-[#a31625] text-white text-[11px] font-mono tracking-[0.2em] flex items-center justify-center gap-2 transition-all duration-300 shadow-[0_0_25px_rgba(143,18,29,0.35)] cursor-pointer group"
                       >
                         <span>ACQUIRE ON BOOTH</span>
-                        <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                       </a>
                     </div>
                   </div>
                 </>
               ) : (
                 /* 画像未設定時のフォールバック */
-                <div className="w-full h-full min-h-[380px] flex items-center justify-center p-8 text-center">
+                <div className="w-full h-full min-h-[420px] flex items-center justify-center p-8 text-center">
                   <div className="space-y-4 max-w-sm mx-auto">
                     <div className="w-20 h-20 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center shadow-[0_0_40px_rgba(143,18,29,0.22)]">
                       <Box className="w-10 h-10 text-[#d4b07b]" />
@@ -197,30 +197,36 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               )}
             </div>
 
-            {/* アングルセレクター */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              {vermiliaAngles.map((angle) => {
-                const isActive = selectedAngle === angle.id;
-                return (
-                  <button 
-                    key={angle.id} 
-                    onClick={() => setSelectedAngle(angle.id)} 
-                    className={`p-4 text-left border transition-all cursor-pointer relative group ${
-                      isActive 
-                        ? 'border-[#8f121d] bg-[#8f121d]/15 text-white shadow-[0_0_20px_rgba(143,18,29,0.35)]' 
-                        : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20 hover:text-[#a1a1aa]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className={`text-[9px] font-mono ${isActive ? 'text-[#d4b07b]' : 'text-[#52525b]'}`}>{angle.id}</span>
-                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8f121d] animate-pulse"></span>}
-                    </div>
-                    <div className={`text-[11px] font-serif truncate ${isActive ? 'text-white font-medium' : ''}`}>
-                      {angle.title.split('. ')[1] || angle.title}
-                    </div>
-                  </button>
-                );
-              })}
+            {/* 🌟 アングルセレクター（画像から間隔を空けて下部にゆったり配置） 🌟 */}
+            <div className="pt-6 border-t border-white/5">
+              <div className="flex items-center justify-between mb-3 text-[10px] font-mono text-[#71717a]">
+                <span className="tracking-[0.25em] uppercase">PERSPECTIVE ANGLE SELECTOR</span>
+                <span>04 PERSPECTIVES</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                {vermiliaAngles.map((angle) => {
+                  const isActive = selectedAngle === angle.id;
+                  return (
+                    <button 
+                      key={angle.id} 
+                      onClick={() => setSelectedAngle(angle.id)} 
+                      className={`p-4 sm:p-5 text-left border transition-all cursor-pointer relative group ${
+                        isActive 
+                          ? 'border-[#8f121d] bg-[#8f121d]/15 text-white shadow-[0_0_25px_rgba(143,18,29,0.4)]' 
+                          : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20 hover:text-[#a1a1aa]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`text-[9px] font-mono tracking-wider ${isActive ? 'text-[#d4b07b]' : 'text-[#52525b]'}`}>{angle.id}</span>
+                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8f121d] animate-pulse"></span>}
+                      </div>
+                      <div className={`text-xs font-serif truncate ${isActive ? 'text-white font-medium' : ''}`}>
+                        {angle.title.split('. ')[1] || angle.title}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
