@@ -82,41 +82,41 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
         <NewsBanner navigateTo={navigateTo} />
       </section>
 
-      {/* SECTION 01: VERMILIA */}
-      <section className="py-24 sm:py-32 border-t border-white/10 bg-[#060609] relative z-10">
-        <div className="max-w-7xl mx-auto px-8 sm:px-12 space-y-8">
-          {/* セクションヘッダー */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/10 pb-6">
-            <div className="space-y-2">
+      {/* SECTION 01: VERMILIA（セクション全体の余白をスマートに圧縮） */}
+      <section className="pt-16 pb-24 border-t border-white/10 bg-[#060609] relative z-10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 space-y-5">
+          {/* セクションヘッダー（高さを抑えてコンパクトに） */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4">
+            <div className="space-y-1.5">
               <span className="text-[10px] tracking-[0.4em] text-[#8f121d] uppercase font-mono block font-semibold">01 / FLAGSHIP MODEL</span>
-              <h2 className="font-serif text-4xl sm:text-5xl text-white tracking-wide">VERMILIA</h2>
+              <h2 className="font-serif text-3xl sm:text-4xl text-white tracking-wide">VERMILIA</h2>
             </div>
             <button onClick={() => navigateTo('vermilia')} className="text-xs text-[#d4b07b] font-mono tracking-[0.25em] flex items-center gap-2 hover:text-white transition-colors cursor-pointer">
               EXPLORE SPECIAL PAGE <ArrowUpRight className="w-4 h-4 text-[#8f121d]" />
             </button>
           </div>
 
-          {/* 👑 画像メイン・1画面完結型プレゼンテーション 👑 */}
-          <div className="bg-[#030305] border border-white/10 p-4 sm:p-6 lg:p-7 space-y-4 shadow-2xl">
+          {/* 👑 画像最大化 プレゼンテーション 👑 */}
+          <div className="bg-[#030305] border border-white/10 p-3 sm:p-5 space-y-3 shadow-2xl">
             {/* 上部ステータスバー */}
-            <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-3">
-              <div className="flex items-center gap-2.5">
+            <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-2 px-1">
+              <div className="flex items-center gap-2">
                 <Aperture className="w-3.5 h-3.5 text-[#8f121d]" />
                 <span className="text-white">CINEMATIC LOOKBOOK</span>
               </div>
               <span className="text-[#d4b07b] font-serif tracking-wider">{currentAngleObj?.title}</span>
             </div>
 
-            {/* ルックブック表示枠（画面内にすっきり収まる高さに最適化） */}
-            <div className="bg-[#020204] border border-white/10 relative overflow-hidden flex flex-col lg:flex-row h-auto lg:h-[470px]">
+            {/* ルックブック表示枠（高さを550px級に復元して画像を大きく表示） */}
+            <div className="bg-[#020204] border border-white/10 relative overflow-hidden flex flex-col lg:flex-row min-h-[460px] sm:min-h-[500px] lg:h-[550px]">
               {currentAngleObj?.image ? (
                 <>
-                  {/* 左側：特大メイン写真枠（余白を削り画面いっぱいに表示） */}
+                  {/* 🌟 メイン写真枠（画像スペースを約74%確保し、上限530pxまでフル活用） 🌟 */}
                   <div 
                     onClick={() => setIsLightboxOpen(true)}
-                    className="lg:w-[72%] xl:w-[74%] h-[360px] sm:h-[400px] lg:h-full relative overflow-hidden flex items-center justify-center p-3 sm:p-6 bg-[#010103] border-b lg:border-b-0 lg:border-r border-white/10 cursor-zoom-in group"
+                    className="lg:w-[74%] xl:w-[76%] h-[380px] sm:h-[450px] lg:h-full relative overflow-hidden flex items-center justify-center p-3 sm:p-5 bg-[#010103] border-b lg:border-b-0 lg:border-r border-white/10 cursor-zoom-in group"
                   >
-                    {/* 四隅の極細L字クロップマーク */}
+                    {/* コーナークロップマーク */}
                     <div className="absolute top-3 left-3 w-3 h-3 border-t border-l border-white/25 pointer-events-none"></div>
                     <div className="absolute top-3 right-3 w-3 h-3 border-t border-r border-white/25 pointer-events-none"></div>
                     <div className="absolute bottom-3 left-3 w-3 h-3 border-b border-l border-white/25 pointer-events-none"></div>
@@ -125,7 +125,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                     <img 
                       src={optimizeImage(currentAngleObj.image)} 
                       alt={currentAngleObj.title || 'Vermilia View'} 
-                      className="max-h-[330px] sm:max-h-[370px] lg:max-h-[440px] w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.95)] group-hover:scale-[1.015] transition-transform duration-500"
+                      className="max-h-[350px] sm:max-h-[420px] lg:max-h-[530px] w-auto max-w-full object-contain drop-shadow-[0_20px_45px_rgba(0,0,0,0.95)] group-hover:scale-[1.015] transition-transform duration-500"
                     />
 
                     {/* 拡大案内バッジ */}
@@ -135,8 +135,8 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                     </div>
                   </div>
 
-                  {/* 右側：スマート・サイドインスペクター */}
-                  <div className="lg:w-[28%] xl:w-[26%] p-5 sm:p-6 flex flex-col justify-between space-y-4 bg-[#040407]">
+                  {/* 🌟 右側：サイドインスペクター（右端にスリムに常駐） 🌟 */}
+                  <div className="lg:w-[26%] xl:w-[24%] p-5 sm:p-6 flex flex-col justify-between space-y-4 bg-[#040407]">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-[9px] font-mono text-[#71717a] border-b border-white/10 pb-2">
                         <span className="tracking-widest uppercase">{currentAngleObj?.id}</span>
@@ -174,7 +174,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                         href={CONFIG.LINKS.vermiliaItem} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="w-full py-3 px-4 bg-[#8f121d] hover:bg-[#a31625] text-white text-[11px] font-mono tracking-[0.2em] flex items-center justify-center gap-2 transition-all duration-300 shadow-[0_0_20px_rgba(143,18,29,0.35)] cursor-pointer group"
+                        className="w-full py-3 px-3 bg-[#8f121d] hover:bg-[#a31625] text-white text-[11px] font-mono tracking-[0.2em] flex items-center justify-center gap-2 transition-all duration-300 shadow-[0_0_20px_rgba(143,18,29,0.35)] cursor-pointer group"
                       >
                         <span>ACQUIRE ON BOOTH</span>
                         <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -183,8 +183,8 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                   </div>
                 </>
               ) : (
-                /* 画像未設定時のフォールバック */
-                <div className="w-full h-full min-h-[360px] flex items-center justify-center p-8 text-center">
+                /* 画像未設定時フォールバック */
+                <div className="w-full h-full min-h-[400px] flex items-center justify-center p-8 text-center">
                   <div className="space-y-4 max-w-sm mx-auto">
                     <div className="w-16 h-16 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center shadow-[0_0_40px_rgba(143,18,29,0.22)]">
                       <Box className="w-8 h-8 text-[#d4b07b]" />
@@ -196,15 +196,15 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               )}
             </div>
 
-            {/* 🌟 アングルセレクター（余計な隙間を全廃し、直下にスリム配置） 🌟 */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-1">
+            {/* 🌟 アングルセレクター（余計なマージンを排除して直下に吸着） 🌟 */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
               {vermiliaAngles.map((angle) => {
                 const isActive = selectedAngle === angle.id;
                 return (
                   <button 
                     key={angle.id} 
                     onClick={() => setSelectedAngle(angle.id)} 
-                    className={`py-3 px-3.5 sm:px-4 text-left border transition-all cursor-pointer relative group ${
+                    className={`py-2.5 px-3.5 text-left border transition-all cursor-pointer relative group ${
                       isActive 
                         ? 'border-[#8f121d] bg-[#8f121d]/15 text-white shadow-[0_0_20px_rgba(143,18,29,0.35)]' 
                         : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20 hover:text-[#a1a1aa]'
@@ -231,7 +231,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
           onClick={() => setIsLightboxOpen(false)}
           className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-8 animate-fadeIn cursor-zoom-out"
         >
-          {/* 右上ヘッダー / 閉じるボタン */}
           <div className="absolute top-6 right-6 flex items-center gap-4 z-50" onClick={(e) => e.stopPropagation()}>
             <span className="font-mono text-[10px] tracking-widest text-[#71717a] hidden sm:inline">
               PRESS [ESC] OR CLICK ANYWHERE TO CLOSE
@@ -245,7 +244,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
             </button>
           </div>
 
-          {/* 中央フルスクリーン画像 */}
           <div 
             onClick={(e) => e.stopPropagation()} 
             className="relative max-h-[85vh] max-w-[90vw] flex items-center justify-center cursor-default"
@@ -257,7 +255,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
             />
           </div>
 
-          {/* 下部キャプション */}
           <div 
             onClick={(e) => e.stopPropagation()}
             className="mt-4 text-center space-y-1 font-mono cursor-default pointer-events-none"
