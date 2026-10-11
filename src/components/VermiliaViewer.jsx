@@ -11,7 +11,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import {
   RotateCcw,
-  Eye,
   Layers,
   Sparkles,
   Maximize2,
@@ -20,34 +19,24 @@ import {
   Cpu,
   Shield,
   Activity,
-  Box,
-  Grid,
-  Sun,
   Crosshair,
-  Clapperboard
+  Clapperboard,
+  SlidersHorizontal
 } from 'lucide-react';
 
 const MODEL_PATH = '/models/vermilia.vrm';
 
-const BRAND_COLORS = {
-  bg: '#040406',
-  crimson: '#8f121d',
-  crimsonGaze: '#ff1e38',
-  gold: '#d4b07b',
-};
-
 const PARTS_CONFIG = [
-  { id: 'Body', label: 'BODY (素体)', required: true, icon: Shield },
+  { id: 'Body', label: 'BODY (素体・インナー)', required: true, icon: Shield },
   { id: 'Costume', label: 'COSTUME (衣装・外套)', required: false, icon: Layers },
   { id: 'Horns', label: 'HORNS (真紅の角)', required: false, icon: Sparkles },
-  { id: 'Mask', label: 'MASK (仮面)', required: false, icon: Eye },
   { id: 'Accessories', label: 'ACCESSORIES (装飾具)', required: false, icon: Activity },
 ];
 
 const CAMERA_PRESETS = {
   FULL: {
     name: 'FULL BODY',
-    position: [0, 0.95, 3.5],
+    position: [0, 0.95, 3.4],
     target: [0, 0.8, 0],
   },
   FACE: {
@@ -62,34 +51,40 @@ const CAMERA_PRESETS = {
   },
 };
 
-// ==========================================
-// 🌟 ブラウザ内・動的テクスチャ軽量化関数
-// ==========================================
-function optimizeTextureInBrowser(texture, maxSize = 1024) {
-  if (!texture || !texture.image) return;
-  const img = texture.image;
-  const w = img.width || (img.videoWidth || 0);
-  const h = img.height || (img.videoHeight || 0);
+// パーツ分類判定
+function classifyPart(meshName, matName) {
+  const text = `${meshName} ${matName}`.toLowerCase();
 
-  if (w > maxSize || h > maxSize) {
-    try {
-      const canvas = document.createElement('canvas');
-      const scale = Math.min(maxSize / w, maxSize / h);
-      canvas.width = Math.round(w * scale);
-      canvas.height = Math.round(h * scale);
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      texture.image = canvas;
-      texture.needsUpdate = true;
-    } catch (e) {
-      // CORS制限などの例外時はフォールバック
-    }
+  if (text.includes('horn') || text.includes('tsuno')) return 'Horns';
+  if (
+    text.includes('acc') ||
+    text.includes('ribbon') ||
+    text.includes('cross') ||
+    text.includes('belt') ||
+    text.includes('ornament') ||
+    text.includes('chain') ||
+    text.includes('pierce')
+  ) {
+    return 'Accessories';
   }
+  if (
+    text.includes('skirt') ||
+    text.includes('outer') ||
+    text.includes('cape') ||
+    text.includes('jacket') ||
+    text.includes('coat') ||
+    text.includes('shoes') ||
+    text.includes('boots')
+  ) {
+    return 'Costume';
+  }
+
+  return 'Body';
 }
 
 // 超軽量パーティクル
 function AmbientParticles() {
-  const count = 60;
+  const count = 35;
   const [positions, colors] = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const col = new Float32Array(count * 3);
@@ -115,7 +110,7 @@ function AmbientParticles() {
 
   useFrame((_, delta) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.08;
+      groupRef.current.rotation.y += delta * 0.05;
     }
   });
 
@@ -130,7 +125,7 @@ function AmbientParticles() {
           size={0.02}
           vertexColors
           transparent
-          opacity={0.5}
+          opacity={0.45}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
@@ -194,31 +189,31 @@ function HologramPodium() {
   const innerRingRef = useRef();
 
   useFrame((_, delta) => {
-    if (outerRingRef.current) outerRingRef.current.rotation.z += delta * 0.12;
-    if (innerRingRef.current) innerRingRef.current.rotation.z -= delta * 0.2;
+    if (outerRingRef.current) outerRingRef.current.rotation.z += delta * 0.08;
+    if (innerRingRef.current) innerRingRef.current.rotation.z -= delta * 0.12;
   });
 
   return (
     <group position={[0, 0.002, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <mesh ref={outerRingRef}>
-        <ringGeometry args={[1.35, 1.37, 64]} />
-        <meshBasicMaterial color="#8f121d" transparent opacity={0.4} side={THREE.DoubleSide} />
+        <ringGeometry args={[1.35, 1.37, 36]} />
+        <meshBasicMaterial color="#8f121d" transparent opacity={0.35} side={THREE.DoubleSide} />
       </mesh>
       <mesh ref={innerRingRef}>
-        <ringGeometry args={[1.1, 1.115, 48]} />
-        <meshBasicMaterial color="#d4b07b" transparent opacity={0.35} side={THREE.DoubleSide} />
+        <ringGeometry args={[1.1, 1.115, 32]} />
+        <meshBasicMaterial color="#d4b07b" transparent opacity={0.3} side={THREE.DoubleSide} />
       </mesh>
       <mesh>
-        <ringGeometry args={[0.65, 0.66, 48]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.12} side={THREE.DoubleSide} />
+        <ringGeometry args={[0.65, 0.66, 32]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.1} side={THREE.DoubleSide} />
       </mesh>
       <mesh position={[0, 0, -0.001]}>
         <planeGeometry args={[2.8, 0.004]} />
-        <meshBasicMaterial color="#8f121d" transparent opacity={0.18} />
+        <meshBasicMaterial color="#8f121d" transparent opacity={0.15} />
       </mesh>
       <mesh position={[0, 0, -0.001]} rotation={[0, 0, Math.PI / 2]}>
         <planeGeometry args={[2.8, 0.004]} />
-        <meshBasicMaterial color="#8f121d" transparent opacity={0.18} />
+        <meshBasicMaterial color="#8f121d" transparent opacity={0.15} />
       </mesh>
     </group>
   );
@@ -252,16 +247,16 @@ function LoadingHUD({ customProgress }) {
 }
 
 // ==========================================
-// VRMモデルローダー（美肌＆目元保護・超軽量版）
+// VRMモデルローダー（完全UNLIT・原画忠実出力版）
 // ==========================================
-function VermiliaVRMModel({ partsVisibility, shadingMode, onNodesDetected, setLoadProgress }) {
+function VermiliaVRMModel({ partsVisibility, onNodesDetected, setLoadProgress }) {
   const [vrm, setVrm] = useState(null);
+  const isLoadingInitiated = useRef(false);
 
   const partsMeshMapRef = useRef({
     Body: [],
     Costume: [],
     Horns: [],
-    Mask: [],
     Accessories: [],
   });
 
@@ -273,6 +268,9 @@ function VermiliaVRMModel({ partsVisibility, shadingMode, onNodesDetected, setLo
   });
 
   useEffect(() => {
+    if (isLoadingInitiated.current) return;
+    isLoadingInitiated.current = true;
+
     const loader = new GLTFLoader();
     loader.register((parser) => new VRMLoaderPlugin(parser));
 
@@ -301,81 +299,63 @@ function VermiliaVRMModel({ partsVisibility, shadingMode, onNodesDetected, setLo
           loadedVrm.scene.position.y = -box.min.y;
         }
 
-        const detected = new Set();
-        const map = { Body: [], Costume: [], Horns: [], Mask: [], Accessories: [] };
+        const detected = new Set(['Body']);
+        const map = { Body: [], Costume: [], Horns: [], Accessories: [] };
 
         loadedVrm.scene.traverse((child) => {
           if (child.isMesh) {
             child.castShadow = false;
             child.receiveShadow = false;
+            child.frustumCulled = false;
 
-            const matName = (child.material?.name || '').toLowerCase();
             const meshName = (child.name || '').toLowerCase();
+            const originalMats = Array.isArray(child.material)
+              ? child.material
+              : child.material ? [child.material] : [];
 
-            const materials = Array.isArray(child.material) ? child.material : [child.material];
-            materials.forEach((mat) => {
-              if (!child.userData.origMaterial) {
-                child.userData.origMaterial = mat;
-              }
+            // すべてのマテリアルを完全UNLIT（MeshBasicMaterial）へ変換
+            const createBasicMat = (m) => {
+              if (m.map) m.map.colorSpace = THREE.SRGBColorSpace;
+              return new THREE.MeshBasicMaterial({
+                map: m.map || null,
+                color: m.color ? m.color.clone() : new THREE.Color(1, 1, 1),
+                transparent: m.transparent,
+                alphaTest: m.alphaTest > 0 ? m.alphaTest : 0.01,
+                depthWrite: m.depthWrite,
+                side: m.side || THREE.FrontSide,
+              });
+            };
 
-              // 🌟 テクスチャをブラウザ上で安全に1024pxへ動的縮小（VRAM爆速化）
-              if (mat.map) optimizeTextureInBrowser(mat.map, 1024);
+            if (Array.isArray(child.material)) {
+              child.material = child.material.map(createBasicMat);
+            } else if (child.material) {
+              child.material = createBasicMat(child.material);
+            }
 
-              const isEye = matName.includes('eye') || matName.includes('hitomi') || meshName.includes('eye');
-              const isFaceSkin = (matName.includes('face') || matName.includes('kao') || matName.includes('head')) && !isEye;
-              const isBodySkin = (matName.includes('body') || matName.includes('skin') || matName.includes('hada')) && !isEye;
-              const isHorns = matName.includes('horn') || matName.includes('tsuno') || meshName.includes('horn');
-
-              // A. 瞳・アイライン：一切変更せず本来の美しいテクスチャ色を100%保護！
-              if (isEye) {
-                if ('shadingShiftFactor' in mat) mat.shadingShiftFactor = 0.0;
-              }
-              // B. 顔の肌：セルフシャドウだけ除去（白飛びさせずテクスチャを生かす）
-              else if (isFaceSkin) {
-                if ('shadingShiftFactor' in mat) mat.shadingShiftFactor = -0.5;
-                if ('shadingToonyFactor' in mat) mat.shadingToonyFactor = 0.95;
-              }
-              // C. 体の肌：ほんのり血色影
-              else if (isBodySkin) {
-                if ('shadingShiftFactor' in mat) mat.shadingShiftFactor = -0.2;
-                if (mat.shadeColorFactor) mat.shadeColorFactor.set('#f3ded7');
-              }
-              // D. 角：深紅のルビートーン
-              else if (isHorns) {
-                if ('shadingShiftFactor' in mat) mat.shadingShiftFactor = 0.1;
-                if (mat.shadeColorFactor) mat.shadeColorFactor.set('#660b14');
-              }
-
-              mat.needsUpdate = true;
-            });
-
-            PARTS_CONFIG.forEach((p) => {
-              if (
-                meshName.includes(p.id.toLowerCase()) ||
-                (child.parent && child.parent.name.toLowerCase().includes(p.id.toLowerCase()))
-              ) {
-                map[p.id].push(child);
-                detected.add(p.id);
-              }
-            });
+            const matName = (originalMats[0]?.name || '').toLowerCase();
+            const category = classifyPart(meshName, matName);
+            if (map[category]) {
+              map[category].push(child);
+              detected.add(category);
+            }
           }
         });
 
         partsMeshMapRef.current = map;
 
-        if (detected.size > 0 && onNodesDetected) {
+        if (onNodesDetected) {
           onNodesDetected(Array.from(detected));
         }
 
         setVrm(loadedVrm);
       },
       (progress) => {
-        if (progress.total > 0) {
+        if (progress.total > 0 && setLoadProgress) {
           setLoadProgress((progress.loaded / progress.total) * 100);
         }
       }
     );
-  }, [onNodesDetected, setLoadProgress]);
+  }, []);
 
   // パーツ可視性切替
   useEffect(() => {
@@ -391,22 +371,7 @@ function VermiliaVRMModel({ partsVisibility, shadingMode, onNodesDetected, setLo
     });
   }, [partsVisibility]);
 
-  // シェーディングモード切替
-  useEffect(() => {
-    if (!vrm) return;
-
-    vrm.scene.traverse((child) => {
-      if (child.isMesh && child.userData.origMaterial) {
-        if (shadingMode === 'WIREFRAME') {
-          child.material.wireframe = true;
-        } else {
-          child.material.wireframe = false;
-        }
-      }
-    });
-  }, [shadingMode, vrm]);
-
-  // 自動まばたき
+  // まばたきアニメーションのみ動作（ボーン強制回転は撤去し、素の綺麗なTポーズを維持）
   useFrame((_, delta) => {
     if (!vrm) return;
 
@@ -446,7 +411,7 @@ function VermiliaVRMModel({ partsVisibility, shadingMode, onNodesDetected, setLo
   return <primitive object={vrm.scene} dispose={null} />;
 }
 
-// シネマティックカメラ制御ループ
+// シネマティックカメラ
 function ShowcaseCameraController({ isShowcase, controlsRef }) {
   const timeRef = useRef(0);
 
@@ -471,7 +436,6 @@ function ShowcaseCameraController({ isShowcase, controlsRef }) {
 // 3Dシーン
 function Scene({
   partsVisibility,
-  shadingMode,
   isShowcase,
   onNodesDetected,
   controlsRef,
@@ -492,17 +456,12 @@ function Scene({
       <ShowcaseCameraController isShowcase={isShowcase} controlsRef={controlsRef} />
       <TelemetryTracker controlsRef={controlsRef} telemetryRefs={telemetryRefs} />
 
-      {/* 🌟 VRoid Hub完全準拠：王道2灯のみ（GPU負荷激減 ＆ 白飛び完全解消） */}
-      <ambientLight intensity={0.9} color="#ffffff" />
-      <directionalLight position={[0.8, 2.2, 2.5]} intensity={1.25} color="#ffffff" />
-
       <HologramPodium />
       <AmbientParticles />
 
       <Suspense fallback={<LoadingHUD />}>
         <VermiliaVRMModel
           partsVisibility={partsVisibility}
-          shadingMode={shadingMode}
           onNodesDetected={onNodesDetected}
           setLoadProgress={setLoadProgress}
         />
@@ -510,8 +469,8 @@ function Scene({
 
       <ContactShadows
         position={[0, 0, 0]}
-        opacity={0.4}
-        scale={3.0}
+        opacity={0.35}
+        scale={2.8}
         blur={2.0}
         far={1.2}
         color="#000000"
@@ -549,11 +508,9 @@ export default function VermiliaViewer() {
     Body: true,
     Costume: true,
     Horns: true,
-    Mask: true,
     Accessories: true,
   });
 
-  const [shadingMode, setShadingMode] = useState('SOLID');
   const [detectedParts, setDetectedParts] = useState(PARTS_CONFIG.map((p) => p.id));
   const [activePreset, setActivePreset] = useState('FULL');
   const [isAutoRotate, setIsAutoRotate] = useState(true);
@@ -616,14 +573,14 @@ export default function VermiliaViewer() {
     >
       <Canvas
         shadows={false}
-        dpr={[1, 1.5]}
+        dpr={1}
         gl={{
           antialias: true,
           toneMapping: THREE.NoToneMapping,
           outputColorSpace: THREE.SRGBColorSpace,
           powerPreference: 'high-performance',
         }}
-        camera={{ position: [0, 0.95, 3.5], fov: 26 }}
+        camera={{ position: [0, 0.95, 3.4], fov: 26 }}
         onPointerDown={() => {
           setIsShowcase(false);
           if (controlsRef.current) controlsRef.current.autoRotate = false;
@@ -635,7 +592,6 @@ export default function VermiliaViewer() {
         {isTabVisible && (
           <Scene
             partsVisibility={partsVisibility}
-            shadingMode={shadingMode}
             isShowcase={isShowcase}
             onNodesDetected={(nodes) => setDetectedParts(nodes)}
             controlsRef={controlsRef}
@@ -700,12 +656,8 @@ export default function VermiliaViewer() {
           <div className="flex justify-between items-center">
             <span className="text-zinc-500 tracking-wider">DISTANCE</span>
             <span ref={(el) => (telemetryRefs.current.dist = el)} className="text-[#d4b07b] tabular-nums font-semibold">
-              3.50m
+              3.40m
             </span>
-          </div>
-          <div className="flex justify-between items-center pt-1.5 border-t border-white/5">
-            <span className="text-zinc-500 tracking-wider">SHADING</span>
-            <span className="text-zinc-300 uppercase tracking-widest font-semibold">{shadingMode}</span>
           </div>
         </div>
       </div>
@@ -717,40 +669,24 @@ export default function VermiliaViewer() {
         }`}
       >
         <div className="space-y-4">
-          <div>
-            <div className="flex items-center justify-between text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase mb-2 border-b border-white/10 pb-1.5">
+          <div className="border-b border-white/10 pb-2.5">
+            <div className="flex items-center justify-between text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase mb-1">
               <div className="flex items-center space-x-1.5">
-                <Sun className="w-3.5 h-3.5 text-[#8f121d]" />
-                <span>RENDER MODE</span>
+                <SlidersHorizontal className="w-3.5 h-3.5 text-[#8f121d]" />
+                <span>UNIT CONFIG</span>
               </div>
+              <span className="text-[8px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1 py-0.5">
+                ONLINE
+              </span>
             </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              {[
-                { id: 'SOLID', label: 'SOLID', icon: Box },
-                { id: 'WIREFRAME', label: 'WIRE', icon: Grid },
-              ].map((mode) => {
-                const isActive = shadingMode === mode.id;
-                const Icon = mode.icon;
-                return (
-                  <button
-                    key={mode.id}
-                    onClick={() => setShadingMode(mode.id)}
-                    className={`py-1.5 px-2 text-[9px] font-mono flex flex-col items-center justify-center gap-1 border transition-all cursor-pointer ${
-                      isActive
-                        ? 'border-[#8f121d] bg-[#8f121d]/20 text-white shadow-[0_0_10px_rgba(143,18,29,0.35)]'
-                        : 'border-white/10 bg-black/40 text-zinc-500 hover:border-white/20 hover:text-zinc-300'
-                    }`}
-                  >
-                    <Icon className="w-3 h-3 text-[#d4b07b]" />
-                    <span>{mode.label}</span>
-                  </button>
-                );
-              })}
+            <div className="text-[9px] font-mono text-zinc-400 tracking-wider">
+              VERMILIA / RUBEDO ORIGINAL
             </div>
           </div>
 
+          {/* モジュールトグル一覧 */}
           <div>
-            <div className="flex items-center justify-between text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase mb-2 border-b border-white/10 pb-1.5">
+            <div className="flex items-center justify-between text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase mb-2">
               <div className="flex items-center space-x-1.5">
                 <Layers className="w-3.5 h-3.5 text-[#8f121d]" />
                 <span>MODULE TOGGLE</span>
@@ -768,7 +704,7 @@ export default function VermiliaViewer() {
                     key={part.id}
                     disabled={part.required}
                     onClick={() => togglePart(part.id)}
-                    className={`w-full group flex items-center justify-between px-2.5 py-1.5 text-left text-xs font-mono tracking-wider transition-all duration-200 border cursor-pointer ${
+                    className={`w-full group flex items-center justify-between px-2.5 py-2 text-left text-xs font-mono tracking-wider transition-all duration-200 border cursor-pointer ${
                       part.required
                         ? 'border-white/5 bg-white/[0.02] text-zinc-500 cursor-not-allowed'
                         : isVisible
@@ -809,7 +745,7 @@ export default function VermiliaViewer() {
         <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono text-zinc-500">
           <span>VRM PROTOCOL</span>
           <button
-            onClick={() => setPartsVisibility({ Body: true, Costume: true, Horns: true, Mask: true, Accessories: true })}
+            onClick={() => setPartsVisibility({ Body: true, Costume: true, Horns: true, Accessories: true })}
             className="hover:text-white cursor-pointer transition-colors"
           >
             [ RESET PARTS ]
