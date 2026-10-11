@@ -18,7 +18,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
   const angleScrollRef = useRef(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   
-  // 🌟 ホーム画面と統一（'3D' または 'PHOTO'）
+  // 表示モード（'3D' または 'PHOTO'）
   const [viewMode, setViewMode] = useState('3D');
 
   const boothLink = LINKS?.vermiliaItem || CONFIG?.LINKS?.vermiliaItem || 'https://rubedo0.booth.pm/items/8165350';
@@ -78,7 +78,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
         </p>
       </div>
 
-      {/* 🌟 ホーム画面と完全統一したモード切り替えトグル 🌟 */}
+      {/* モード切り替えトグル（Homeと統一） */}
       <div className="flex items-center justify-between border-b border-white/10 pb-4">
         <div className="flex items-center bg-black/80 border border-white/10 p-0.5">
           <button
@@ -116,10 +116,10 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
         </a>
       </div>
 
-      {/* 🌟 3Dインタラクティブビューアー 表示領域 🌟 */}
+      {/* 🌟 3Dインタラクティブビューアー 表示領域（高さをしっかり確保して黄金比を復元） 🌟 */}
       {viewMode === '3D' && (
-        <div className="space-y-6 animate-fadeIn">
-          <VermiliaViewer />
+        <div className="w-full h-[680px] sm:h-[740px] lg:h-[800px] animate-fadeIn">
+          <VermiliaViewer minimal={false} />
         </div>
       )}
 
@@ -140,7 +140,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
             <div className="lg:w-[73%] xl:w-[75%] flex flex-col justify-between space-y-3">
               <div 
                 onClick={() => setIsLightboxOpen(true)}
-                className="w-full h-[420px] sm:h-[500px] lg:h-[630px] bg-[#010103] border border-white/10 relative overflow-hidden flex items-center justify-center p-4 sm:p-6 cursor-zoom-in group"
+                className="w-full h-[540px] sm:h-[620px] lg:h-[700px] bg-[#010103] border border-white/10 relative overflow-hidden flex items-center justify-center p-4 sm:p-6 cursor-zoom-in group"
               >
                 <div className="absolute top-3.5 left-3.5 w-3.5 h-3.5 border-t border-l border-white/25 pointer-events-none"></div>
                 <div className="absolute top-3.5 right-3.5 w-3.5 h-3.5 border-t border-r border-white/25 pointer-events-none"></div>
@@ -151,7 +151,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
                   <img 
                     src={optimizeImage(currentAngleObj.image)} 
                     alt={currentAngleObj.title || 'Vermilia View'} 
-                    className="max-h-[380px] sm:max-h-[460px] lg:max-h-[610px] w-auto max-w-full object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.95)] group-hover:scale-[1.015] transition-transform duration-500"
+                    className="max-h-[500px] sm:max-h-[580px] lg:max-h-[660px] w-auto max-w-full object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.95)] group-hover:scale-[1.015] transition-transform duration-500"
                   />
                 ) : (
                   <div className="space-y-4 max-w-sm mx-auto text-center">
@@ -277,7 +277,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
         </div>
       )}
 
-      {/* 👑 FULLSCREEN LIGHTBOX MODAL 👑 */}
+      {/* FULLSCREEN LIGHTBOX MODAL */}
       {isLightboxOpen && currentAngleObj?.image && (
         <div 
           onClick={() => setIsLightboxOpen(false)} 

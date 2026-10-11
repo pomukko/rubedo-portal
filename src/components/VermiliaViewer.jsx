@@ -246,9 +246,7 @@ function LoadingHUD({ customProgress }) {
   );
 }
 
-// ==========================================
-// VRMモデルローダー（完全UNLIT・原画忠実出力版）
-// ==========================================
+// VRMモデルローダー（完全UNLIT）
 function VermiliaVRMModel({ partsVisibility, onNodesDetected, setLoadProgress }) {
   const [vrm, setVrm] = useState(null);
   const isLoadingInitiated = useRef(false);
@@ -313,7 +311,6 @@ function VermiliaVRMModel({ partsVisibility, onNodesDetected, setLoadProgress })
               ? child.material
               : child.material ? [child.material] : [];
 
-            // すべてのマテリアルを完全UNLIT（MeshBasicMaterial）へ変換
             const createBasicMat = (m) => {
               if (m.map) m.map.colorSpace = THREE.SRGBColorSpace;
               return new THREE.MeshBasicMaterial({
@@ -357,7 +354,6 @@ function VermiliaVRMModel({ partsVisibility, onNodesDetected, setLoadProgress })
     );
   }, []);
 
-  // パーツ可視性切替
   useEffect(() => {
     const map = partsMeshMapRef.current;
     PARTS_CONFIG.forEach((p) => {
@@ -371,7 +367,6 @@ function VermiliaVRMModel({ partsVisibility, onNodesDetected, setLoadProgress })
     });
   }, [partsVisibility]);
 
-  // まばたきアニメーションのみ動作（ボーン強制回転は撤去し、素の綺麗なTポーズを維持）
   useFrame((_, delta) => {
     if (!vrm) return;
 
@@ -483,7 +478,7 @@ function Scene({
 // ==========================================
 // メインコンポーネント VermiliaViewer
 // ==========================================
-export default function VermiliaViewer() {
+export default function VermiliaViewer({ minimal = false }) {
   const controlsRef = useRef();
   const [loadProgress, setLoadProgress] = useState(0);
   const [isShowcase, setIsShowcase] = useState(false);
@@ -569,7 +564,7 @@ export default function VermiliaViewer() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[660px] sm:h-[720px] lg:h-[760px] bg-[#030305] text-white select-none overflow-hidden font-sans border border-white/10 shadow-2xl"
+      className="relative w-full h-full min-h-[500px] bg-[#030305] text-white select-none overflow-hidden font-sans border border-white/10 shadow-2xl"
     >
       <Canvas
         shadows={false}
@@ -621,7 +616,7 @@ export default function VermiliaViewer() {
         <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-[#d4b07b]/70" />
       </div>
 
-      {/* 左上：光学計器HUD ＆ リアルタイムFPS */}
+      {/* 🌟 左上：光学計器HUD ＆ リアルタイムFPS（Homeでも常に表示） */}
       <div
         className={`absolute top-6 left-6 pointer-events-none bg-[#030305]/80 backdrop-blur-md p-3.5 border border-white/10 min-w-[210px] shadow-2xl transition-opacity duration-500 ${
           isShowcase ? 'opacity-30' : 'opacity-100'
@@ -662,180 +657,184 @@ export default function VermiliaViewer() {
         </div>
       </div>
 
-      {/* 右側インスペクター */}
-      <div
-        className={`absolute top-6 right-6 bottom-20 w-64 pointer-events-auto bg-[#030305]/85 backdrop-blur-md p-4 border border-white/10 shadow-2xl flex flex-col justify-between overflow-y-auto transition-opacity duration-500 ${
-          isShowcase ? 'opacity-30 hover:opacity-100' : 'opacity-100'
-        }`}
-      >
-        <div className="space-y-4">
-          <div className="border-b border-white/10 pb-2.5">
-            <div className="flex items-center justify-between text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase mb-1">
-              <div className="flex items-center space-x-1.5">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-[#8f121d]" />
-                <span>UNIT CONFIG</span>
+      {/* 🌟 minimalモードでは非表示にするUI群 🌟 */}
+      {!minimal && (
+        <>
+          {/* 右側インスペクター */}
+          <div
+            className={`absolute top-6 right-6 bottom-20 w-64 pointer-events-auto bg-[#030305]/85 backdrop-blur-md p-4 border border-white/10 shadow-2xl flex flex-col justify-between overflow-y-auto transition-opacity duration-500 ${
+              isShowcase ? 'opacity-30 hover:opacity-100' : 'opacity-100'
+            }`}
+          >
+            <div className="space-y-4">
+              <div className="border-b border-white/10 pb-2.5">
+                <div className="flex items-center justify-between text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase mb-1">
+                  <div className="flex items-center space-x-1.5">
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-[#8f121d]" />
+                    <span>UNIT CONFIG</span>
+                  </div>
+                  <span className="text-[8px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1 py-0.5">
+                    ONLINE
+                  </span>
+                </div>
+                <div className="text-[9px] font-mono text-zinc-400 tracking-wider">
+                  VERMILIA / RUBEDO ORIGINAL
+                </div>
               </div>
-              <span className="text-[8px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1 py-0.5">
-                ONLINE
-              </span>
+
+              <div>
+                <div className="flex items-center justify-between text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase mb-2">
+                  <div className="flex items-center space-x-1.5">
+                    <Layers className="w-3.5 h-3.5 text-[#8f121d]" />
+                    <span>MODULE TOGGLE</span>
+                  </div>
+                  <span className="text-[9px] text-zinc-500">PARTS</span>
+                </div>
+
+                <div className="space-y-1.5">
+                  {PARTS_CONFIG.filter((p) => detectedParts.includes(p.id)).map((part) => {
+                    const isVisible = partsVisibility[part.id] ?? true;
+                    const Icon = part.icon;
+
+                    return (
+                      <button
+                        key={part.id}
+                        disabled={part.required}
+                        onClick={() => togglePart(part.id)}
+                        className={`w-full group flex items-center justify-between px-2.5 py-2 text-left text-xs font-mono tracking-wider transition-all duration-200 border cursor-pointer ${
+                          part.required
+                            ? 'border-white/5 bg-white/[0.02] text-zinc-500 cursor-not-allowed'
+                            : isVisible
+                            ? 'border-[#8f121d]/70 bg-[#8f121d]/20 text-zinc-100 hover:border-[#8f121d]'
+                            : 'border-white/10 bg-black/40 text-zinc-500 hover:border-white/30 hover:text-zinc-300'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Icon className={`w-3.5 h-3.5 transition-colors ${isVisible ? 'text-[#d4b07b]' : 'text-zinc-600'}`} />
+                          <span className="text-[10px]">{part.label}</span>
+                        </div>
+
+                        <div className="flex items-center space-x-1.5">
+                          <span
+                            className={`text-[8px] font-mono uppercase tracking-widest ${
+                              part.required ? 'text-zinc-600' : isVisible ? 'text-[#d4b07b]' : 'text-zinc-600'
+                            }`}
+                          >
+                            {part.required ? 'LOCK' : isVisible ? 'EQUIP' : 'STRIP'}
+                          </span>
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              part.required
+                                ? 'bg-zinc-600'
+                                : isVisible
+                                ? 'bg-[#8f121d] shadow-[0_0_6px_#8f121d]'
+                                : 'bg-zinc-800'
+                            }`}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-            <div className="text-[9px] font-mono text-zinc-400 tracking-wider">
-              VERMILIA / RUBEDO ORIGINAL
+
+            <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono text-zinc-500">
+              <span>VRM PROTOCOL</span>
+              <button
+                onClick={() => setPartsVisibility({ Body: true, Costume: true, Horns: true, Accessories: true })}
+                className="hover:text-white cursor-pointer transition-colors"
+              >
+                [ RESET PARTS ]
+              </button>
             </div>
           </div>
 
-          {/* モジュールトグル一覧 */}
-          <div>
-            <div className="flex items-center justify-between text-[10px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase mb-2">
-              <div className="flex items-center space-x-1.5">
-                <Layers className="w-3.5 h-3.5 text-[#8f121d]" />
-                <span>MODULE TOGGLE</span>
-              </div>
-              <span className="text-[9px] text-zinc-500">PARTS</span>
-            </div>
+          {/* 左下 操作ガイド */}
+          <div className="absolute bottom-6 left-6 pointer-events-none hidden md:flex items-center space-x-3 text-[9px] font-mono tracking-widest text-zinc-400 bg-[#030305]/60 backdrop-blur-sm px-3 py-1.5 border border-white/5">
+            <span>[ DRAG : ROTATE ]</span>
+            <span className="text-zinc-600">/</span>
+            <span>[ RIGHT DRAG : PAN ]</span>
+            <span className="text-zinc-600">/</span>
+            <span>[ SCROLL : ZOOM ]</span>
+          </div>
 
-            <div className="space-y-1.5">
-              {PARTS_CONFIG.filter((p) => detectedParts.includes(p.id)).map((part) => {
-                const isVisible = partsVisibility[part.id] ?? true;
-                const Icon = part.icon;
+          {/* 下部中央 視点プリセット */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-auto flex flex-col items-center">
+            <div className="bg-[#030305]/85 backdrop-blur-md border border-white/10 px-3 py-1.5 flex items-center space-x-1 shadow-2xl">
+              <span className="text-[9px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase px-2 hidden sm:inline-block">
+                VIEWPOINT
+              </span>
 
+              <div className="h-3 w-[1px] bg-white/10 mx-1 hidden sm:block" />
+
+              {Object.entries(CAMERA_PRESETS).map(([key, preset]) => {
+                const isActive = activePreset === key && !isShowcase;
                 return (
                   <button
-                    key={part.id}
-                    disabled={part.required}
-                    onClick={() => togglePart(part.id)}
-                    className={`w-full group flex items-center justify-between px-2.5 py-2 text-left text-xs font-mono tracking-wider transition-all duration-200 border cursor-pointer ${
-                      part.required
-                        ? 'border-white/5 bg-white/[0.02] text-zinc-500 cursor-not-allowed'
-                        : isVisible
-                        ? 'border-[#8f121d]/70 bg-[#8f121d]/20 text-zinc-100 hover:border-[#8f121d]'
-                        : 'border-white/10 bg-black/40 text-zinc-500 hover:border-white/30 hover:text-zinc-300'
+                    key={key}
+                    onClick={() => applyCameraPreset(key)}
+                    className={`px-3 py-1.5 text-[10px] font-mono tracking-[0.2em] uppercase transition-all duration-200 border cursor-pointer ${
+                      isActive
+                        ? 'border-[#8f121d] bg-[#8f121d]/30 text-white font-semibold shadow-[0_0_12px_rgba(143,18,29,0.4)]'
+                        : 'border-transparent text-zinc-400 hover:text-zinc-200 hover:border-white/20'
                     }`}
                   >
-                    <div className="flex items-center space-x-2">
-                      <Icon className={`w-3.5 h-3.5 transition-colors ${isVisible ? 'text-[#d4b07b]' : 'text-zinc-600'}`} />
-                      <span className="text-[10px]">{part.label}</span>
-                    </div>
-
-                    <div className="flex items-center space-x-1.5">
-                      <span
-                        className={`text-[8px] font-mono uppercase tracking-widest ${
-                          part.required ? 'text-zinc-600' : isVisible ? 'text-[#d4b07b]' : 'text-zinc-600'
-                        }`}
-                      >
-                        {part.required ? 'LOCK' : isVisible ? 'EQUIP' : 'STRIP'}
-                      </span>
-                      <div
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          part.required
-                            ? 'bg-zinc-600'
-                            : isVisible
-                            ? 'bg-[#8f121d] shadow-[0_0_6px_#8f121d]'
-                            : 'bg-zinc-800'
-                        }`}
-                      />
-                    </div>
+                    {preset.name}
                   </button>
                 );
               })}
             </div>
           </div>
-        </div>
 
-        <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono text-zinc-500">
-          <span>VRM PROTOCOL</span>
-          <button
-            onClick={() => setPartsVisibility({ Body: true, Costume: true, Horns: true, Accessories: true })}
-            className="hover:text-white cursor-pointer transition-colors"
-          >
-            [ RESET PARTS ]
-          </button>
-        </div>
-      </div>
+          {/* 右下 補助操作 */}
+          <div className="absolute bottom-6 right-6 pointer-events-auto flex items-center space-x-2">
+            <button
+              onClick={() => setIsShowcase(!isShowcase)}
+              title="Cinematic Showcase Mode"
+              className={`px-2.5 py-1.5 bg-[#030305]/80 backdrop-blur-md border flex items-center space-x-1.5 text-[10px] font-mono tracking-widest cursor-pointer transition-all ${
+                isShowcase
+                  ? 'border-[#ff1e38] bg-[#8f121d]/40 text-white shadow-[0_0_12px_rgba(255,30,56,0.5)]'
+                  : 'border-white/10 text-zinc-400 hover:border-white/30 hover:text-zinc-100'
+              }`}
+            >
+              <Clapperboard className="w-3.5 h-3.5 text-[#ff1e38]" />
+              <span>SHOWCASE</span>
+            </button>
 
-      {/* 左下 操作ガイド */}
-      <div className="absolute bottom-6 left-6 pointer-events-none hidden md:flex items-center space-x-3 text-[9px] font-mono tracking-widest text-zinc-400 bg-[#030305]/60 backdrop-blur-sm px-3 py-1.5 border border-white/5">
-        <span>[ DRAG : ROTATE ]</span>
-        <span className="text-zinc-600">/</span>
-        <span>[ RIGHT DRAG : PAN ]</span>
-        <span className="text-zinc-600">/</span>
-        <span>[ SCROLL : ZOOM ]</span>
-      </div>
+            <button
+              onClick={() => {
+                setIsShowcase(false);
+                setIsAutoRotate(!isAutoRotate);
+              }}
+              title="Toggle Turntable"
+              className={`p-2 bg-[#030305]/80 backdrop-blur-md border transition-colors cursor-pointer ${
+                isAutoRotate && !isShowcase
+                  ? 'border-[#d4b07b] text-[#d4b07b]'
+                  : 'border-white/10 text-zinc-500 hover:border-white/30 hover:text-zinc-300'
+              }`}
+            >
+              <RotateCcw className={`w-3.5 h-3.5 ${isAutoRotate && !isShowcase ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }} />
+            </button>
 
-      {/* 下部中央 視点プリセット */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-auto flex flex-col items-center">
-        <div className="bg-[#030305]/85 backdrop-blur-md border border-white/10 px-3 py-1.5 flex items-center space-x-1 shadow-2xl">
-          <span className="text-[9px] font-mono tracking-[0.25em] text-[#d4b07b] uppercase px-2 hidden sm:inline-block">
-            VIEWPOINT
-          </span>
+            <button
+              onClick={() => applyCameraPreset('FULL')}
+              title="Reset Camera"
+              className="p-2 bg-[#030305]/80 backdrop-blur-md border border-white/10 text-zinc-400 hover:text-zinc-100 hover:border-white/30 transition-colors cursor-pointer"
+            >
+              <Compass className="w-3.5 h-3.5" />
+            </button>
 
-          <div className="h-3 w-[1px] bg-white/10 mx-1 hidden sm:block" />
-
-          {Object.entries(CAMERA_PRESETS).map(([key, preset]) => {
-            const isActive = activePreset === key && !isShowcase;
-            return (
-              <button
-                key={key}
-                onClick={() => applyCameraPreset(key)}
-                className={`px-3 py-1.5 text-[10px] font-mono tracking-[0.2em] uppercase transition-all duration-200 border cursor-pointer ${
-                  isActive
-                    ? 'border-[#8f121d] bg-[#8f121d]/30 text-white font-semibold shadow-[0_0_12px_rgba(143,18,29,0.4)]'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200 hover:border-white/20'
-                }`}
-              >
-                {preset.name}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 右下 補助操作 */}
-      <div className="absolute bottom-6 right-6 pointer-events-auto flex items-center space-x-2">
-        <button
-          onClick={() => setIsShowcase(!isShowcase)}
-          title="Cinematic Showcase Mode"
-          className={`px-2.5 py-1.5 bg-[#030305]/80 backdrop-blur-md border flex items-center space-x-1.5 text-[10px] font-mono tracking-widest cursor-pointer transition-all ${
-            isShowcase
-              ? 'border-[#ff1e38] bg-[#8f121d]/40 text-white shadow-[0_0_12px_rgba(255,30,56,0.5)]'
-              : 'border-white/10 text-zinc-400 hover:border-white/30 hover:text-zinc-100'
-          }`}
-        >
-          <Clapperboard className="w-3.5 h-3.5 text-[#ff1e38]" />
-          <span>SHOWCASE</span>
-        </button>
-
-        <button
-          onClick={() => {
-            setIsShowcase(false);
-            setIsAutoRotate(!isAutoRotate);
-          }}
-          title="Toggle Turntable"
-          className={`p-2 bg-[#030305]/80 backdrop-blur-md border transition-colors cursor-pointer ${
-            isAutoRotate && !isShowcase
-              ? 'border-[#d4b07b] text-[#d4b07b]'
-              : 'border-white/10 text-zinc-500 hover:border-white/30 hover:text-zinc-300'
-          }`}
-        >
-          <RotateCcw className={`w-3.5 h-3.5 ${isAutoRotate && !isShowcase ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }} />
-        </button>
-
-        <button
-          onClick={() => applyCameraPreset('FULL')}
-          title="Reset Camera"
-          className="p-2 bg-[#030305]/80 backdrop-blur-md border border-white/10 text-zinc-400 hover:text-zinc-100 hover:border-white/30 transition-colors cursor-pointer"
-        >
-          <Compass className="w-3.5 h-3.5" />
-        </button>
-
-        <button
-          onClick={toggleFullscreen}
-          title="Fullscreen"
-          className="p-2 bg-[#030305]/80 backdrop-blur-md border border-white/10 text-zinc-400 hover:text-zinc-100 hover:border-white/30 transition-colors cursor-pointer"
-        >
-          {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-        </button>
-      </div>
+            <button
+              onClick={toggleFullscreen}
+              title="Fullscreen"
+              className="p-2 bg-[#030305]/80 backdrop-blur-md border border-white/10 text-zinc-400 hover:text-zinc-100 hover:border-white/30 transition-colors cursor-pointer"
+            >
+              {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -21,10 +21,8 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
   const angleScrollRef = useRef(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  // 🌟 初期表示は「3D」
-  const [viewMode, setViewMode] = useState('3D'); // '3D' | 'PHOTO'
+  const [viewMode, setViewMode] = useState('3D');
 
-  // Escキーでライトボックスを閉じる ＆ モーダル表示中のスクロール制御
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') setIsLightboxOpen(false);
@@ -68,7 +66,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
     }
   };
 
-  // アングルセレクターのスライド処理
   const scrollAngles = (direction) => {
     if (angleScrollRef.current) {
       const { clientWidth } = angleScrollRef.current;
@@ -100,19 +97,16 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
           </p>
         </div>
 
-        {/* 区切り線 */}
         <div className="pt-16 pb-8">
           <div className="w-full h-[1px] bg-gradient-to-r from-[#8f121d]/40 via-white/10 to-transparent"></div>
         </div>
 
-        {/* ニュース欄 */}
         <NewsBanner navigateTo={navigateTo} />
       </section>
 
       {/* SECTION 01: VERMILIA */}
       <section className="pt-16 pb-24 border-t border-white/10 bg-[#060609] relative z-10">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 space-y-5">
-          {/* セクションヘッダー */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4">
             <div className="space-y-1.5">
               <span className="text-[10px] tracking-[0.4em] text-[#8f121d] uppercase font-mono block font-semibold">01 / FLAGSHIP MODEL</span>
@@ -123,7 +117,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
             </button>
           </div>
 
-          {/* ルックブック全体コンテナ */}
           <div className="bg-[#030305] border border-white/10 p-3 sm:p-5 space-y-3 shadow-2xl">
             {/* 上部ステータスバー ＆ 3D / PHOTO 切替トグル */}
             <div className="flex flex-wrap justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-2 px-1 gap-2">
@@ -133,7 +126,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                   <span className="text-white">CINEMATIC LOOKBOOK</span>
                 </div>
 
-                {/* 3D / PHOTO 切替トグルボタン */}
                 <div className="flex items-center bg-black/80 border border-white/10 p-0.5">
                   <button
                     onClick={() => setViewMode('3D')}
@@ -170,22 +162,20 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
             {/* メインコンテンツ */}
             <div className="flex flex-col lg:flex-row gap-3 items-stretch">
               
-              {/* 【左カラム】：3D Viewer または 写真 ＋ セレクター */}
+              {/* 【左カラム】 */}
               <div className="lg:w-[73%] xl:w-[75%] flex flex-col justify-between">
                 
                 {viewMode === '3D' ? (
-                  /* 🌟 3D View時：下部の選択肢を無くし、縦全体（右パネル下端まで）をフル拡張 🌟 */
-                  <div className="w-full flex-1 h-full min-h-[720px] sm:min-h-[780px] lg:min-h-[825px] relative overflow-hidden bg-[#010103] [&>div]:!h-full [&>div]:!max-h-none">
-                    <VermiliaViewer />
+                  /* 🌟 Home画面専用：minimal={true} を指定してUIをスッキリ展示化 🌟 */
+                  <div className="w-full flex-1 h-full min-h-[720px] sm:min-h-[780px] lg:min-h-[825px] relative overflow-hidden bg-[#010103]">
+                    <VermiliaViewer minimal={true} />
                   </div>
                 ) : (
-                  /* 🌟 PHOTO時：写真 ＋ 直下にアングルセレクター 🌟 */
                   <div className="flex flex-col justify-between h-full space-y-3">
                     <div 
                       onClick={() => setIsLightboxOpen(true)}
                       className="w-full h-[660px] sm:h-[720px] lg:h-[760px] bg-[#010103] border border-white/10 relative overflow-hidden flex items-center justify-center p-4 sm:p-6 cursor-zoom-in group"
                     >
-                      {/* コーナークロップマーク */}
                       <div className="absolute top-3.5 left-3.5 w-3.5 h-3.5 border-t border-l border-white/25 pointer-events-none"></div>
                       <div className="absolute top-3.5 right-3.5 w-3.5 h-3.5 border-t border-r border-white/25 pointer-events-none"></div>
                       <div className="absolute bottom-3.5 left-3.5 w-3.5 h-3.5 border-b border-l border-white/25 pointer-events-none"></div>
@@ -207,7 +197,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                         </div>
                       )}
 
-                      {/* 拡大案内バッジ */}
                       {currentAngleObj?.image && (
                         <div className="absolute bottom-3.5 right-3.5 z-20 px-2.5 py-1 bg-black/80 backdrop-blur-md border border-white/15 text-[9px] font-mono text-[#d4b07b] flex items-center gap-1.5 opacity-80 group-hover:opacity-100 group-hover:border-[#8f121d] transition-all">
                           <Maximize2 className="w-3 h-3 text-[#8f121d]" />
@@ -216,7 +205,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                       )}
                     </div>
 
-                    {/* PHOTO時のみ表示されるアングルセレクタースライダー */}
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => scrollAngles('left')}
@@ -292,7 +280,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                   </p>
                 </div>
 
-                {/* 下部スペック ＆ BOOTHボタン */}
                 <div className="space-y-4 pt-4 border-t border-white/10">
                   <div className="grid grid-cols-2 gap-2 text-[9px] font-mono">
                     <div className="p-2.5 border border-white/5 bg-white/[0.015]">
