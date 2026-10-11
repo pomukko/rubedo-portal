@@ -1,14 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowUpRight, ChevronRight, ChevronLeft, Aperture, Box, MessageSquare, ExternalLink, Maximize2, X } from 'lucide-react';
+import {
+  ArrowUpRight,
+  ChevronRight,
+  ChevronLeft,
+  Aperture,
+  Box,
+  MessageSquare,
+  ExternalLink,
+  Maximize2,
+  X
+} from 'lucide-react';
 import { vermiliaAngles } from '../config/siteConfig';
 import { formatDate, getCategoryName, getAuthorName, optimizeImage } from '../utils/formatters';
 import NewsBanner from '../components/NewsBanner';
+import VermiliaViewer from '../components/VermiliaViewer';
 
 export default function HomePage({ navigateTo, articles = [], setSelectedArticleId, selectedAngle, setSelectedAngle, CONFIG }) {
   const currentAngleObj = vermiliaAngles.find(a => a.id === selectedAngle);
   const scrollRef = useRef(null);
   const angleScrollRef = useRef(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  // 🌟 初期表示は「3D」
+  const [viewMode, setViewMode] = useState('3D'); // '3D' | 'PHOTO'
 
   // Escキーでライトボックスを閉じる ＆ モーダル表示中のスクロール制御
   useEffect(() => {
@@ -54,7 +68,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
     }
   };
 
-  // アングルセレクターのスライド処理（1ボタン分スムーズにスクロール）
+  // アングルセレクターのスライド処理
   const scrollAngles = (direction) => {
     if (angleScrollRef.current) {
       const { clientWidth } = angleScrollRef.current;
@@ -109,130 +123,176 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
             </button>
           </div>
 
-          {/* 👑 ルックブック全体コンテナ 👑 */}
+          {/* ルックブック全体コンテナ */}
           <div className="bg-[#030305] border border-white/10 p-3 sm:p-5 space-y-3 shadow-2xl">
-            {/* 上部ステータスバー */}
-            <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-2 px-1">
-              <div className="flex items-center gap-2">
-                <Aperture className="w-3.5 h-3.5 text-[#8f121d]" />
-                <span className="text-white">CINEMATIC LOOKBOOK</span>
+            {/* 上部ステータスバー ＆ 3D / PHOTO 切替トグル */}
+            <div className="flex flex-wrap justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-2 px-1 gap-2">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Aperture className="w-3.5 h-3.5 text-[#8f121d]" />
+                  <span className="text-white">CINEMATIC LOOKBOOK</span>
+                </div>
+
+                {/* 3D / PHOTO 切替トグルボタン */}
+                <div className="flex items-center bg-black/80 border border-white/10 p-0.5">
+                  <button
+                    onClick={() => setViewMode('3D')}
+                    className={`px-3 py-1 text-[9px] font-mono tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                      viewMode === '3D'
+                        ? 'bg-[#8f121d] text-white font-semibold shadow-[0_0_12px_rgba(143,18,29,0.5)]'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <Box className="w-3 h-3 text-[#d4b07b]" />
+                    <span>3D VIEW</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('PHOTO')}
+                    className={`px-3 py-1 text-[9px] font-mono tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                      viewMode === 'PHOTO'
+                        ? 'bg-[#8f121d] text-white font-semibold shadow-[0_0_12px_rgba(143,18,29,0.5)]'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <Aperture className="w-3 h-3 text-[#d4b07b]" />
+                    <span>LOOKBOOK PHOTO</span>
+                  </button>
+                </div>
               </div>
-              <span className="text-[#d4b07b] font-serif tracking-wider">{currentAngleObj?.title}</span>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[#d4b07b] font-serif tracking-wider">
+                  {viewMode === '3D' ? 'REALTIME 3D PROTOCOL' : currentAngleObj?.title}
+                </span>
+              </div>
             </div>
 
-            {/* 🌟 メインコンテンツ：左（画像＋スライダー） × 右（下端まで伸びる説明枠） 🌟 */}
+            {/* メインコンテンツ */}
             <div className="flex flex-col lg:flex-row gap-3 items-stretch">
               
-              {/* 【左カラム】：特大画像枠 ＋ 直下のアングルセレクタースライダー */}
-              <div className="lg:w-[73%] xl:w-[75%] flex flex-col justify-between space-y-3">
-                {/* メイン写真枠（今より80px増の630pxへ拡大） */}
-                <div 
-                  onClick={() => setIsLightboxOpen(true)}
-                  className="w-full h-[420px] sm:h-[500px] lg:h-[630px] bg-[#010103] border border-white/10 relative overflow-hidden flex items-center justify-center p-4 sm:p-6 cursor-zoom-in group"
-                >
-                  {/* コーナークロップマーク */}
-                  <div className="absolute top-3.5 left-3.5 w-3.5 h-3.5 border-t border-l border-white/25 pointer-events-none"></div>
-                  <div className="absolute top-3.5 right-3.5 w-3.5 h-3.5 border-t border-r border-white/25 pointer-events-none"></div>
-                  <div className="absolute bottom-3.5 left-3.5 w-3.5 h-3.5 border-b border-l border-white/25 pointer-events-none"></div>
-                  <div className="absolute bottom-3.5 right-3.5 w-3.5 h-3.5 border-b border-r border-white/25 pointer-events-none"></div>
-
-                  {currentAngleObj?.image ? (
-                    <img 
-                      src={optimizeImage(currentAngleObj.image)} 
-                      alt={currentAngleObj.title || 'Vermilia View'} 
-                      className="max-h-[380px] sm:max-h-[460px] lg:max-h-[610px] w-auto max-w-full object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.95)] group-hover:scale-[1.015] transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="space-y-4 max-w-sm mx-auto text-center">
-                      <div className="w-16 h-16 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center shadow-[0_0_40px_rgba(143,18,29,0.22)]">
-                        <Box className="w-8 h-8 text-[#d4b07b]" />
-                      </div>
-                      <div className="text-xs font-mono tracking-[0.3em] text-white uppercase">{currentAngleObj?.title}</div>
-                      <p className="text-xs text-[#a1a1aa] font-light leading-relaxed">{currentAngleObj?.desc}</p>
-                    </div>
-                  )}
-
-                  {/* 拡大案内バッジ */}
-                  {currentAngleObj?.image && (
-                    <div className="absolute bottom-3.5 right-3.5 z-20 px-2.5 py-1 bg-black/80 backdrop-blur-md border border-white/15 text-[9px] font-mono text-[#d4b07b] flex items-center gap-1.5 opacity-80 group-hover:opacity-100 group-hover:border-[#8f121d] transition-all">
-                      <Maximize2 className="w-3 h-3 text-[#8f121d]" />
-                      <span>CLICK TO EXPAND</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* 🌟 アングルセレクター（3つ表示 ＋ 左右スライドボタン） 🌟 */}
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => scrollAngles('left')}
-                    className="p-2.5 border border-white/10 bg-white/[0.02] hover:border-[#8f121d] hover:text-white text-[#71717a] transition-colors shrink-0 cursor-pointer h-full flex items-center justify-center"
-                    title="Previous Angles"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-
-                  {/* 3つ分だけ表示するスライダーコンテナ */}
-                  <div 
-                    ref={angleScrollRef}
-                    className="flex-1 flex gap-2.5 overflow-x-hidden scroll-smooth select-none"
-                  >
-                    {vermiliaAngles.map((angle) => {
-                      const isActive = selectedAngle === angle.id;
-                      return (
-                        <button 
-                          key={angle.id} 
-                          onClick={() => setSelectedAngle(angle.id)} 
-                          className={`shrink-0 w-[calc((100%-1.25rem)/3)] py-2.5 px-3 text-left border transition-all cursor-pointer relative group ${
-                            isActive 
-                              ? 'border-[#8f121d] bg-[#8f121d]/15 text-white shadow-[0_0_20px_rgba(143,18,29,0.35)]' 
-                              : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20 hover:text-[#a1a1aa]'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className={`text-[9px] font-mono tracking-wider ${isActive ? 'text-[#d4b07b]' : 'text-[#52525b]'}`}>{angle.id}</span>
-                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8f121d] animate-pulse"></span>}
-                          </div>
-                          <div className={`text-[11px] font-serif truncate ${isActive ? 'text-white font-medium' : ''}`}>
-                            {angle.title.split('. ')[1] || angle.title}
-                          </div>
-                        </button>
-                      );
-                    })}
+              {/* 【左カラム】：3D Viewer または 写真 ＋ セレクター */}
+              <div className="lg:w-[73%] xl:w-[75%] flex flex-col justify-between">
+                
+                {viewMode === '3D' ? (
+                  /* 🌟 3D View時：下部の選択肢を無くし、縦全体（右パネル下端まで）をフル拡張 🌟 */
+                  <div className="w-full flex-1 h-full min-h-[720px] sm:min-h-[780px] lg:min-h-[825px] relative overflow-hidden bg-[#010103] [&>div]:!h-full [&>div]:!max-h-none">
+                    <VermiliaViewer />
                   </div>
+                ) : (
+                  /* 🌟 PHOTO時：写真 ＋ 直下にアングルセレクター 🌟 */
+                  <div className="flex flex-col justify-between h-full space-y-3">
+                    <div 
+                      onClick={() => setIsLightboxOpen(true)}
+                      className="w-full h-[660px] sm:h-[720px] lg:h-[760px] bg-[#010103] border border-white/10 relative overflow-hidden flex items-center justify-center p-4 sm:p-6 cursor-zoom-in group"
+                    >
+                      {/* コーナークロップマーク */}
+                      <div className="absolute top-3.5 left-3.5 w-3.5 h-3.5 border-t border-l border-white/25 pointer-events-none"></div>
+                      <div className="absolute top-3.5 right-3.5 w-3.5 h-3.5 border-t border-r border-white/25 pointer-events-none"></div>
+                      <div className="absolute bottom-3.5 left-3.5 w-3.5 h-3.5 border-b border-l border-white/25 pointer-events-none"></div>
+                      <div className="absolute bottom-3.5 right-3.5 w-3.5 h-3.5 border-b border-r border-white/25 pointer-events-none"></div>
 
-                  <button 
-                    onClick={() => scrollAngles('right')}
-                    className="p-2.5 border border-white/10 bg-white/[0.02] hover:border-[#8f121d] hover:text-white text-[#71717a] transition-colors shrink-0 cursor-pointer h-full flex items-center justify-center"
-                    title="Next Angles"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
+                      {currentAngleObj?.image ? (
+                        <img 
+                          src={optimizeImage(currentAngleObj.image)} 
+                          alt={currentAngleObj.title || 'Vermilia View'} 
+                          className="max-h-[600px] sm:max-h-[660px] lg:max-h-[700px] w-auto max-w-full object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.95)] group-hover:scale-[1.015] transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="space-y-4 max-w-sm mx-auto text-center">
+                          <div className="w-16 h-16 mx-auto border border-[#8f121d]/40 bg-[#8f121d]/10 backdrop-blur-md flex items-center justify-center shadow-[0_0_40px_rgba(143,18,29,0.22)]">
+                            <Box className="w-8 h-8 text-[#d4b07b]" />
+                          </div>
+                          <div className="text-xs font-mono tracking-[0.3em] text-white uppercase">{currentAngleObj?.title}</div>
+                          <p className="text-xs text-[#a1a1aa] font-light leading-relaxed">{currentAngleObj?.desc}</p>
+                        </div>
+                      )}
+
+                      {/* 拡大案内バッジ */}
+                      {currentAngleObj?.image && (
+                        <div className="absolute bottom-3.5 right-3.5 z-20 px-2.5 py-1 bg-black/80 backdrop-blur-md border border-white/15 text-[9px] font-mono text-[#d4b07b] flex items-center gap-1.5 opacity-80 group-hover:opacity-100 group-hover:border-[#8f121d] transition-all">
+                          <Maximize2 className="w-3 h-3 text-[#8f121d]" />
+                          <span>CLICK TO EXPAND</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* PHOTO時のみ表示されるアングルセレクタースライダー */}
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => scrollAngles('left')}
+                        className="p-2.5 border border-white/10 bg-white/[0.02] hover:border-[#8f121d] hover:text-white text-[#71717a] transition-colors shrink-0 cursor-pointer h-full flex items-center justify-center"
+                        title="Previous Angles"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+
+                      <div 
+                        ref={angleScrollRef}
+                        className="flex-1 flex gap-2.5 overflow-x-hidden scroll-smooth select-none"
+                      >
+                        {vermiliaAngles.map((angle) => {
+                          const isActive = selectedAngle === angle.id;
+                          return (
+                            <button 
+                              key={angle.id} 
+                              onClick={() => setSelectedAngle(angle.id)} 
+                              className={`shrink-0 w-[calc((100%-1.25rem)/3)] py-2.5 px-3 text-left border transition-all cursor-pointer relative group ${
+                                isActive 
+                                  ? 'border-[#8f121d] bg-[#8f121d]/15 text-white shadow-[0_0_20px_rgba(143,18,29,0.35)]' 
+                                  : 'border-white/5 bg-white/[0.01] text-[#71717a] hover:border-white/20 hover:text-[#a1a1aa]'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-1">
+                                <span className={`text-[9px] font-mono tracking-wider ${isActive ? 'text-[#d4b07b]' : 'text-[#52525b]'}`}>{angle.id}</span>
+                                {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8f121d] animate-pulse"></span>}
+                              </div>
+                              <div className={`text-[11px] font-serif truncate ${isActive ? 'text-white font-medium' : ''}`}>
+                                {angle.title.split('. ')[1] || angle.title}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <button 
+                        onClick={() => scrollAngles('right')}
+                        className="p-2.5 border border-white/10 bg-white/[0.02] hover:border-[#8f121d] hover:text-white text-[#71717a] transition-colors shrink-0 cursor-pointer h-full flex items-center justify-center"
+                        title="Next Angles"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* 【右カラム】：赤枠の通り下端まで一体化して伸びる説明パネル */}
+              {/* 【右カラム】：説明パネル */}
               <div className="lg:w-[27%] xl:w-[25%] p-6 bg-[#040407] border border-white/10 flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between text-[9px] font-mono text-[#71717a] border-b border-white/10 pb-2.5">
-                    <span className="tracking-widest uppercase">{currentAngleObj?.id}</span>
+                    <span className="tracking-widest uppercase">
+                      {viewMode === '3D' ? 'REALTIME 3D' : currentAngleObj?.id}
+                    </span>
                     <span className="text-[#8f121d] font-bold">SPEC // 01</span>
                   </div>
 
                   <div className="space-y-1.5">
                     <div className="text-[10px] font-mono tracking-[0.2em] text-[#d4b07b] uppercase">
-                      {currentAngleObj?.subtitle}
+                      {viewMode === '3D' ? 'INTERACTIVE PREVIEW' : currentAngleObj?.subtitle}
                     </div>
                     <h4 className="font-serif text-xl sm:text-2xl text-white tracking-wide leading-snug">
-                      {currentAngleObj?.title}
+                      {viewMode === '3D' ? 'VERMILIA 3D VIEWER' : currentAngleObj?.title}
                     </h4>
                   </div>
 
                   <p className="text-xs text-[#a1a1aa] font-light leading-relaxed">
-                    {currentAngleObj?.desc}
+                    {viewMode === '3D'
+                      ? 'ブラウザ上で360度自由に回転・拡大縮小・各部位のパージ（着脱）が可能なリアルタイムインタラクティブビューアー。アバター本来の造形とマテリアルを忠実に出力します。'
+                      : currentAngleObj?.desc}
                   </p>
                 </div>
 
-                {/* 下部スペック ＆ BOOTHボタン（右パネルの最下部にスッキリ着地） */}
+                {/* 下部スペック ＆ BOOTHボタン */}
                 <div className="space-y-4 pt-4 border-t border-white/10">
                   <div className="grid grid-cols-2 gap-2 text-[9px] font-mono">
                     <div className="p-2.5 border border-white/5 bg-white/[0.015]">
@@ -248,7 +308,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                   <a 
                     href={CONFIG.LINKS.vermiliaItem} 
                     target="_blank" 
-                    rel="noreferrer"
+                    rel="noreferrer" 
                     className="w-full py-3.5 px-4 bg-[#8f121d] hover:bg-[#a31625] text-white text-[11px] font-mono tracking-[0.2em] flex items-center justify-center gap-2 transition-all duration-300 shadow-[0_0_20px_rgba(143,18,29,0.35)] cursor-pointer group"
                   >
                     <span>ACQUIRE ON BOOTH</span>
@@ -265,7 +325,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
       {/* 👑 FULLSCREEN LIGHTBOX MODAL 👑 */}
       {isLightboxOpen && currentAngleObj?.image && (
         <div 
-          onClick={() => setIsLightboxOpen(false)}
+          onClick={() => setIsLightboxOpen(false)} 
           className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-8 animate-fadeIn cursor-zoom-out"
         >
           <div className="absolute top-6 right-6 flex items-center gap-4 z-50" onClick={(e) => e.stopPropagation()}>
@@ -273,7 +333,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               PRESS [ESC] OR CLICK ANYWHERE TO CLOSE
             </span>
             <button 
-              onClick={() => setIsLightboxOpen(false)}
+              onClick={() => setIsLightboxOpen(false)} 
               className="p-2.5 border border-white/20 bg-white/5 hover:border-[#8f121d] hover:bg-[#8f121d]/20 text-white transition-all cursor-pointer group shadow-2xl"
               aria-label="Close Lightbox"
             >
@@ -293,7 +353,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
           </div>
 
           <div 
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()} 
             className="mt-4 text-center space-y-1 font-mono cursor-default pointer-events-none"
           >
             <div className="text-xs text-[#d4b07b] tracking-[0.3em] uppercase">
@@ -318,14 +378,14 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2 font-mono z-30">
                 <button 
-                  onClick={() => scroll('left')}
+                  onClick={() => scroll('left')} 
                   className="p-3 border border-white/10 text-white hover:border-[#8f121d] transition-colors bg-[#040406]/90 backdrop-blur-md cursor-pointer"
                   aria-label="Previous Articles"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button 
-                  onClick={() => scroll('right')}
+                  onClick={() => scroll('right')} 
                   className="p-3 border border-white/10 text-white hover:border-[#8f121d] transition-colors bg-[#040406]/90 backdrop-blur-md cursor-pointer"
                   aria-label="Next Articles"
                 >
@@ -345,7 +405,7 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
           <div className="absolute right-0 top-0 bottom-0 w-32 sm:w-64 lg:w-96 bg-gradient-to-l from-[#040406] via-[#040406]/80 to-transparent z-20 pointer-events-none"></div>
 
           <div 
-            ref={scrollRef}
+            ref={scrollRef} 
             className="flex gap-8 overflow-x-auto scrollbar-none px-8 sm:px-12 lg:pl-[calc((100vw-80rem)/2+3rem)] lg:pr-24 scroll-smooth pb-8"
           >
             {latestEightArticles.map((article) => {

@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Box, ArrowUpRight, Aperture, ChevronLeft, ChevronRight, Maximize2, X, BoxSelect, Image as ImageIcon } from 'lucide-react';
+import {
+  ArrowLeft,
+  Box,
+  ArrowUpRight,
+  Aperture,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  X
+} from 'lucide-react';
 import { vermiliaAngles } from '../config/siteConfig';
 import { optimizeImage } from '../utils/formatters';
 import VermiliaViewer from '../components/VermiliaViewer';
@@ -9,7 +18,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
   const angleScrollRef = useRef(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   
-  // 🌟 表示モード（'3D' または 'LOOKBOOK'）の切り替え
+  // 🌟 ホーム画面と統一（'3D' または 'PHOTO'）
   const [viewMode, setViewMode] = useState('3D');
 
   const boothLink = LINKS?.vermiliaItem || CONFIG?.LINKS?.vermiliaItem || 'https://rubedo0.booth.pm/items/8165350';
@@ -69,38 +78,38 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
         </p>
       </div>
 
-      {/* 👑 モード切り替えタブ（3D INTERACTIVE vs 2D LOOKBOOK） 👑 */}
+      {/* 🌟 ホーム画面と完全統一したモード切り替えトグル 🌟 */}
       <div className="flex items-center justify-between border-b border-white/10 pb-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center bg-black/80 border border-white/10 p-0.5">
           <button
             onClick={() => setViewMode('3D')}
-            className={`px-4 py-2 text-xs font-mono tracking-[0.2em] flex items-center gap-2 transition-all cursor-pointer border ${
+            className={`px-3.5 py-1.5 text-[10px] font-mono tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
               viewMode === '3D'
-                ? 'border-[#8f121d] bg-[#8f121d]/20 text-white shadow-[0_0_15px_rgba(143,18,29,0.35)]'
-                : 'border-white/10 bg-white/[0.01] text-[#71717a] hover:border-white/25 hover:text-white'
+                ? 'bg-[#8f121d] text-white font-semibold shadow-[0_0_12px_rgba(143,18,29,0.5)]'
+                : 'text-zinc-400 hover:text-white'
             }`}
           >
-            <BoxSelect className="w-4 h-4 text-[#d4b07b]" />
-            <span>3D INTERACTIVE VIEW</span>
+            <Box className="w-3.5 h-3.5 text-[#d4b07b]" />
+            <span>3D VIEW</span>
           </button>
 
           <button
-            onClick={() => setViewMode('LOOKBOOK')}
-            className={`px-4 py-2 text-xs font-mono tracking-[0.2em] flex items-center gap-2 transition-all cursor-pointer border ${
-              viewMode === 'LOOKBOOK'
-                ? 'border-[#8f121d] bg-[#8f121d]/20 text-white shadow-[0_0_15px_rgba(143,18,29,0.35)]'
-                : 'border-white/10 bg-white/[0.01] text-[#71717a] hover:border-white/25 hover:text-white'
+            onClick={() => setViewMode('PHOTO')}
+            className={`px-3.5 py-1.5 text-[10px] font-mono tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+              viewMode === 'PHOTO'
+                ? 'bg-[#8f121d] text-white font-semibold shadow-[0_0_12px_rgba(143,18,29,0.5)]'
+                : 'text-zinc-400 hover:text-white'
             }`}
           >
-            <ImageIcon className="w-4 h-4 text-[#8f121d]" />
-            <span>2D CINEMATIC LOOKBOOK</span>
+            <Aperture className="w-3.5 h-3.5 text-[#d4b07b]" />
+            <span>LOOKBOOK PHOTO</span>
           </button>
         </div>
 
         <a 
           href={boothLink} 
           target="_blank" 
-          rel="noreferrer"
+          rel="noreferrer" 
           className="hidden sm:flex text-xs font-mono text-[#d4b07b] tracking-[0.25em] items-center gap-2 hover:text-white transition-colors"
         >
           ACQUIRE ON BOOTH <ArrowUpRight className="w-4 h-4 text-[#8f121d]" />
@@ -114,8 +123,8 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
         </div>
       )}
 
-      {/* 🌟 2Dルックブック・プレゼンテーション 表示領域 🌟 */}
-      {viewMode === 'LOOKBOOK' && (
+      {/* 🌟 2Dルックブック 表示領域 🌟 */}
+      {viewMode === 'PHOTO' && (
         <div className="bg-[#030305] border border-white/10 p-3 sm:p-5 space-y-3 shadow-2xl animate-fadeIn">
           {/* 上部ステータスバー */}
           <div className="flex justify-between items-center text-[10px] font-mono tracking-widest text-[#71717a] border-b border-white/10 pb-2 px-1">
@@ -256,7 +265,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
                 <a 
                   href={boothLink} 
                   target="_blank" 
-                  rel="noreferrer"
+                  rel="noreferrer" 
                   className="w-full py-3.5 px-4 bg-[#8f121d] hover:bg-[#a31625] text-white text-[11px] font-mono tracking-[0.2em] flex items-center justify-center gap-2 transition-all duration-300 shadow-[0_0_20px_rgba(143,18,29,0.35)] cursor-pointer group"
                 >
                   <span>ACQUIRE ON BOOTH</span>
@@ -271,7 +280,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
       {/* 👑 FULLSCREEN LIGHTBOX MODAL 👑 */}
       {isLightboxOpen && currentAngleObj?.image && (
         <div 
-          onClick={() => setIsLightboxOpen(false)}
+          onClick={() => setIsLightboxOpen(false)} 
           className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-8 animate-fadeIn cursor-zoom-out"
         >
           <div className="absolute top-6 right-6 flex items-center gap-4 z-50" onClick={(e) => e.stopPropagation()}>
@@ -279,7 +288,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
               PRESS [ESC] OR CLICK ANYWHERE TO CLOSE
             </span>
             <button 
-              onClick={() => setIsLightboxOpen(false)}
+              onClick={() => setIsLightboxOpen(false)} 
               className="p-2.5 border border-white/20 bg-white/5 hover:border-[#8f121d] hover:bg-[#8f121d]/20 text-white transition-all cursor-pointer group shadow-2xl"
               aria-label="Close Lightbox"
             >
@@ -299,7 +308,7 @@ export default function VermiliaPage({ navigateTo, selectedAngle, setSelectedAng
           </div>
 
           <div 
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()} 
             className="mt-4 text-center space-y-1 font-mono cursor-default pointer-events-none"
           >
             <div className="text-xs text-[#d4b07b] tracking-[0.3em] uppercase">
