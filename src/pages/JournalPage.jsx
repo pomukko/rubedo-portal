@@ -502,7 +502,7 @@ export default function JournalPage({
         {/* 3. リッチテキスト本文 */}
         <div 
           ref={articleBodyRef}
-          className="article-body max-w-none w-full overflow-hidden"
+          className="article-body max-w-none w-full overflow-hidden [&_h3]:border-l-[3.5px] [&_h3]:border-[#8f121d] [&_h3]:pl-3.5 [&_h3]:py-0.5"
           dangerouslySetInnerHTML={{ __html: selectedArticle.body || '' }}
         />
 
