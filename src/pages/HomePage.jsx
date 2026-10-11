@@ -107,14 +107,12 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
       {/* SECTION 01: VERMILIA */}
       <section className="pt-16 pb-24 border-t border-white/10 bg-[#060609] relative z-10">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 space-y-5">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4">
+          {/* セクションヘッダー（EXPLORE SPECIAL PAGE ボタンを削除） */}
+          <div className="border-b border-white/10 pb-4">
             <div className="space-y-1.5">
               <span className="text-[10px] tracking-[0.4em] text-[#8f121d] uppercase font-mono block font-semibold">01 / FLAGSHIP MODEL</span>
               <h2 className="font-serif text-3xl sm:text-4xl text-white tracking-wide">VERMILIA</h2>
             </div>
-            <button onClick={() => navigateTo('vermilia')} className="text-xs text-[#d4b07b] font-mono tracking-[0.25em] flex items-center gap-2 hover:text-white transition-colors cursor-pointer">
-              EXPLORE SPECIAL PAGE <ArrowUpRight className="w-4 h-4 text-[#8f121d]" />
-            </button>
           </div>
 
           <div className="bg-[#030305] border border-white/10 p-3 sm:p-5 space-y-3 shadow-2xl">
@@ -166,7 +164,6 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
               <div className="lg:w-[73%] xl:w-[75%] flex flex-col justify-between">
                 
                 {viewMode === '3D' ? (
-                  /* 🌟 Home画面専用：minimal={true} を指定してUIをスッキリ展示化 🌟 */
                   <div className="w-full flex-1 h-full min-h-[720px] sm:min-h-[780px] lg:min-h-[825px] relative overflow-hidden bg-[#010103]">
                     <VermiliaViewer minimal={true} />
                   </div>
@@ -292,15 +289,14 @@ export default function HomePage({ navigateTo, articles = [], setSelectedArticle
                     </div>
                   </div>
 
-                  <a 
-                    href={CONFIG.LINKS.vermiliaItem} 
-                    target="_blank" 
-                    rel="noreferrer" 
+                  {/* 🌟 ボタン表記を「VERMILIA 3D VIEWER」に変更し、ヴェルミリアページへ遷移 🌟 */}
+                  <button 
+                    onClick={() => navigateTo('vermilia')} 
                     className="w-full py-3.5 px-4 bg-[#8f121d] hover:bg-[#a31625] text-white text-[11px] font-mono tracking-[0.2em] flex items-center justify-center gap-2 transition-all duration-300 shadow-[0_0_20px_rgba(143,18,29,0.35)] cursor-pointer group"
                   >
-                    <span>ACQUIRE ON BOOTH</span>
+                    <span>VERMILIA 3D VIEWER</span>
                     <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </a>
+                  </button>
                 </div>
               </div>
 
